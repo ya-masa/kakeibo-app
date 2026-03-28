@@ -5,14 +5,9 @@
 </script>
 
 <template>
-    <!-- ローディング -->
     <div class="loading-area">
       <LoadingIcon :show="globalLoading" />
     </div>
   <router-view />
 </template>
-
-
-
-
 
