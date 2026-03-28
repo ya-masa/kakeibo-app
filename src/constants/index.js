@@ -1,0 +1,1 @@
+export const GAS_URL = "https://script.google.com/macros/s/AKfycbxfhgw5238ans2HQHkM14M1wbL8d3pTUAGMkohwS7kSo51iN25dLjijUkijCdAR9Xp1/exec"
