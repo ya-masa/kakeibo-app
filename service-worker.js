@@ -1,4 +1,4 @@
-const CACHE_NAME = "kakeibo-v1";
+/*const CACHE_NAME = "kakeibo-v1";
 const urlsToCache = [
   "./",
   "index.html",
@@ -20,5 +20,5 @@ self.addEventListener("fetch", event => {
       return response || fetch(event.request);
     })
   );
-});
+});*/
 
