@@ -1,12 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
 
 export default defineConfig({
+  base: '/ya-masa/kakeibo-app/',   // ← ここが重要（リポジトリ名）
   plugins: [vue()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
 })
+
