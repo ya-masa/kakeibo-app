@@ -6,36 +6,43 @@
       <h2>今月の収支</h2>
       <div class="row">
         <span>収入</span>
-        <span>{{ monthly.income.toLocaleString() }} 円</span>
+        <span>{{ monthly.income }} 円</span>
       </div>
       <div class="row">
         <span>支出</span>
-        <span>{{ monthly.expense.toLocaleString() }} 円</span>
+        <span>{{ monthly.expense }} 円</span>
       </div>
       <div class="row total">
         <span>差額</span>
-        <span>{{ (monthly.income - monthly.expense).toLocaleString() }} 円</span>
+        <span>{{ monthly.income - monthly.expense }} 円</span>
       </div>
     </section>
 
-    <!-- 今月の支出 -->
+    <!-- 今月の支出（円グラフ＋大項目） -->
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
         <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
+      <!-- 円グラフ（後で実装） -->
       <div class="chart-placeholder">円グラフが入る</div>
 
+      <!-- 大項目の一覧 -->
       <div v-for="item in expenseSummary" :key="item.name" class="row">
         <span>{{ item.name }}</span>
-        <span>{{ item.amount.toLocaleString() }} 円</span>
+        <span>{{ item.amount }} 円</span>
       </div>
 
+      <!-- 小項目（開閉） -->
       <div v-if="showExpense" class="sub-list">
-        <div v-for="sub in expenseSubSummary" :key="sub.name" class="row sub">
+        <div
+          v-for="sub in expenseSubSummary"
+          :key="sub.name"
+          class="row sub"
+        >
           <span>{{ sub.name }}</span>
-          <span>{{ sub.amount.toLocaleString() }} 円</span>
+          <span>{{ sub.amount }} 円</span>
         </div>
       </div>
     </section>
@@ -47,15 +54,21 @@
         <button class="toggle-btn">{{ showBalance ? '－' : '＋' }}</button>
       </div>
 
+      <!-- 大項目の口座 -->
       <div v-for="acc in accounts" :key="acc.name" class="row">
         <span>{{ acc.name }}</span>
-        <span>{{ acc.amount.toLocaleString() }} 円</span>
+        <span>{{ acc.amount }} 円</span>
       </div>
 
+      <!-- 小項目（開閉） -->
       <div v-if="showBalance" class="sub-list">
-        <div v-for="sub in accountSubs" :key="sub.name" class="row sub">
+        <div
+          v-for="sub in accountSubs"
+          :key="sub.name"
+          class="row sub"
+        >
           <span>{{ sub.name }}</span>
-          <span>{{ sub.amount.toLocaleString() }} 円</span>
+          <span>{{ sub.amount }} 円</span>
         </div>
       </div>
     </section>
@@ -63,116 +76,138 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch ,onMounted} from "vue"
 import { GAS_URL } from "@/constants/index.js"
-import loadingStore from "../stores/loadingStore"
+import loadingStore from "@/stores/loadingStore"
+import { fetchCategories } from "@/services/categories.js"
+import LoadingIcon from "@/components/LoadingIcon.vue"
+import AppLinks from '@/components/AppLinks.vue'
 
-export default {
-  name: "Home",
+// ローディング
+const isLoading = ref(false)
 
-  data() {
-    return {
-      showExpense: false,
-      showBalance: false,
+/* GASから一覧データ取得 */
 
-      monthly: {
-        income: 0,
-        expense: 0
-      },
+// 入力項目
+const periodStart = ref("")
+const periodEnd = ref("")
+const large = ref("")
+const small = ref("")
+const keyword = ref("")
 
-      expenseSummary: [],
-      expenseSubSummary: [],
+// チェックされた rowNo を保持
+const selectedRows = ref([])
 
-      accounts: [],
-      accountSubs: []
-    }
-  },
+// カテゴリ取得
+const categoriesData = ref({})
+fetchCategories().then(data => {
+  categoriesData.value = data
+})
 
-  async mounted() {
-    // ローディング解除
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          loadingStore.globalLoading.value = false
-        }, 500)
-      })
-    })
+// start日付 がクリアされたら end日付 もクリア
+watch(periodStart, (value) => {
+  if (!value) periodEnd.value = ""
+})
 
-    // データ取得
-    const all = await this.fetchAll()
+// end日付 がクリアされたら start日付 もクリア
+watch(periodEnd, (value) => {
+  if (!value) periodStart.value = ""
+})
 
-    // 今月のデータに絞る
-    const monthlyData = this.filterThisMonth(all)
+// 大項目一覧
+const categoriesLarge = computed(() => {
+  if (!Array.isArray(categoriesData.value)) return []
+  const row = categoriesData.value.find(item => item.large === "大項目")
+  return row ? row.small : []
+})
 
-    // 収入・支出集計
-    this.calcMonthly(monthlyData)
+// 小項目を先に選んだ時は、大項目を自動補完
+watch(small, (newSmall) => {
+  if (!newSmall) return
+  if (!Array.isArray(categoriesData.value)) return
 
-    // 支出の大項目・小項目集計
-    this.calcExpenseSummary(monthlyData)
+  const found = categoriesData.value.find(item =>
+    item.small.includes(newSmall)
+  )
+  if (found) large.value = found.large
+})
 
-    // 口座残高集計
-    this.calcAccounts(all)
-  },
+// 小項目一覧
+const categoriesSmall = computed(() => {
+  const data = categoriesData.value
+  if (!Array.isArray(data)) return []
 
-  methods: {
-    async fetchAll() {
-      const res = await fetch(`${GAS_URL}?list=all`)
-      return await res.json()
-    },
-
-    filterThisMonth(data) {
-      const now = new Date()
-      const y = now.getFullYear()
-      const m = now.getMonth()
-
-      return data.filter(item => {
-        const d = new Date(item.date)
-        return d.getFullYear() === y && d.getMonth() === m
-      })
-    },
-
-    calcMonthly(data) {
-      const income = data
-        .filter(i => i.type === "収入")
-        .reduce((sum, i) => sum + Number(i.amount), 0)
-
-      const expense = data
-        .filter(i => i.type === "支出")
-        .reduce((sum, i) => sum + Number(i.amount), 0)
-
-      this.monthly.income = income
-      this.monthly.expense = expense
-    },
-
-    calcExpenseSummary(data) {
-      const big = {}
-      const small = {}
-
+  if (!large.value) {
+    return [...new Set(
       data
-        .filter(i => i.type === "支出")
-        .forEach(i => {
-          big[i.large] = (big[i.large] || 0) + Number(i.amount)
-          small[i.small] = (small[i.small] || 0) + Number(i.amount)
-        })
-
-      this.expenseSummary = Object.entries(big).map(([name, amount]) => ({ name, amount }))
-      this.expenseSubSummary = Object.entries(small).map(([name, amount]) => ({ name, amount }))
-    },
-
-    calcAccounts(data) {
-      const big = {}
-      const small = {}
-
-      data.forEach(i => {
-        big[i.accountLarge] = (big[i.accountLarge] || 0) + Number(i.amount2)
-        small[i.accountSmall] = (small[i.accountSmall] || 0) + Number(i.amount2)
-      })
-
-      this.accounts = Object.entries(big).map(([name, amount]) => ({ name, amount }))
-      this.accountSubs = Object.entries(small).map(([name, amount]) => ({ name, amount }))
-    }
+        .filter(item => item.large !== "大項目")
+        .flatMap(item => item.small)
+    )]
   }
+  const found = data.find(item => item.large === large.value)
+  return found ? found.small : []
+})
+
+// 月初（1日）
+function getMonthStart() {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`
 }
+
+// 月末
+function getMonthEnd() {
+  const now = new Date()
+  const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`
+}
+
+// 一覧データ
+const list = ref([])
+
+// 一覧取得（検索と同じロジック）
+const fetchList = async () => {
+  isLoading.value = true
+  list.value = []
+  selectedRows.value = []
+
+  const params = new URLSearchParams({
+    list: "sortlist",
+    start: periodStart.value,
+    end: periodEnd.value,
+    big: large.value,
+    small: small.value,
+    keyword: keyword.value
+  })
+
+  try {
+    const res = await fetch(`${GAS_URL}?${params}`)
+    const data = await res.json()
+    list.value = data
+  } catch (e) {
+    console.error("一覧取得エラー", e)
+  }
+  isLoading.value = false
+}
+
+// mounted
+onMounted(() => {
+  // 今月の開始日・終了日を自動セット
+  periodStart.value = getMonthStart()
+  periodEnd.value = getMonthEnd()
+
+  // 今月のデータを取得
+  fetchList()
+
+  // ローディング解除
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        loadingStore.globalLoading.value = false
+      }, 500)
+    })
+  })
+})
 </script>
 
 
