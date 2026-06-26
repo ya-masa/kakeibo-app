@@ -109,28 +109,25 @@ const list = ref([])
 
 async function fetchThisMonth() {
   const params = new URLSearchParams({
-    list: "sortlist",
+    list: "homelist",
     start: getMonthStart(),
-    end: getMonthEnd(),
-    big: "",
-    small: "",
-    keyword: ""
+    end: getMonthEnd()
   })
 
   const res = await fetch(`${GAS_URL}?${params}`)
   list.value = await res.json()
-  console.log (list.value)
+  console.log ("データ:", list.value)
 }
 
 // ▼ 収入・支出の集計
 function calcMonthly() {
   const income = list.value
-    .filter(i => i.type === "4_収入")
-    .reduce((sum, i) => sum + Number(i.amount2), 0)
+    .filter(i => i.group === "4_収入")
+    .reduce((sum, i) => sum + Number(i.amount), 0)
 
   const expense = list.value
-    .filter(i => i.type === "5_支出")
-    .reduce((sum, i) => sum + Number(i.amount1), 0)
+    .filter(i => i.group === "5_支出")
+    .reduce((sum, i) => sum + Number(i.amount), 0)
 
   monthly.value.income = income
   monthly.value.expense = expense
@@ -142,10 +139,10 @@ function calcExpenseSummary() {
   const small = {}
 
   list.value
-    .filter(i => i.type === "5_支出")
+    .filter(i => i.group === "5_支出")
     .forEach(i => {
-      big[i.large] = (big[i.large] || 0) + Number(i.amount1)
-      small[i.small] = (small[i.small] || 0) + Number(i.amount1)
+      big[i.large] = (big[i.large] || 0) + Number(i.amount)
+      small[i.small] = (small[i.small] || 0) + Number(i.amount)
     })
 
   expenseSummary.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
@@ -158,8 +155,8 @@ function calcAccounts() {
   const small = {}
 
   list.value.forEach(i => {
-    big[i.accountLarge] = (big[i.accountLarge] || 0) + Number(i.amount2)
-    small[i.accountSmall] = (small[i.accountSmall] || 0) + Number(i.amount2)
+    big[i.large] = (big[i.large] || 0) + Number(i.amount)
+    small[i.small] = (small[i.small] || 0) + Number(i.amount)
   })
 
   accounts.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
