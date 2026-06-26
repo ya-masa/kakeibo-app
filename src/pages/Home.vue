@@ -26,7 +26,12 @@
       </div>
 
       <!-- 円グラフ（後で実装） -->
-      <div class="chart-placeholder">円グラフが入る</div>
+      <div class="chart-placeholder">
+        <PieChart
+          :labels="expenseSummary.map(i => i.name)"
+          :values="expenseSummary.map(i => i.amount)"
+        />
+      </div>
 
       <!-- 大項目の一覧 -->
       <div v-for="item in expenseSummary" :key="item.name" class="row">
@@ -80,6 +85,8 @@
 import { ref, onMounted } from "vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
+import PieChart from "@/components/PieChart.vue"
+
 
 // ▼ ホーム画面で使うデータ
 const monthly = ref({
@@ -95,13 +102,13 @@ const accountSubs = ref([])          // 小項目（口座）
 // ▼ 今月の開始日・終了日
 function getMonthStart() {
   const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`
+  return `${now.getFullYear()}/${String(now.getMonth() + 1)}/1`
 }
 
 function getMonthEnd() {
   const now = new Date()
   const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`
+  return `${last.getFullYear()}/${String(last.getMonth() + 1)}/${String(last.getDate())}`
 }
 
 // ▼ GAS から今月のデータを取得
@@ -145,9 +152,16 @@ function calcExpenseSummary() {
       small[i.small] = (small[i.small] || 0) + Number(i.amount)
     })
 
-  expenseSummary.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
-  expenseSubSummary.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+  // ▼ 金額の大きい順に並べ替え
+  expenseSummary.value = Object.entries(big)
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((a, b) => a.amount - b.amount)
+
+  expenseSubSummary.value = Object.entries(small)
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((a, b) => a.amount - b.amount)
 }
+
 
 // ▼ 口座残高の集計
 function calcAccounts() {
@@ -161,9 +175,30 @@ function calcAccounts() {
       small[i.small] = (small[i.small] || 0) + Number(i.amount)
     })
 
-  accounts.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
-  accountSubs.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+  // ▼ kamokuCD の順に並べ替え
+  accounts.value = Object.entries(big)
+    .map(([name, amount]) => {
+      const item = list.value.find(i => i.large === name)
+      return {
+        name,
+        amount,
+        kamokuCD: item?.kamokuCD ?? 9999
+      }
+    })
+    .sort((a, b) => a.kamokuCD - b.kamokuCD)
+
+  accountSubs.value = Object.entries(small)
+    .map(([name, amount]) => {
+      const item = list.value.find(i => i.small === name)
+      return {
+        name,
+        amount,
+        kamokuCD: item?.kamokuCD ?? 9999
+      }
+    })
+    .sort((a, b) => a.kamokuCD - b.kamokuCD)
 }
+
 
 // ▼ mounted
 onMounted(async () => {
