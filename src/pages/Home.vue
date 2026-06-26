@@ -25,7 +25,7 @@
         <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
-      <!-- 円グラフ（後で実装） -->
+      <!-- 円グラフ -->
       <div class="chart-placeholder">
         <PieChart
           :labels="expenseSummary.map(i => i.name)"
@@ -87,6 +87,8 @@ import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import PieChart from "@/components/PieChart.vue"
 
+const showExpense = ref(false)
+const showBalance = ref(false)
 
 // ▼ ホーム画面で使うデータ
 const monthly = ref({
@@ -148,11 +150,13 @@ function calcExpenseSummary() {
   list.value
     .filter(i => i.group === "5_支出")
     .forEach(i => {
-      big[i.large] = (big[i.large] || 0) + Number(i.amount)
-      small[i.small] = (small[i.small] || 0) + Number(i.amount)
+      const amount = Number(i.amount ?? 0)  // ← ここで安全に変換
+
+      big[i.large] = (big[i.large] || 0) + amount
+      small[i.small] = (small[i.small] || 0) + amount
     })
 
-  // ▼ 金額の大きい順に並べ替え
+  // 支出はマイナスなので昇順が「金額の大きい順」
   expenseSummary.value = Object.entries(big)
     .map(([name, amount]) => ({ name, amount }))
     .sort((a, b) => a.amount - b.amount)
