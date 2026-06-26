@@ -1,62 +1,57 @@
-<template>  
-  <AppLinks />
-    <!-- この下にフィルタや一覧 -->
-  <div class="list-page">
-    <p>検索条件を入れてください</p>
-    <div class="search-box">
-      <!-- 条件入力フォーム -->
-      <!-- ① 期間 -->
-      <div class="filter-row">
-        <div><label>期間</label>
-          <input type="date" v-model="periodStart" :max="periodEnd || null"></div>
-        <div><label>〜</label>
-          <input type="date" v-model="periodEnd" :min="periodStart || null"></div>
-      </div>
+<template>
+<div class="continer">
+  <!-- この下にフィルタや一覧 -->
+  <div class="card">
+    <div class="row">
+      <label class="form-label">期間</label>
+      <input type="date" v-model="periodStart" class="input-field">
+        <!-- 曜日は表示しない -->
+        <span v-if="false">（{{ weekday }}）</span>
+      <span>〜</span>
+      <input type="date" v-model="periodEnd" class="input-field">
+        <!-- 曜日は表示しない -->
+        <span v-if="false">（{{ weekday }}）</span>
+    </div>
 
-      <!-- ② 大項目・小項目 -->
-      <div class="filter-row">
-        <div>
-          <label>大項目</label>
-          <select v-model="large">
-            <option value="">（すべて）</option>
-            <option v-for="item in categoriesLarge" :key="item" :value="item">
-              {{ item }}
-          </option>
-        </select>
-        </div>
-        <div>
-        <label>小項目</label>
-          <select v-model="small">
-            <option value="">（すべて）</option>
-            <option v-for="item in categoriesSmall" :key="item" :value="item">
-              {{ item }}
-            </option>
-          </select>
-        </div>
-      </div>
+    <div class="row">
+      <label class="form-label">大項目</label>
+      <select v-model="large" class="select-field">
+        <option value="">（すべて）</option>
+        <option v-for="item in categoriesLarge" :key="item" :value="item">{{ item }}</option>
+      </select>
+    </div>
 
-      <!-- ③ メモ・相手 -->
-      <div class="filter-row">
-        <label>キーワード</label>
-        <input type="text" v-model="keyword" placeholder="店名・メモを検索">
-      </div>
+    <div class="row">
+      <label class="form-label">小項目</label>
+      <select v-model="small" class="select-field">
+        <option value="">（すべて）</option>
+        <option v-for="item in categoriesSmall" :key="item" :value="item">{{ item }}</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label class="form-label">キーワード</label>
+      <input type="text" v-model="keyword" class="input-field" placeholder="店名・メモを検索">
     </div>
     <!-- 表示ボタン -->
-    <button @click="fetchList" :disabled="loading">
-      表  示
+    <button class="btn" @click="fetchList" :disabled="loading">
+      表示
     </button>
+  </div>
+</div>
 
-    <!-- ローディング -->
-    <div class="loading-area">
-      <LoadingIcon :show="isLoading" v-show="isLoading"/>
-    </div>
-    
-    <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
-    <!-- 一覧表示 -->
-    <table v-if="!loading && list.length > 0" class="list-table">
+  <!-- ローディング -->
+  <div class="loading-area">
+    <LoadingIcon :show="isLoading" v-show="isLoading"/>
+  </div>
+  
+  <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
+  <!-- 一覧表示 -->
+  <div class="has-footer">
+    <table v-if="!loading && list.length > 0" class="table">
       <thead>
         <tr>
-          <th><button @click="updateCheck">更新</button></th>
+          <th>☑<br><button class="check-btn" @click="updateCheck">更新</button></th>
           <th>日付</th>
           <th>大項目<br>小項目</th>
           <th>店名</th>
@@ -67,6 +62,7 @@
       </thead>
       <tbody>
         <tr 
+          class="tr-check"
           v-for="item in list" 
           :key="item.rowNo"
           :class="{
@@ -100,7 +96,7 @@
           </td>
             <!-- ここに修正ボタンを置く -->
           <td>
-            <button @click="goEdit(item.rowNo)">修正</button>
+            <button class="btn" @click="goEdit(item.rowNo)">修正</button>
           </td>
           <hr>
         </tr>
@@ -110,7 +106,6 @@
     <p v-if="!loading && list.length === 0">
       条件に一致するデータがありません。
     </p>
-
   </div>
 </template>
 
@@ -121,8 +116,6 @@ import loadingStore from "@/stores/loadingStore"
 import { fetchCategories } from "@/services/categories.js"
 import LoadingIcon from "@/components/LoadingIcon.vue"
 import AppLinks from '@/components/AppLinks.vue'
-
-
 
 // ローディング
 const isLoading = ref(false)
@@ -274,120 +267,58 @@ const goEdit = (rowNo) => {
     query: { rowNo }  // 修正したい行番号
   })
 }
-
-
 </script>
 
 
 <style scoped>
-  .search-box {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 20px;
-    background-color: #f7f3ee;
-    float: center;
-  }
 
-  .filter-row label {
-    width: 80px;
-    font-weight: 600;
-    flex-shrink: 0;
-    text-align: center;
-  }
-
-  .filter-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap; /* ← スマホで折り返す */
-  }
-
-  /* input や select の幅を揃える */
-  .filter-row div input[type="date"],
-  .filter-row div select,
-  .filter-row input[type="text"] { 
-    height:44px;
-    padding:10px 12px;
-    font-size:16px;
-    width: 70%;      /* ← ここで固定 */
-    min-width: 180px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .filter-row div {
+/*　日付の表示用CSS */
+td.date {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  }
+}
 
-  .filter-row div select {
-  flex-shrink: 0;   /* 幅が縮まないように */
-  }
-  
+td.date::before {
+  content: attr(data-md);
+  font-size: 20px;
+  padding-top: 10px;
+}
+
+td.date::after {
+  content: attr(data-year);
+  font-size: 14px;
+  opacity: 0.6;
+}
+/*チェック関連 */
+.tr-check{
+  text-align: center;
+}
+.check-btn{
+  background: var(--beige);
+  color: var(--coffee);
+  border: 1px solid var(--coffee);
+  padding:10px;
+  border-radius: 6px;
+}
+  /* マイナス時の赤表示　
+  　　未チェック時の赤表示*/
   .unchecked {
-    color: red;/*未チェックのものは赤色に */
+    color: var(--red-dark);/*未チェックのものは赤色に */
   }
 
   .minus {
-    color: red;/*金額がマイナスの時は赤色*/
+    color: var(--red-dark);/*金額がマイナスの時は赤色*/
+    text-align: right;
   }
 
   .plus {
-    color: black;/*金額がプラスなら黒で*/
-  }
-  button {
-    width: 100%;
-    padding: 12px;
-    background: #c8a27e;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #6b4f3f;
-    color: #fff;
-    border-color: #c8a27e;
-  }
-
-
-  .list-page {
-    padding: 10px;
-  }
-
-
-  .loading-area {
-    text-align: center;
-    margin-top: 40px;
-  }
-
-  .loading-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .list-table {
-    max-width: 100%;
-    border-collapse: collapse;
-  }
-  .list-table tr{
-    border-bottom: 1px solid #ddd;
-  }
-  .list-table th,
-  .list-table td {
-    text-align: left;
-    /*border-bottom: 1px solid #ddd;*/
-    /*min-height:80px;*/
-    padding: 5px;
-    align-items: stretch;
-  }
-
-  .amount {
+    color: var(--dark-brown);/*金額がプラスなら黒で*/
     text-align: right;
   }
-  /*リスト表示のCSS*/
+
+
+  /*リスト表示の日付CSS*/
   td.date{
   display: flex;    /* ← inline-flex ではなく flex にする */
   flex-direction: column;
@@ -413,19 +344,11 @@ td.date::after {
 
   
   /* スマホ用（幅が狭いときは縦並びに） */
-  @media (max-width: 400px) {
+  @media (max-width: 375px) {
     .filter-row {
       flex-direction: column;
       align-items: flex-start;
     }
 
-    .filter-row label {
-      width: 80px;
-    }
-    .filter-row input,
-    .filter-row select{
-      min-width: 280px;
-      width: 90%;
-    }
   }
 </style>

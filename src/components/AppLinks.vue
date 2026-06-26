@@ -1,7 +1,7 @@
 <template>
   <nav class="app-links">
     <ul>
-      <li><router-link to="/">一覧</router-link></li>
+      <li><router-link to="/link">一覧</router-link></li>
       <li><router-link to="/add">新規入力</router-link></li>
     </ul>
   </nav>

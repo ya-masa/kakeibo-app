@@ -1,0 +1,275 @@
+/* ============================
+   色（あなたのアプリ専用パレット）
+   ============================ */
+:root {
+  /* ベースカラー */
+  --rightist:#f9f1e7;
+  --beige-light: #f5e8d8;
+  --beige: #C8A27E;
+  --coffee: #6b4f3f;
+
+  /* アクセントカラー（赤） */
+  --red: #f47270;        /* ボタンなど */
+  --red-dark: #d85a58;   /* 押下時 */
+  --red-text: #8b2e2d;   /* 文字用の濃い赤 */
+
+  /* 読みやすい黒系 */
+  --black: #333333;      /* 柔らかい黒 */
+  --dark-brown: #3a2f2a; /* 読みやすい濃茶（おすすめ） */
+}
+
+
+/* ============================
+   全体の基本設定
+   ============================ */
+body {
+  background: var(--rightist);
+  color: var(--coffee);
+  font-family: sans-serif;
+  margin: 0 10px;
+  padding: 0;
+  text-align: center;
+}
+
+/* ============================
+   カード（全画面で使う）
+   ============================ */
+.card {
+  max-width:600px;
+  min-width: 375px;
+  background: var(--beige-light);
+  border: 1px solid var(--coffee);
+  border-radius: 8px;
+  padding: 12px 10px;
+  margin:0 auto 16px;
+  color: var(--coffee);
+  flex:0 0 auto;
+}
+
+/* ============================
+   行（左右に並べる）
+   ============================ */
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.row.sub {
+  padding-left: 12px;
+  opacity: 0.85;
+}
+
+/* ============================
+   タイトル
+   ============================ */
+h2 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--coffee);
+}
+
+
+/* ============================
+   ＋／－ の開閉ボタン
+   ============================ */
+.toggle-btn {
+  background: none;
+  border: 1px solid var(--coffee);
+  color: var(--coffee);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 18px;
+}
+
+/* ============================
+   テーブル（検索表示画面）
+   ============================ */
+.table {
+  max-width:600px;
+  border-collapse: collapse;
+  background: var(--rightist);
+  color: var(--dark-brown);
+  padding: 12px 16px;
+  margin:0 auto 16px;
+}
+
+.table th {
+  background: var(--rightist);
+  color: var(--coffee);
+  border-bottom: 1px solid var(--beige);
+  padding: 8px;
+}
+
+.table tr {
+  border-bottom: 1px solid var(--beige);
+}
+.table td {
+  padding: 0 0 6px 10px;
+}
+
+/* ============================
+   フォーム（入力欄）
+   ============================ */
+
+.input-field,
+.select-field,
+.textarea-field {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid var(--coffee);
+  border-radius: 6px;
+  background: white;
+  color: var(--dark-brown);
+  box-sizing: border-box;
+  margin-bottom: 6px;
+}
+
+/* 数字は右寄せ */
+.input-number {
+  text-align: right;
+}
+
+/* フォーカス時（丁寧な強調） */
+.input-field:focus,
+.select-field:focus,
+.textarea-field:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(244, 114, 112, 0.3);
+}
+
+/* ラベル */
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--dark-brown);
+}
+
+/* ============================
+   赤ボタン（アクセント）
+   ============================ */
+.btn-red {
+  background: var(--red);
+  color: white;
+  border: 1px solid var(--red-text);
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  width:100%;
+}
+
+.btn-red:active {
+  background: var(--red-dark);
+}
+
+.btn-red:hover{
+  background: var(--red-dark);
+}
+
+/* ============================
+ 通常ボタン（ベージュ）
+   ============================ */
+.btn {
+  background: var(--beige);
+  color: var(--coffee);
+  border: 1px solid var(--coffee);
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  width:100%;
+}
+  btn:hover {
+    background: var(--coffee);
+    color: var(--rightist);
+    border-color: var(--beige);
+  }
+
+
+/* ============================
+   タブ（入力画面・検索画面など共通）
+   ============================ */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-right: 1px solid var(--rightist);
+  border-left: 1px solid var(--rightist);
+  border-top: 1px solid var(--rightist);
+  border-bottom: 1px solid var(--coffee);
+  background: var(--rightist);
+  color: var(--coffee);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.tab-btn:hover {
+  background: var(--beige-light);
+}
+
+.tab-btn.active {
+  background: var(--beige-light);
+  color: var(--dark-brown);
+  border: 1px solid var(--coffee);
+  border-bottom: 3px solid var(--beige-light);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* ============================
+   フッター固定ナビ（下固定バー）
+   ============================ */
+
+.footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: var(--beige);
+  border-top: 1px solid var(--coffee);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+}
+
+/* 各ボタン */
+.footer-nav .nav-item {
+  flex: 1;
+  text-align: center;
+  color: var(--coffee);
+  text-decoration: none;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* アイコン部分（絵文字 or SVG） */
+.footer-nav .nav-item .icon {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+/* 選択中のタブ */
+.footer-nav .nav-item.active {
+  color: var(--dark-brown);
+  font-weight: bold;
+}
+
+/* コンテンツが隠れないように余白を確保 */
+.has-footer {
+  padding-bottom: 90px;
+}

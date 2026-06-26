@@ -11,6 +11,9 @@ import Input from "@/pages/Input.vue"
 import { onMounted } from "vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 onMounted(async () => {
     requestAnimationFrame(() => {
@@ -47,7 +50,7 @@ const addItem = async (formData) => {
     
     const result = await res.json()
     alert(result.message)
-    window.location.href = "/list"
+    router.push('/list')
 
   } catch (e) {
     alert("追加を失敗しました"+e.message)

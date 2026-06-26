@@ -1,13 +1,15 @@
 <template>
   <form @submit.prevent="submitForm">
     <div class="row">
-      <label>日付</label>
-      <input type="date" v-model="localForm.date" />
+      <label class="form-lavel">日付</label>
+      <input type="date" v-model="localForm.date" class="input-field" />
+      <!-- 曜日は表示しない -->
+      <span v-if="false">（{{ weekday }}）</span>
     </div>
 
     <div class="row">
-      <label>科目1</label>
-      <select v-model="localForm.kamoku1">
+      <label class="form-lavel">科目1</label>
+      <select v-model="localForm.kamoku1" class="select-field">
         <option 
           v-for="item in props.listKouza"
           :key="item.code"
@@ -19,13 +21,14 @@
     </div>
 
     <div class="row">
-      <label>金額1</label>
-      <input type="number" v-model="localForm.kingaku1" />
+      <label class="form-lavel">金額1</label>
+      <input type="number" v-model="localForm.kingaku1" class="input-field input-number"
+/>
     </div>
 
     <div class="row">
-      <label>科目2</label>
-      <select v-model="localForm.kamoku2">
+      <label class="form-lavel">科目2</label>
+      <select v-model="localForm.kamoku2" class="select-field">
         <option 
           v-for="item in props.listKouza"
           :key="item.code"
@@ -37,25 +40,28 @@
     </div>
 
     <div class="row">
-      <label>金額2</label>
-      <input type="number" v-model="localForm.kingaku2" />
+      <label class="form-lavel">金額2</label>
+      <input type="number" v-model="localForm.kingaku2" class="input-field input-number"
+ />
     </div>
 
     <div class="row">
-      <label>相手</label>
-      <input type="text" v-model="localForm.aite" list="shopList" />
+      <label class="form-lavel">相手</label>
+      <input type="text" v-model="localForm.aite" list="shopList" class="input-field"
+ />
       <datalist id="shopList">
         <option v-for="s in shops" :key="s" :value="s" />
       </datalist>
     </div>
 
     <div class="row">
-      <label>内容</label>
-      <input type="text" v-model="localForm.naiyo" />
+      <label class="form-lavel">内容</label>
+      <input type="text" v-model="localForm.naiyo" class="input-field"
+/>
     </div>
 
     <div class="row">
-      <label>残高確認</label>
+      <label class="form-lavel">残高確認</label>
       <div class="radio-group">
       <label>
         <input type="radio" value="true" v-model="localForm.kakunin">
@@ -73,14 +79,14 @@
     </div>
     <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
     <!-- ボタン（追加 or 修正） -->
-    <button class="save-btn" type="submit" :disabled="isLoading">
+    <button class="btn" type="submit" :disabled="isLoading">
       {{ props.mode === 'edit' ? '修正' : '追加' }}
     </button>
 
     <!-- 削除ボタン（修正モードのみ） -->
     <button 
-      v-if="props.mode === 'edit'" 
-      class="delete-btn" 
+      class="btn-red"
+      v-if="props.mode === 'edit'"  
       type="button":disabled="isLoading"
       @click="localForm?.value?.rowNo && emit('delete', localForm.value.rowNo)"
     >
@@ -176,60 +182,16 @@ const submitForm = async () => {
 </script>
 
 <style>
+
+form{
+  width:90%;
+}
+
 .row {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
-  background-color: #f7f3ee;
-}
-
-.row label {
-  width: 100px; 
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.row input,
-.row select {
-  flex: 1;
-  height:44px;
-  padding:10px 12px;
-  font-size:16px;
-}
-
-.row input[type="Number"]{
-  text-align: right;
-}
-
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: #c8a27e;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.delete-btn {
-  width: 100%;
-  padding: 12px;
-  background: #f47270;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.save-btn:hover {
-  background: #6b4f3f;
-}
-
-.delete-btn:hover {
-  background: #d32f2f;
+  gap: 12px;
 }
 
 /*ラジオボタンの設定 */
@@ -240,7 +202,7 @@ input[type="radio"] {
   -moz-appearance: none;
   width: 20px;   /* 好きなサイズに変更 */
   height: 20px;  /* 好きなサイズに変更 */
-  border: 2px solid #555;
+  border: 2px solid var(--dark-brown);
   border-radius: 50%;
   display: inline-block;
   position: relative;
@@ -252,12 +214,24 @@ input[type="radio"]:checked::before {
   content: "";
   width: 12px;   /* 内側の丸のサイズ */
   height: 12px;
-  background: #6b4f3f;
+  background: var(--dark-brown);
   border-radius: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+.radio-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 375px) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
 

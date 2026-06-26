@@ -17,9 +17,12 @@ import { useRoute } from "vue-router"
 import Input from "@/pages/Input.vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
+import { useRouter } from 'vue-router'
+
 
 const route = useRoute()
 const rowNo = route.query.rowNo
+const router = useRouter()
 
 const form = ref(null)
 const activeTab = ref("expense")
@@ -37,9 +40,12 @@ onMounted(async () => {
     activeTab.value = "income"
   } else if (data.type?.includes("transfer")) {
     activeTab.value = "transfer"
-  } else {
+  } else if (data.type?.includes("expense")) {
     activeTab.value = "expense"
+  }else {
+    activeTab.value = "transfer"
   }
+  
     requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       // ここでローディングを消す（長めにしたいなら調整）
@@ -59,14 +65,26 @@ const updateItem = async (formData) => {
   try {
     const iso = String(formData.date)
     const dateOnly = iso.split("T")[0]  // ← これが超重要
+    var k1
+    if(formData.kingaku1===0){
+      k1=-formData.kingaku2
+    }else{
+      k1=formData.kingaku1
+    }
+    var k2
+    if(formData.kingaku2===0){
+      k2=-formData.kingaku1
+    }else{
+      k2=formData.kingaku2
+    }
     const params = new URLSearchParams()
     params.append("mode", "rewrite")
     params.append("rowNo", rowNo)
     params.append("date",dateOnly)
     params.append("kamoku1",formData.kamoku1)
     params.append("kamoku2",formData.kamoku2)
-    params.append("kingaku1",formData.kingaku1)
-    params.append("kingaku2",formData.kingaku2)
+    params.append("kingaku1",k1)
+    params.append("kingaku2",k2)
     params.append("naiyo",formData.naiyo)
     params.append("aite",formData.aite)
     params.append("kakunin",formData.kakunin)
@@ -80,7 +98,7 @@ const updateItem = async (formData) => {
     const result = await res.json()
 
     alert(result.message)
-    window.location.href = "/list"
+    router.push('/list')
 
   } catch (e) {
     alert("修正に失敗しました"+e.message)
@@ -108,7 +126,8 @@ const deleteItem = async () => {
     const result = await res.json()
 
     alert(result.message)
-    window.location.href = "/list"
+    router.push('/list')
+
 
   } catch (e) {
     alert("削除に失敗しました"+e.message)

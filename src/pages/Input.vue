@@ -1,8 +1,4 @@
 <template>
-  <div>
-    <AppLinks />
-    <!-- この下にフィルタや一覧 -->
-  </div>
   <div class="container">
     <h1>{{ props.mode === 'edit' ? '家計簿修正' : '家計簿入力' }}</h1>
 
@@ -11,6 +7,7 @@
       <button 
         v-for="t in tabs" 
         :key="t.value"
+        class="tab-btn"
         :class="{ active: currentTab === t.value }"
         @click="changeTab(t.value)"
       >
@@ -19,7 +16,7 @@
     </div>
 
     <!-- 支出 -->
-    <div v-if="currentTab === 'expense'">
+    <div class="tab-card" v-if="currentTab === 'expense'">
       <ExpenseIncomeForm 
         :listKamoku="listShishutsu"
         :listHouhou="listKouza"
@@ -33,7 +30,7 @@
     </div>
 
     <!-- 収入 -->
-    <div v-if="currentTab === 'income'">
+    <div class="tab-card" v-if="currentTab === 'income'">
       <ExpenseIncomeForm 
         :listKamoku="listShunyu"
         :listHouhou="listKouza"
@@ -47,7 +44,7 @@
     </div>
 
     <!-- 資金移動 -->
-    <div v-if="currentTab === 'transfer'">
+    <div class="tab-card" v-if="currentTab === 'transfer'">
       <TransferForm 
         :listKouza="listKouza"
         :listCodeShops="listCodeShops"
@@ -123,7 +120,7 @@ onMounted(async () => {
   listKouza.value = all.filter(i => 
     i.group?.startsWith("1_資産") || i.group?.startsWith("2_負債")
   )
-  listAllKouza.value =all.value
+  listAllKouza.value =all
   listCodeShops.value = all.filter(i => Array.isArray(i.shops))
     requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -156,15 +153,15 @@ watch(
 
     const iso = String(f.date)
     const dateOnly = iso.split("T")[0]
-
+    console.log(f)
     localForm.value = {
       rowNo: f.rowNo || "",
       type: f.type || "",
       date: dateOnly || today(),
       kamoku1: f.kamoku1 || "",
       kamoku2: f.kamoku2 || "",
-      kingaku1: f.kingaku1 || "",
-      kingaku2: f.kingaku2 || "",
+      kingaku1: f.kingaku1 || 0,
+      kingaku2: f.kingaku2 || 0,
       naiyo: f.naiyo || "",
       aite: f.aite || f.shop || "",
       kakunin: f.kakunin === true
@@ -194,49 +191,40 @@ const emitDelete = (rowNo) => {
 
 
 <style>
-/* あなたの CSS そのまま */
-body {
-  margin: 0;
-  padding: 0;
-  background: #f7f3ee;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  color: #333;
-}
-
-.container {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-}
-
+/*タイトル*/
 h1 {
   font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
   font-weight: 600;
 }
-
+/*タブの外側のCSS*/
 .tabs {
   display: flex;
-  gap: 6px;
-  margin-bottom: 20px;
+  max-width: 600px;
+  min-width: 375px;
+  margin:0 auto;
+}
+.tab-card{
+  max-width:600px;
+  min-width: 375px;
+  background: var(--beige-light);
+  border-top: none;
+  border: 1px solid var(--coffee);
+  padding: 0 10px 16px;
+  margin:0;
+  color: var(--coffee);
+  flex:0 0 auto;
+  border-radius: 0 0 6px 6px;
+  border-top:1px solid var(--rightist);
 }
 
-.tabs button {
-  flex: 1;
-  padding: 10px 0;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.tabs button.active {
-  background: #c8a27e;
-  color: #fff;
-  border-color: #bc8e74;
-}
-.tabs button:hover {
-  background: #6b4f3f;
+/*スマホ用の調整*/
+@media (max-width: 400px) {
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
 
