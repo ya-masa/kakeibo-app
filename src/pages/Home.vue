@@ -29,7 +29,7 @@
       <div class="chart-placeholder">
         <PieChart
           :labels="expenseSummary.map(i => i.name)"
-          :values="expenseSummary.map(i => i.amount)"
+          :values="expenseSummary.map(i =>  Math.abs(i.amount))"
         />
       </div>
 
