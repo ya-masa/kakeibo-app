@@ -154,10 +154,12 @@ function calcAccounts() {
   const big = {}
   const small = {}
 
-  list.value.forEach(i => {
-    big[i.large] = (big[i.large] || 0) + Number(i.amount)
-    small[i.small] = (small[i.small] || 0) + Number(i.amount)
-  })
+  list.value
+    .filter(i => ["1_資産", "2_負債"].includes(i.group))
+    .forEach(i => {
+      big[i.large] = (big[i.large] || 0) + Number(i.amount)
+      small[i.small] = (small[i.small] || 0) + Number(i.amount)
+    })
 
   accounts.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
   accountSubs.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
