@@ -14,7 +14,7 @@
       </div>
       <div class="row total">
         <span>差額</span>
-        <span>{{ monthly.income - monthly.expense }} 円</span>
+        <span>{{ monthly.income + monthly.expense }} 円</span>
       </div>
     </section>
 
