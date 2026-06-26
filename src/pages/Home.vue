@@ -119,6 +119,7 @@ async function fetchThisMonth() {
 
   const res = await fetch(`${GAS_URL}?${params}`)
   list.value = await res.json()
+  console.log (list.value)
 }
 
 // ▼ 収入・支出の集計
@@ -141,7 +142,7 @@ function calcExpenseSummary() {
   const small = {}
 
   list.value
-    .filter(i => i.type === "支出")
+    .filter(i => i.type === "5_支出")
     .forEach(i => {
       big[i.large] = (big[i.large] || 0) + Number(i.amount1)
       small[i.small] = (small[i.small] || 0) + Number(i.amount1)
@@ -151,7 +152,7 @@ function calcExpenseSummary() {
   expenseSubSummary.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
 }
 
-// ▼ 口座残高の集計（複式簿記ルール）
+// ▼ 口座残高の集計
 function calcAccounts() {
   const big = {}
   const small = {}
@@ -172,12 +173,12 @@ onMounted(async () => {
   calcExpenseSummary()
   calcAccounts()
 
-  // ローディング解除
   setTimeout(() => {
     loadingStore.globalLoading.value = false
   }, 500)
 })
 </script>
+
 
 
 
