@@ -77,138 +77,108 @@
 </template>
 
 <script setup>
-import { ref, computed, watch ,onMounted} from "vue"
+import { ref, onMounted } from "vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
-import { fetchCategories } from "@/services/categories.js"
-import LoadingIcon from "@/components/LoadingIcon.vue"
-import AppLinks from '@/components/AppLinks.vue'
 
-// ローディング
-const isLoading = ref(false)
-
-/* GASから一覧データ取得 */
-
-// 入力項目
-const periodStart = ref("")
-const periodEnd = ref("")
-const large = ref("")
-const small = ref("")
-const keyword = ref("")
-
-// チェックされた rowNo を保持
-const selectedRows = ref([])
-
-// カテゴリ取得
-const categoriesData = ref({})
-fetchCategories().then(data => {
-  categoriesData.value = data
+// ▼ ホーム画面で使うデータ
+const monthly = ref({
+  income: 0,
+  expense: 0
 })
 
-// start日付 がクリアされたら end日付 もクリア
-watch(periodStart, (value) => {
-  if (!value) periodEnd.value = ""
-})
+const expenseSummary = ref([])       // 大項目
+const expenseSubSummary = ref([])    // 小項目
+const accounts = ref([])             // 大項目（口座）
+const accountSubs = ref([])          // 小項目（口座）
 
-// end日付 がクリアされたら start日付 もクリア
-watch(periodEnd, (value) => {
-  if (!value) periodStart.value = ""
-})
-
-// 大項目一覧
-const categoriesLarge = computed(() => {
-  if (!Array.isArray(categoriesData.value)) return []
-  const row = categoriesData.value.find(item => item.large === "大項目")
-  return row ? row.small : []
-})
-
-// 小項目を先に選んだ時は、大項目を自動補完
-watch(small, (newSmall) => {
-  if (!newSmall) return
-  if (!Array.isArray(categoriesData.value)) return
-
-  const found = categoriesData.value.find(item =>
-    item.small.includes(newSmall)
-  )
-  if (found) large.value = found.large
-})
-
-// 小項目一覧
-const categoriesSmall = computed(() => {
-  const data = categoriesData.value
-  if (!Array.isArray(data)) return []
-
-  if (!large.value) {
-    return [...new Set(
-      data
-        .filter(item => item.large !== "大項目")
-        .flatMap(item => item.small)
-    )]
-  }
-  const found = data.find(item => item.large === large.value)
-  return found ? found.small : []
-})
-
-// 月初（1日）
+// ▼ 今月の開始日・終了日
 function getMonthStart() {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`
 }
 
-// 月末
 function getMonthEnd() {
   const now = new Date()
   const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)
   return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`
 }
 
-// 一覧データ
+// ▼ GAS から今月のデータを取得
 const list = ref([])
 
-// 一覧取得（検索と同じロジック）
-const fetchList = async () => {
-  isLoading.value = true
-  list.value = []
-  selectedRows.value = []
-
+async function fetchThisMonth() {
   const params = new URLSearchParams({
     list: "sortlist",
-    start: periodStart.value,
-    end: periodEnd.value,
-    big: large.value,
-    small: small.value,
-    keyword: keyword.value
+    start: getMonthStart(),
+    end: getMonthEnd(),
+    big: "",
+    small: "",
+    keyword: ""
   })
 
-  try {
-    const res = await fetch(`${GAS_URL}?${params}`)
-    const data = await res.json()
-    list.value = data
-  } catch (e) {
-    console.error("一覧取得エラー", e)
-  }
-  isLoading.value = false
+  const res = await fetch(`${GAS_URL}?${params}`)
+  list.value = await res.json()
 }
 
-// mounted
-onMounted(() => {
-  // 今月の開始日・終了日を自動セット
-  periodStart.value = getMonthStart()
-  periodEnd.value = getMonthEnd()
+// ▼ 収入・支出の集計
+function calcMonthly() {
+  const income = list.value
+    .filter(i => i.type === "収入")
+    .reduce((sum, i) => sum + Number(i.amount2), 0)
 
-  // 今月のデータを取得
-  fetchList()
+  const expense = list.value
+    .filter(i => i.type === "支出")
+    .reduce((sum, i) => sum + Number(i.amount1), 0)
+
+  monthly.value.income = income
+  monthly.value.expense = expense
+}
+
+// ▼ 支出の大項目・小項目集計
+function calcExpenseSummary() {
+  const big = {}
+  const small = {}
+
+  list.value
+    .filter(i => i.type === "支出")
+    .forEach(i => {
+      big[i.large] = (big[i.large] || 0) + Number(i.amount1)
+      small[i.small] = (small[i.small] || 0) + Number(i.amount1)
+    })
+
+  expenseSummary.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
+  expenseSubSummary.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+}
+
+// ▼ 口座残高の集計（複式簿記ルール）
+function calcAccounts() {
+  const big = {}
+  const small = {}
+
+  list.value.forEach(i => {
+    big[i.accountLarge] = (big[i.accountLarge] || 0) + Number(i.amount2)
+    small[i.accountSmall] = (small[i.accountSmall] || 0) + Number(i.amount2)
+  })
+
+  accounts.value = Object.entries(big).map(([name, amount]) => ({ name, amount }))
+  accountSubs.value = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+}
+
+// ▼ mounted
+onMounted(async () => {
+  await fetchThisMonth()
+  calcMonthly()
+  calcExpenseSummary()
+  calcAccounts()
 
   // ローディング解除
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        loadingStore.globalLoading.value = false
-      }, 500)
-    })
-  })
+  setTimeout(() => {
+    loadingStore.globalLoading.value = false
+  }, 500)
 })
 </script>
+
 
 
 <style scoped>
