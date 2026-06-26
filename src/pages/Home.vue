@@ -6,43 +6,36 @@
       <h2>今月の収支</h2>
       <div class="row">
         <span>収入</span>
-        <span>{{ monthly.income }} 円</span>
+        <span>{{ monthly.income.toLocaleString() }} 円</span>
       </div>
       <div class="row">
         <span>支出</span>
-        <span>{{ monthly.expense }} 円</span>
+        <span>{{ monthly.expense.toLocaleString() }} 円</span>
       </div>
       <div class="row total">
         <span>差額</span>
-        <span>{{ monthly.income - monthly.expense }} 円</span>
+        <span>{{ (monthly.income - monthly.expense).toLocaleString() }} 円</span>
       </div>
     </section>
 
-    <!-- 今月の支出（円グラフ＋大項目） -->
+    <!-- 今月の支出 -->
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
         <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
-      <!-- 円グラフ（後で実装） -->
       <div class="chart-placeholder">円グラフが入る</div>
 
-      <!-- 大項目の一覧 -->
       <div v-for="item in expenseSummary" :key="item.name" class="row">
         <span>{{ item.name }}</span>
-        <span>{{ item.amount }} 円</span>
+        <span>{{ item.amount.toLocaleString() }} 円</span>
       </div>
 
-      <!-- 小項目（開閉） -->
       <div v-if="showExpense" class="sub-list">
-        <div
-          v-for="sub in expenseSubSummary"
-          :key="sub.name"
-          class="row sub"
-        >
+        <div v-for="sub in expenseSubSummary" :key="sub.name" class="row sub">
           <span>{{ sub.name }}</span>
-          <span>{{ sub.amount }} 円</span>
+          <span>{{ sub.amount.toLocaleString() }} 円</span>
         </div>
       </div>
     </section>
@@ -54,21 +47,15 @@
         <button class="toggle-btn">{{ showBalance ? '－' : '＋' }}</button>
       </div>
 
-      <!-- 大項目の口座 -->
       <div v-for="acc in accounts" :key="acc.name" class="row">
         <span>{{ acc.name }}</span>
-        <span>{{ acc.amount }} 円</span>
+        <span>{{ acc.amount.toLocaleString() }} 円</span>
       </div>
 
-      <!-- 小項目（開閉） -->
       <div v-if="showBalance" class="sub-list">
-        <div
-          v-for="sub in accountSubs"
-          :key="sub.name"
-          class="row sub"
-        >
+        <div v-for="sub in accountSubs" :key="sub.name" class="row sub">
           <span>{{ sub.name }}</span>
-          <span>{{ sub.amount }} 円</span>
+          <span>{{ sub.amount.toLocaleString() }} 円</span>
         </div>
       </div>
     </section>
@@ -77,7 +64,8 @@
 </template>
 
 <script>
-import loadingStore from '../stores/loadingStore'
+import { GAS_URL } from "@/constants/index.js"
+import loadingStore from "../stores/loadingStore"
 
 export default {
   name: "Home",
@@ -86,34 +74,22 @@ export default {
     return {
       showExpense: false,
       showBalance: false,
+
       monthly: {
-        income: 120000,
-        expense: 85000
+        income: 0,
+        expense: 0
       },
-      expenseSummary: [
-        { name: "食費", amount: 30000 },
-        { name: "日用品", amount: 8000 },
-        { name: "交通", amount: 5000 }
-      ],
-      expenseSubSummary: [
-        { name: "外食", amount: 12000 },
-        { name: "スーパー", amount: 18000 },
-        { name: "ドラッグストア", amount: 8000 }
-      ],
-      accounts: [
-        { name: "財布", amount: 12000 },
-        { name: "銀行", amount: 85000 },
-        { name: "カード", amount: -3000 }
-      ],
-      accountSubs: [
-        { name: "銀行（普通）", amount: 50000 },
-        { name: "銀行（貯蓄）", amount: 35000 },
-        { name: "カード（未払い）", amount: -3000 }
-      ]
+
+      expenseSummary: [],
+      expenseSubSummary: [],
+
+      accounts: [],
+      accountSubs: []
     }
   },
 
-  mounted() {
+  async mounted() {
+    // ローディング解除
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setTimeout(() => {
@@ -121,10 +97,84 @@ export default {
         }, 500)
       })
     })
+
+    // データ取得
+    const all = await this.fetchAll()
+
+    // 今月のデータに絞る
+    const monthlyData = this.filterThisMonth(all)
+
+    // 収入・支出集計
+    this.calcMonthly(monthlyData)
+
+    // 支出の大項目・小項目集計
+    this.calcExpenseSummary(monthlyData)
+
+    // 口座残高集計
+    this.calcAccounts(all)
+  },
+
+  methods: {
+    async fetchAll() {
+      const res = await fetch(`${GAS_URL}?list=all`)
+      return await res.json()
+    },
+
+    filterThisMonth(data) {
+      const now = new Date()
+      const y = now.getFullYear()
+      const m = now.getMonth()
+
+      return data.filter(item => {
+        const d = new Date(item.date)
+        return d.getFullYear() === y && d.getMonth() === m
+      })
+    },
+
+    calcMonthly(data) {
+      const income = data
+        .filter(i => i.type === "収入")
+        .reduce((sum, i) => sum + Number(i.amount), 0)
+
+      const expense = data
+        .filter(i => i.type === "支出")
+        .reduce((sum, i) => sum + Number(i.amount), 0)
+
+      this.monthly.income = income
+      this.monthly.expense = expense
+    },
+
+    calcExpenseSummary(data) {
+      const big = {}
+      const small = {}
+
+      data
+        .filter(i => i.type === "支出")
+        .forEach(i => {
+          big[i.large] = (big[i.large] || 0) + Number(i.amount)
+          small[i.small] = (small[i.small] || 0) + Number(i.amount)
+        })
+
+      this.expenseSummary = Object.entries(big).map(([name, amount]) => ({ name, amount }))
+      this.expenseSubSummary = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+    },
+
+    calcAccounts(data) {
+      const big = {}
+      const small = {}
+
+      data.forEach(i => {
+        big[i.accountLarge] = (big[i.accountLarge] || 0) + Number(i.amount2)
+        small[i.accountSmall] = (small[i.accountSmall] || 0) + Number(i.amount2)
+      })
+
+      this.accounts = Object.entries(big).map(([name, amount]) => ({ name, amount }))
+      this.accountSubs = Object.entries(small).map(([name, amount]) => ({ name, amount }))
+    }
   }
 }
-
 </script>
+
 
 <style scoped>
 /* 仮のCSS（後で base.css にまとめる） */
