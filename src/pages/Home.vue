@@ -124,11 +124,11 @@ async function fetchThisMonth() {
 // ▼ 収入・支出の集計
 function calcMonthly() {
   const income = list.value
-    .filter(i => i.type === "収入")
+    .filter(i => i.type === "4_収入")
     .reduce((sum, i) => sum + Number(i.amount2), 0)
 
   const expense = list.value
-    .filter(i => i.type === "支出")
+    .filter(i => i.type === "5_支出")
     .reduce((sum, i) => sum + Number(i.amount1), 0)
 
   monthly.value.income = income
