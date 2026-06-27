@@ -212,7 +212,7 @@ h1 {
   border-top: none;
   border: 1px solid var(--coffee);
   padding: 0 10px 16px;
-  margin:0;
+  margin:0 auto;
   color: var(--coffee);
   flex:0 0 auto;
   border-radius: 0 0 6px 6px;

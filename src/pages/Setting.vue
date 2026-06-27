@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import { onMounted} from 'vue'
+
 export default {
   name: 'SettingsPage',
   setup() {
@@ -18,6 +20,12 @@ export default {
     return {};
   },
 };
+onMounted(() => {
+    // ここでローディングを消す（長めにしたいなら調整）
+    setTimeout(() => {
+      loadingStore.globalLoading.value = false
+    }, 10) // ← ここを好きな時間にできる
+    })
 </script>
 
 <style scoped>

@@ -9,6 +9,8 @@ import Home from "@/pages/Home.vue"
 
 
 const routes = [
+
+  // ★ 検索画面
   { path: "/list", name: "list", component: List },
 
   // ★ 追加画面
@@ -24,7 +26,7 @@ const routes = [
   { path: "/home", name: "home", component: Home },
   
   // ★ 初期ページ
-  { path: "/", name: "add", component: Add }
+  { path: "/", name: "homeadd", component: Add }
 
 ]
 
