@@ -16,11 +16,10 @@ console.log("labels:", props.labels)
 console.log("values:", props.values)
 
 const props = defineProps({
-    
   labels: Array,
   values: Array
 })
-// PieChart.vue の defineProps の直後
+  
 console.log("PieChart props.labels:", props.labels)
 console.log("PieChart props.values:", props.values)
 
