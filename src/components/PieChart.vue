@@ -41,12 +41,20 @@ function drawChart() {
       ]
     },
     options: {
+      maintainAspectRatio: false,
+      layout: {
+        padding: { right: 30 }
+      },
       plugins: {
         legend: {
-          position: 'right', // ← ここを left にすれば左側になる
+          position: 'right',
           labels: {
-            boxWidth: 20,
-            padding: 20
+            maxWidth: 200,
+            boxWidth: 14,
+            padding: 20,
+            font: {
+              size: 12
+            }
           }
         }
       }
