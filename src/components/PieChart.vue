@@ -9,18 +9,37 @@ const props = defineProps({
   values: Array
 })
 
+const emit = defineEmits(['update:colors'])
+
 const canvasRef = ref(null)
 let chartInstance = null
 
-function drawChart() {
-  if (!canvasRef.value) {
-    console.log("canvas がまだ無いので待機")
-    return
-  }
+function generateColors(count) {
+  const baseColors = [
+    '#FF6384',
+    '#36A2EB',
+    '#FFCE56',
+    '#4BC0C0',
+    '#9966FF',
+    '#FF9F40',
+    '#8BC34A',
+    '#FF5722',
+    '#9C27B0',
+    '#03A9F4'
+  ]
+  return baseColors.slice(0, count)
+}
 
-  if (chartInstance) {
-    chartInstance.destroy()
-  }
+function drawChart() {
+  if (!props.labels || !props.values) return
+  if (!Array.isArray(props.labels) || !Array.isArray(props.values)) return
+  if (props.labels.length === 0 || props.values.length === 0) return
+  if (!canvasRef.value) return
+
+  if (chartInstance) chartInstance.destroy()
+
+  const isMobile = window.innerWidth < 600
+  const colors = generateColors(props.labels.length)
 
   chartInstance = new Chart(canvasRef.value.getContext('2d'), {
     type: 'pie',
@@ -29,31 +48,32 @@ function drawChart() {
       datasets: [
         {
           data: props.values,
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
-            '#FF9F40',
-            '#8BC34A',
-            '#FF5722',
-            '#9C27B0',
-            '#03A9F4'
-          ]
+          backgroundColor: colors
         }
       ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: isMobile ? 'bottom' : 'right',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 10,
+            padding: 10
+          }
+        }
+      }
     }
   })
+
+  emit('update:colors', colors)
 }
 
-onMounted(() => {
-  drawChart()
-})
-
-watch(() => [props.labels, props.values], () => {
-  drawChart()
-})
+onMounted(drawChart)
+watch(() => props.labels, drawChart)
+watch(() => props.values, drawChart)
 </script>
 
 <template>

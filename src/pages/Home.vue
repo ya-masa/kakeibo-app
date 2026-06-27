@@ -22,7 +22,6 @@
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
-        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
       <!-- 円グラフ -->
@@ -35,25 +34,35 @@
       </div>
 
       <!-- 大項目の一覧 -->
-      <div v-for="(item, i) in expenseSummary" :key="i" class="row">
-        <span
-          class="dot"
-          :style="{ backgroundColor: chartColors[i] }"
-        ></span>
-        <span>{{ item.name }}</span>
-        <span>{{ item.amount }}円</span>
+      <div v-for="(item, i) in expenseSummary" :key="i" class="large-row">
+
+        <!-- ● 色丸 -->
+        <span class="dot" :style="{ backgroundColor: chartColors[i] }"></span>
+
+        <!-- ＋ボタン（左寄せ） -->
+        <button
+          class="toggle-btn"
+          @click="openLarge = openLarge === item.name ? null : item.name"
+        >
+          {{ openLarge === item.name ? '－' : '＋' }}
+        </button>
+
+        <!-- 大項目名 -->
+        <span class="large-name">{{ item.name }}</span>
+
+        <!-- 金額 -->
+        <span class="amount">{{ item.amount }}円</span>
       </div>
 
-      <!-- 小項目（開閉） -->
-      <div v-if="showExpense" class="sub-list">
-        <div
-          v-for="sub in expenseSubSummary"
-          :key="sub.name"
-          class="row sub"
-        >
-          <span>{{ sub.name }}</span>
-          <span>{{ sub.amount }} 円</span>
-        </div>
+      <!-- ★★★ 小項目は “大項目ループの外” に置く ★★★ -->
+      <div
+        v-for="sub in expenseSubSummary"
+        :key="sub.name"
+        v-if="openLarge === sub.large"
+        class="row sub"
+      >
+        <span>{{ sub.name }}</span>
+        <span>{{ sub.amount }} 円</span>
       </div>
     </section>
 
@@ -80,17 +89,16 @@
         </div>
       </div>
     </section>
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import PieChart from "@/components/PieChart.vue"
 
-const chartColors = ref([])   // ← 必須！
+const chartColors = ref([])
 
 const showExpense = ref(false)
 const showBalance = ref(false)
@@ -100,10 +108,6 @@ const expenseSummary = ref([])
 const expenseSubSummary = ref([])
 const accounts = ref([])
 const accountSubs = ref([])
-
-const labels = computed(() => expenseSummary.value.map(i => i.name))
-const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
-
 
 function getMonthStart() {
   const now = new Date()
@@ -139,6 +143,7 @@ function calcMonthly() {
     .reduce((sum, item) => sum + Number(item.amount), 0)
 }
 
+
 function calcExpenseSummary() {
   const big = {}
   const small = {}
@@ -147,26 +152,41 @@ function calcExpenseSummary() {
     .filter(item => item.group === "5_支出")
     .forEach(item => {
       const amount = Number(item.amount ?? 0)
+
+      // 大項目
       big[item.large] = (big[item.large] || 0) + amount
-      small[item.small] = (small[item.small] || 0) + amount
+
+      // ★ large が無いデータは完全スキップ（これが超重要）
+      if (!item.large) return
+
+      // ★ small が undefined の行はスキップ（これが超重要）
+      if (!item.small) return
+
+      // 小項目（large を保持）
+      if (!small[item.small]) {
+        small[item.small] = { amount: 0, large: item.large }
+      }
+      small[item.small].amount += amount
     })
 
+  // 大項目
   expenseSummary.value = Object.entries(big)
     .map(([name, amount]) => ({ name, amount }))
     .sort((a, b) => a.amount - b.amount)
 
+  // 小項目（large を含む）
   expenseSubSummary.value = Object.entries(small)
-    .map(([name, amount]) => ({ name, amount }))
+    .map(([name, data]) => ({
+      name,
+      amount: data.amount,
+      large: data.large
+    }))
     .sort((a, b) => a.amount - b.amount)
 }
 
 function calcAccounts() {
   const big = {}
   const small = {}
-  console.log("expenseSummary:", expenseSummary.value)
-console.log("labels for chart:", expenseSummary.value.map(i => i.name))
-console.log("values for chart:", expenseSummary.value.map(i => Math.abs(i.amount)))
-
 
   list.value
     .filter(item => ["1_資産", "2_負債"].includes(item.group))
@@ -190,6 +210,10 @@ console.log("values for chart:", expenseSummary.value.map(i => Math.abs(i.amount
     .sort((a, b) => a.kamokuCD - b.kamokuCD)
 }
 
+/* ★★★ ここが超重要 ★★★ */
+const labels = computed(() => expenseSummary.value.map(i => i.name))
+const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
+
 onMounted(async () => {
   await fetchThisMonth()
   calcMonthly()
@@ -202,11 +226,13 @@ onMounted(async () => {
 })
 </script>
 
+
 <style>
-.chart-placeholder {
-  height: 240px;
-  position: relative;
-}
+  .chart-placeholder {
+    height: 240px;
+    position: relative;
+  }
+
 </style>
 
 
@@ -254,4 +280,30 @@ onMounted(async () => {
   border-radius: 50%;
   margin-right: 6px;
 }
+
+.large-row {
+  display: grid;
+  grid-template-columns: 20px 40px 1fr auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.large-name {
+  text-align: left;
+}
+
+.amount {
+  text-align: right;
+}
+
+.toggle-btn {
+  background: none;
+  border: 1px solid #6b4f3f;
+  color: #6b4f3f;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 16px;
+  text-align: center;
+}
+
 </style>
