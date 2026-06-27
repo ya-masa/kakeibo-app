@@ -22,6 +22,7 @@
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
+        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
       <!-- 円グラフ -->
@@ -31,9 +32,9 @@
           :values="values"
           @update:colors="chartColors = $event"
         />
-        
-        <!-- 大項目の一覧 -->
-        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
+      </div>
+
+      <!-- 大項目の一覧 -->
         <div v-for="(item, i) in expenseSummary" :key="i" class="row">
           <span
             class="dot"
@@ -42,13 +43,6 @@
           <span>{{ item.name }}</span>
           <span>{{ item.amount }}円</span>
         </div>
-      </div>
-
-      
-      <div v-for="item in expenseSummary" :key="item.name" class="row">
-        <span>{{ item.name }}</span>
-        <span>{{ item.amount }} 円</span>
-      </div>
 
       <!-- 小項目（開閉） -->
       <div v-if="showExpense" class="sub-list">
