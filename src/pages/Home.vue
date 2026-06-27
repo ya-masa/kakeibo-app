@@ -22,6 +22,7 @@
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
+        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
       <!-- 円グラフ -->
@@ -40,7 +41,6 @@
           :style="{ backgroundColor: chartColors[i] }"
         ></span>
         <span>{{ item.name }}</span>
-        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
         <span>{{ item.amount }}円</span>
       </div>
 
