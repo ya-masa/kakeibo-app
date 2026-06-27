@@ -43,15 +43,15 @@ function drawChart() {
     options: {
       maintainAspectRatio: false,
       layout: {
-        padding: { right: 30 }
+        padding: { right: 10 }
       },
       plugins: {
         legend: {
           position: 'right',
           labels: {
-            maxWidth: 200,
+            maxWidth: 250,
             boxWidth: 14,
-            padding: 20,
+            padding: 10,
             font: {
               size: 12
             }
