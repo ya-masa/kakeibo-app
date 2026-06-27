@@ -101,6 +101,10 @@ const expenseSubSummary = ref([])
 const accounts = ref([])
 const accountSubs = ref([])
 
+const labels = computed(() => expenseSummary.value.map(i => i.name))
+const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
+
+
 function getMonthStart() {
   const now = new Date()
   return `${now.getFullYear()}/${String(now.getMonth() + 1)}/1`
