@@ -13,14 +13,11 @@ const canvasRef = ref(null)
 let chartInstance = null
 
 function drawChart() {
-  if (!canvasRef.value) {
-    console.log("canvas がまだ無いので待機")
-    return
-  }
+  if (!canvasRef.value) return
 
-  if (chartInstance) {
-    chartInstance.destroy()
-  }
+  if (chartInstance) chartInstance.destroy()
+
+  const isMobile = window.innerWidth < 600
 
   chartInstance = new Chart(canvasRef.value.getContext('2d'), {
     type: 'pie',
@@ -47,30 +44,25 @@ function drawChart() {
       },
       plugins: {
         legend: {
-          position: 'right',
+          position: isMobile ? 'bottom' : 'right',
           labels: {
-            maxWidth: 250,
+            maxWidth: isMobile ? 300 : 250,
             boxWidth: 14,
             padding: 10,
             font: {
-              size: 12
+              size: isMobile ? 11 : 12
             }
           }
         }
       }
     }
   })
-
 }
 
-onMounted(() => {
-  drawChart()
-})
-
-watch(() => [props.labels, props.values], () => {
-  drawChart()
-})
+onMounted(drawChart)
+watch(() => [props.labels, props.values], drawChart)
 </script>
+
 
 <template>
   <canvas ref="canvasRef"></canvas>
