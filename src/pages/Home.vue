@@ -22,18 +22,29 @@
     <section class="card">
       <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
-        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
       </div>
 
       <!-- 円グラフ -->
       <div class="chart-placeholder">
         <PieChart
-          :labels="expenseSummary.map(item => item.name)"
-          :values="expenseSummary.map(item => Math.abs(item.amount))"
+          :labels="labels"
+          :values="values"
+          @update:colors="chartColors = $event"
         />
+        
+        <!-- 大項目の一覧 -->
+        <button class="toggle-btn">{{ showExpense ? '－' : '＋' }}</button>
+        <div v-for="(item, i) in expenseSummary" :key="i" class="row">
+          <span
+            class="dot"
+            :style="{ backgroundColor: chartColors[i] }"
+          ></span>
+          <span>{{ item.name }}</span>
+          <span>{{ item.amount }}円</span>
+        </div>
       </div>
 
-      <!-- 大項目の一覧 -->
+      
       <div v-for="item in expenseSummary" :key="item.name" class="row">
         <span>{{ item.name }}</span>
         <span>{{ item.amount }} 円</span>
@@ -233,5 +244,14 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/*丸のCSS */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
 }
 </style>

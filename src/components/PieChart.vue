@@ -9,6 +9,17 @@ const props = defineProps({
   values: Array
 })
 
+const emit = defineEmits(['update:colors'])
+
+const colors = [
+  '#FF6384',
+  '#36A2EB',
+  '#FFCE56',
+  '#4BC0C0',
+  '#9966FF',
+  '#FF9F40'
+]
+
 const canvasRef = ref(null)
 let chartInstance = null
 
@@ -26,43 +37,33 @@ function drawChart() {
       datasets: [
         {
           data: props.values,
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
-            '#FF9F40'
-          ]
+          backgroundColor: colors
         }
       ]
     },
     options: {
       maintainAspectRatio: false,
-      layout: {
-        padding: { right: 10 }
-      },
       plugins: {
         legend: {
           position: isMobile ? 'bottom' : 'right',
           labels: {
-            maxWidth: isMobile ? 300 : 250,
-            boxWidth: 14,
-            padding: 10,
-            font: {
-              size: isMobile ? 11 : 12
-            }
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 10,
+            padding: 10
           }
         }
       }
     }
   })
+
+  // 色を親に渡す
+  emit('update:colors', colors)
 }
 
 onMounted(drawChart)
 watch(() => [props.labels, props.values], drawChart)
 </script>
-
 
 <template>
   <canvas ref="canvasRef"></canvas>
