@@ -1,48 +1,59 @@
-<template>
-  <Pie
-    :data="chartData"
-    :options="chartOptions"
-    style="height: 100%; width: 100%;"
-  />
-</template>
-
 <script setup>
-import { Pie } from 'vue-chartjs'
+import { ref, onMounted, watch } from 'vue'
 import { Chart, PieController, ArcElement, Tooltip, Legend } from 'chart.js'
-import { computed } from 'vue'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
-console.log("labels:", props.labels)
-console.log("values:", props.values)
+Chart.register(PieController, ArcElement, Tooltip, Legend)
 
 const props = defineProps({
   labels: Array,
   values: Array
 })
-  
-console.log("PieChart props.labels:", props.labels)
-console.log("PieChart props.values:", props.values)
 
-const chartData = computed(() => ({
-  labels: props.labels,
-  datasets: [
-    {
-      data: props.values,
-      backgroundColor: [
-        '#ff6384',
-        '#36a2eb',
-        '#ffcd56',
-        '#4bc0c0',
-        '#9966ff',
-        '#ff9f40'
+const canvasRef = ref(null)
+let chartInstance = null
+
+function drawChart() {
+  if (!canvasRef.value) {
+    console.log("canvas がまだ無いので待機")
+    return
+  }
+
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+
+  chartInstance = new Chart(canvasRef.value.getContext('2d'), {
+    type: 'pie',
+    data: {
+      labels: props.labels,
+      datasets: [
+        {
+          data: props.values,
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40'
+          ]
+        }
       ]
     }
-  ]
-}))
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false
+  })
 }
+
+onMounted(() => {
+  drawChart()
+})
+
+watch(() => [props.labels, props.values], () => {
+  drawChart()
+})
 </script>
+
+<template>
+  <canvas ref="canvasRef"></canvas>
+</template>
+
 
