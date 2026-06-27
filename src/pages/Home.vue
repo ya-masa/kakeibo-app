@@ -6,22 +6,22 @@
       <h2>今月の収支</h2>
       <div class="row">
         <span>収入</span>
-        <span>{{ monthly.income }} 円</span>
+        <span class ="amount">{{ monthly.income }} 円</span>
       </div>
       <div class="row">
         <span>支出</span>
-        <span>{{ monthly.expense }} 円</span>
+        <span class ="amount">{{ monthly.expense }} 円</span>
       </div>
       <div class="row total">
         <span>差額</span>
-        <span>{{ monthly.income + monthly.expense }} 円</span>
+        <span class ="amount">{{ monthly.income + monthly.expense }} 円</span>
       </div>
     </section>
 
     <!-- 今月の支出（円グラフ＋大項目） -->
     <section class="card">
-      <div class="toggle-header" @click="showExpense = !showExpense">
         <h2>今月の支出</h2>
+      <div class="toggle-header" @click="showExpense = !showExpense">
       </div>
 
       <!-- 円グラフ -->
@@ -34,58 +34,66 @@
       </div>
 
       <!-- 大項目の一覧 -->
-      <div v-for="(item, i) in expenseSummary" :key="i" class="large-row">
+      <div v-for="(item, i) in expenseSummary" :key="i">
+        <div  class="large-row">
+          <!-- ＋ボタン（左寄せ） -->
+          <button
+            class="toggle-btn"
+            @click="openLarge = openLarge === item.name ? null : item.name"
+          >
+            {{ openLarge === item.name ? '－' : '＋' }}
+          </button>
 
-        <!-- ● 色丸 -->
-        <span class="dot" :style="{ backgroundColor: chartColors[i] }"></span>
+          <!-- ● 色丸 -->
+          <span class="dot" :style="{ backgroundColor: chartColors[i] }"></span>
+          <!-- 大項目名 -->
+          <span class="large-name">{{ item.name }}</span>
 
-        <!-- ＋ボタン（左寄せ） -->
-        <button
-          class="toggle-btn"
-          @click="openLarge = openLarge === item.name ? null : item.name"
-        >
-          {{ openLarge === item.name ? '－' : '＋' }}
-        </button>
-
-        <!-- 大項目名 -->
-        <span class="large-name">{{ item.name }}</span>
-
-        <!-- 金額 -->
-        <span class="amount">{{ item.amount }}円</span>
-      </div>
-
-      <!-- ★★★ 小項目は “大項目ループの外” に置く ★★★ -->
-      <div
-        v-for="sub in expenseSubSummary"
-        :key="sub.name"
-        v-if="openLarge === sub.large"
-        class="row sub"
-      >
-        <span>{{ sub.name }}</span>
-        <span>{{ sub.amount }} 円</span>
+          <!-- 金額 -->
+          <span class="amount">{{ item.amount }}円</span>
+        </div>
+        <!-- ★★★ 小項目は “大項目ループの外” に置く ★★★ -->
+        <div class="sub-wrapper" v-if="openLarge === item.name">
+          <div
+            v-for="sub in expenseSubSummary.filter(s => s.large === item.name)"
+            :key="sub.name"
+            class="sub-row"
+          >
+            <span class="sub-name">{{ sub.name }}</span>
+            <span class="sub-amount">{{ sub.amount }} 円</span>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- 口座残高 -->
     <section class="card">
-      <div class="toggle-header" @click="showBalance = !showBalance">
         <h2>口座残高</h2>
-        <button class="toggle-btn">{{ showBalance ? '－' : '＋' }}</button>
+      <div class="toggle-header" @click="showBalance = !showBalance">
       </div>
+      <div v-for="(acc, i) in accounts" :key="i">
+        <div class="large-row">
+          <button
+            class="toggle-btn"
+            @click="openKouza = openKouza === acc.name ? null : acc.name"
+          >
+            {{ openKouza === acc.name ? '－' : '＋' }}
+          </button>
+          <!-- ● 色丸（口座は色が無いなら透明でもOK） -->
+          <span class="dot" style="background-color: transparent;opacity:0;"></span>
+          <span class="large-name">{{ acc.name }}</span>
+          <span class="amount">{{ acc.amount }} 円</span>
+        </div>
 
-      <div v-for="acc in accounts" :key="acc.name" class="row">
-        <span>{{ acc.name }}</span>
-        <span>{{ acc.amount }} 円</span>
-      </div>
-
-      <div v-if="showBalance" class="sub-list">
-        <div
-          v-for="sub in accountSubs"
-          :key="sub.name"
-          class="row sub"
-        >
-          <span>{{ sub.name }}</span>
-          <span>{{ sub.amount }} 円</span>
+        <div class="sub-wrapper" v-if="openKouza === acc.name">
+          <div
+            v-for="sub in accountSubs.filter(s => s.large === acc.name)"
+            :key="sub.name"
+            class="sub-row"
+          >
+            <span class="sub-name">{{ sub.name }}</span>
+            <span class="sub-amount">{{ sub.amount }} 円</span>
+          </div>
         </div>
       </div>
     </section>
@@ -108,6 +116,10 @@ const expenseSummary = ref([])
 const expenseSubSummary = ref([])
 const accounts = ref([])
 const accountSubs = ref([])
+const openLarge = ref(null)
+const openKouza = ref(null)
+
+
 
 function getMonthStart() {
   const now = new Date()
@@ -143,30 +155,29 @@ function calcMonthly() {
     .reduce((sum, item) => sum + Number(item.amount), 0)
 }
 
-
 function calcExpenseSummary() {
   const big = {}
-  const small = {}
+  const short = {}
 
   list.value
     .filter(item => item.group === "5_支出")
     .forEach(item => {
       const amount = Number(item.amount ?? 0)
 
+      // ★ large が無いデータは完全スキップ
+      if (!item.large) return
+
       // 大項目
       big[item.large] = (big[item.large] || 0) + amount
 
-      // ★ large が無いデータは完全スキップ（これが超重要）
-      if (!item.large) return
-
-      // ★ small が undefined の行はスキップ（これが超重要）
+      // ★ small が無いデータもスキップ
       if (!item.small) return
 
       // 小項目（large を保持）
-      if (!small[item.small]) {
-        small[item.small] = { amount: 0, large: item.large }
+      if (!short[item.small]) {
+        short[item.small] = { amount: 0, large: item.large }
       }
-      small[item.small].amount += amount
+      short[item.small].amount += amount
     })
 
   // 大項目
@@ -175,7 +186,7 @@ function calcExpenseSummary() {
     .sort((a, b) => a.amount - b.amount)
 
   // 小項目（large を含む）
-  expenseSubSummary.value = Object.entries(small)
+  expenseSubSummary.value = Object.entries(short)
     .map(([name, data]) => ({
       name,
       amount: data.amount,
@@ -191,24 +202,51 @@ function calcAccounts() {
   list.value
     .filter(item => ["1_資産", "2_負債"].includes(item.group))
     .forEach(item => {
-      big[item.large] = (big[item.large] || 0) + Number(item.amount)
-      small[item.small] = (small[item.small] || 0) + Number(item.amount)
+      const amount = Number(item.amount ?? 0)
+
+      // ★ large が無いデータはスキップ
+      if (!item.large) return
+
+      // 大項目
+      if (!big[item.large]) {
+        big[item.large] = { amount: 0, kamokuCD: item.kamokuCD }
+      }
+      big[item.large].amount += amount
+
+      // ★ small が無いデータはスキップ
+      if (!item.small) return
+
+      // 小項目
+      if (!small[item.small]) {
+        small[item.small] = {
+          amount: 0,
+          large: item.large,
+          kamokuCD: item.kamokuCD
+        }
+      }
+      small[item.small].amount += amount
     })
 
+  // 大項目（口座）
   accounts.value = Object.entries(big)
-    .map(([name, amount]) => {
-      const item = list.value.find(i => i.large === name)
-      return { name, amount, kamokuCD: item?.kamokuCD ?? 9999 }
-    })
+    .map(([name, data]) => ({
+      name,
+      amount: data.amount,
+      kamokuCD: data.kamokuCD
+    }))
     .sort((a, b) => a.kamokuCD - b.kamokuCD)
 
+  // 小項目（口座の内訳）
   accountSubs.value = Object.entries(small)
-    .map(([name, amount]) => {
-      const item = list.value.find(i => i.small === name)
-      return { name, amount, kamokuCD: item?.kamokuCD ?? 9999 }
-    })
+    .map(([name, data]) => ({
+      name,
+      large: data.large,
+      amount: data.amount,
+      kamokuCD: data.kamokuCD
+    }))
     .sort((a, b) => a.kamokuCD - b.kamokuCD)
 }
+
 
 /* ★★★ ここが超重要 ★★★ */
 const labels = computed(() => expenseSummary.value.map(i => i.name))
@@ -217,8 +255,10 @@ const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
 onMounted(async () => {
   await fetchThisMonth()
   calcMonthly()
+  console.log("accountSubs:", accountSubs.value)
   calcExpenseSummary()
   calcAccounts()
+  console.log("accountSubs:", accountSubs.value)
 
   setTimeout(() => {
     loadingStore.globalLoading.value = false
@@ -227,83 +267,100 @@ onMounted(async () => {
 </script>
 
 
-<style>
+
+
+<style scoped>
+  /* 仮のCSS 後で base.css にまとめる */
+
+  .home {
+    padding: 16px;
+    background: #f5e8d8;
+  }
+
+  .row > .amount{
+    margin:4px 30px;
+  }
+  .row{
+    font-weight: bold;
+    align-items: center;
+  }
+  .toggle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chart-placeholder {
+    background: rgba(255,255,255,0.4);
+    height: 120px;
+    border-radius: 6px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /*丸のCSS */
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 25px;
+  }
+
+  .large-row {
+    display: grid;
+    grid-template-columns: 20px 40px 1fr auto;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0; /* ← 上下の余白 */
+    font-weight: bold;
+  }
+
+  .large-name {
+    text-align: left;
+    margin-left:6px;
+  }
+
+  .amount {
+    text-align: right;
+    margin-right:30px;
+  }
+
+  .toggle-btn {
+    width: 40px;
+    background: none;
+    border: 1px solid #6b4f3f;
+    color: #6b4f3f;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 16px;
+    text-align: center;
+  }
+
   .chart-placeholder {
     height: 240px;
     position: relative;
   }
 
-</style>
+  .sub-wrapper {
+    margin:4px 10px;
+  }
 
-
-
-
-<style scoped>
-/* 仮のCSS（後で base.css にまとめる） */
-
-.home {
-  padding: 16px;
-  background: #f5e8d8;
-}
-
-
-.toggle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.toggle-btn {
-  background: none;
-  border: 1px solid #6b4f3f;
-  color: #6b4f3f;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 18px;
-}
-
-.chart-placeholder {
-  background: rgba(255,255,255,0.4);
-  height: 120px;
-  border-radius: 6px;
-  margin: 8px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/*丸のCSS */
-.dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-.large-row {
-  display: grid;
-  grid-template-columns: 20px 40px 1fr auto;
-  align-items: center;
-  gap: 6px;
-}
-
-.large-name {
-  text-align: left;
-}
-
-.amount {
-  text-align: right;
-}
-
-.toggle-btn {
-  background: none;
-  border: 1px solid #6b4f3f;
-  color: #6b4f3f;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 16px;
-  text-align: center;
-}
+  .sub-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    /*border-bottom: 1px solid #eee;*/
+  }
+  .sub-name {
+    text-align: left;
+    margin-left:20px;
+  }
+  .sub-amount {
+    text-align: right;
+    margin-right:40px;
+  }
 
 </style>
