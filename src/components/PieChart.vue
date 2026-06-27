@@ -38,6 +38,7 @@ function drawChart() {
 
   if (!canvasRef.value) return
 
+  // 既存チャート破棄
   if (chartInstance) chartInstance.destroy()
 
   const isMobile = window.innerWidth < 600
@@ -71,16 +72,17 @@ function drawChart() {
     }
   })
 
+  // 親へ色を渡す
   emit('update:colors', colors)
 }
 
 onMounted(drawChart)
-watch(() => [props.labels, props.values], drawChart)
+
+// props が変わったら再描画
+watch(() => props.labels, drawChart)
+watch(() => props.values, drawChart)
 </script>
 
 <template>
   <canvas ref="canvasRef"></canvas>
 </template>
-
-
-
