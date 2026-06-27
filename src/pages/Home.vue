@@ -90,6 +90,8 @@ import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import PieChart from "@/components/PieChart.vue"
 
+const chartColors = ref([])   // ← 必須！
+
 const showExpense = ref(false)
 const showBalance = ref(false)
 

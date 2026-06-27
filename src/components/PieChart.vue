@@ -4,20 +4,16 @@ import { Chart, PieController, ArcElement, Tooltip, Legend } from 'chart.js'
 
 Chart.register(PieController, ArcElement, Tooltip, Legend)
 
-// props
 const props = defineProps({
   labels: Array,
   values: Array
 })
 
-// 親へ色を渡す
 const emit = defineEmits(['update:colors'])
 
-// canvas
 const canvasRef = ref(null)
 let chartInstance = null
 
-// 色を項目数に合わせて生成
 function generateColors(count) {
   const baseColors = [
     '#FF6384',
@@ -35,17 +31,19 @@ function generateColors(count) {
 }
 
 function drawChart() {
+  // props がまだ来てない時は描画しない
+  if (!props.labels || !props.values) return
+  if (!Array.isArray(props.labels) || !Array.isArray(props.values)) return
+  if (props.labels.length === 0 || props.values.length === 0) return
+
   if (!canvasRef.value) return
 
-  // 既存チャート破棄
   if (chartInstance) chartInstance.destroy()
 
   const isMobile = window.innerWidth < 600
 
-  // labels の数に合わせて色を生成
   const colors = generateColors(props.labels.length)
 
-  // Chart.js 描画
   chartInstance = new Chart(canvasRef.value.getContext('2d'), {
     type: 'pie',
     data: {
@@ -73,7 +71,6 @@ function drawChart() {
     }
   })
 
-  // 親へ色を渡す（順番も完全一致）
   emit('update:colors', colors)
 }
 
