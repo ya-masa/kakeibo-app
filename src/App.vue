@@ -12,7 +12,7 @@
     <router-view class="has-footer" />
 
     <nav class="footer-nav">
-      <router-link to="/" class="nav-item" :class="{ active: $route.path === '/' }">
+      <router-link to="/home" class="nav-item" :class="{ active: $route.path === '/home' }">
         <span class="icon">🏠</span>
         <span>ホーム</span>
       </router-link>

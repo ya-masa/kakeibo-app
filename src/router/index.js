@@ -4,6 +4,7 @@ import { globalLoading } from '@/stores/loadingStore'
 import List from "@/pages/List.vue"
 import Add from "@/pages/Add.vue"
 import Edit from "@/pages/Edit.vue"
+import Setting from "@/pages/Setting.vue"
 import Home from "@/pages/Home.vue"
 
 
@@ -16,8 +17,15 @@ const routes = [
   // ★ 修正画面
   { path: "/edit", name: "edit", component: Edit },
 
+  // ★ 設定画面
+  { path: "/setting", name: "setting", component: Setting },
+
   // ★ ホーム画面
-  { path: "/", name: "home", component: Home }
+  { path: "/home", name: "home", component: Home },
+  
+  // ★ 初期ページ
+  { path: "/", name: "add", component: Add }
+
 ]
 
 const router = createRouter({
