@@ -39,8 +39,20 @@ function drawChart() {
           ]
         }
       ]
+    },
+    options: {
+      plugins: {
+        legend: {
+          position: 'right', // ← ここを left にすれば左側になる
+          labels: {
+            boxWidth: 20,
+            padding: 20
+          }
+        }
+      }
     }
   })
+
 }
 
 onMounted(() => {
