@@ -17,12 +17,11 @@
 
     <!-- 支出 -->
     <div class="tab-card" v-if="currentTab === 'expense'">
-      <ExpenseIncomeForm 
+      <ExpenseForm 
         :listKamoku="listShishutsu"
         :listHouhou="listKouza"
         :listCodeShops="listCodeShops"
         :mode="props.mode"
-        :type="localForm.type || props.type"
         :form="localForm"
         @submit="emitSubmit"
         @delete="emitDelete"
@@ -31,19 +30,18 @@
 
     <!-- 収入 -->
     <div class="tab-card" v-if="currentTab === 'income'">
-      <ExpenseIncomeForm 
+      <IncomeForm 
         :listKamoku="listShunyu"
         :listHouhou="listKouza"
         :listCodeShops="listCodeShops"
         :mode="props.mode"
-        :type="localForm.type || props.type"
         :form="localForm"
         @submit="emitSubmit"
         @delete="emitDelete"
       />
     </div>
 
-    <!-- 資金移動 -->
+    <!-- 振替 -->
     <div class="tab-card" v-if="currentTab === 'transfer'">
       <TransferForm 
         :listKouza="listKouza"
@@ -62,7 +60,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
-import ExpenseIncomeForm from '@/components/ExpenseIncomeForm.vue'
+import ExpenseForm from '@/components/ExpenseForm.vue'
+import IncomeForm from '@/components/IncomeForm.vue'
 import TransferForm from '@/components/TransferForm.vue'
 import AppLinks from '@/components/AppLinks.vue'
 
@@ -81,7 +80,7 @@ const emit = defineEmits(["submit", "delete"])
 const tabs = [
   { label: '支出入力', value: 'expense' },
   { label: '収入入力', value: 'income' },
-  { label: '資金移動', value: 'transfer' }
+  { label: '振替入力', value: 'transfer' }
 ]
 
 /* localForm（初期値） */

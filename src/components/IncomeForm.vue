@@ -117,22 +117,17 @@ import LoadingIcon from './LoadingIcon.vue'
   /* -----------------------------------------
     computed：type に応じて kingaku1 を自動切替
   ----------------------------------------- */
+  // IncomeForm.vue（収入）
   const kingaku1 = computed({
     get() {
-      if (localForm.value.type === "income") {
-        return localForm.value.kingaku2
-      }
-      return localForm.value.kingaku1
+      return localForm.value.kingaku2
     },
     set(value) {
-      // 入力された値を正しく反映させる
-      if (localForm.value.type === "income") {
-        localForm.value.kingaku2 = value
-      } else {
-        localForm.value.kingaku1 = value
-      }
+      localForm.value.kingaku2 = value
     }
   })
+
+
 
 
   // ---------------------------
