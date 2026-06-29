@@ -43,7 +43,7 @@
 
     <div class="row">
       <label  class="form-lavel">金額</label>
-      <input class="input-field input-number" type="number" v-model="kingaku1" />
+      <input class="input-field input-number" type="number" v-model="kingaku2" />
     </div>
 
     <div class="row">
@@ -118,12 +118,12 @@ import LoadingIcon from './LoadingIcon.vue'
     computed：type に応じて kingaku1 を自動切替
   ----------------------------------------- */
   // ExpenseForm.vue（支出）
-  const kingaku1 = computed({
+  const kingaku2 = computed({
     get() {
-      return localForm.value.kingaku1
+      return localForm.value.kingaku2
     },
     set(value) {
-      localForm.value.kingaku1 = value
+      localForm.value.kingaku2 = value
     }
   })
 
