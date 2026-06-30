@@ -105,10 +105,10 @@ import LoadingIcon from './LoadingIcon.vue'
     rowNo: props.form?.rowNo || "",
     type:props.form?.type ||"",
     date: props.form?.date || today,
-    kamoku1: props.form?.kamoku1 || "",
+    kamoku1: props.form?.kamoku2 || "",
     kamoku2: props.form?.kamoku2 || "",
     aite: props.form?.aite || "",
-    kingaku1: props.form?.kingaku1 || 0,
+    kingaku1: -props.form?.kingaku1 || 0,
     kingaku2:props.form?.kingaku2 || 0,
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
@@ -118,14 +118,14 @@ import LoadingIcon from './LoadingIcon.vue'
     computed：type に応じて kingaku1 を自動切替
   ----------------------------------------- */
   // IncomeForm.vue（収入）
-  const kingaku1 = computed({
+  /*const kingaku1 = computed({
     get() {
       return localForm.value.kingaku2
     },
     set(value) {
       localForm.value.kingaku2 = value
     }
-  })
+  })*/
 
 
 

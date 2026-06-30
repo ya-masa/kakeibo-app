@@ -15,7 +15,7 @@
           :key="item.code"
           :value="item.code"
         >
-          {{ item.daikoumoku }}_{{ item.shoukoumoku }}
+          {{ item.daikoumoku }}_{{ item.shokoumoku }}
         </option>
       </select>
     </div>
@@ -28,7 +28,7 @@
           :key="item.code" 
           :value="item.code"
         >
-          {{ item.shoukoumoku }}
+          {{ item.shokoumoku }}
         </option>
       </select>
     </div>
@@ -43,7 +43,7 @@
 
     <div class="row">
       <label  class="form-lavel">金額</label>
-      <input class="input-field input-number" type="number" v-model="kingaku2" />
+      <input class="input-field input-number" type="number" v-model="kingaku1" />
     </div>
 
     <div class="row">
@@ -118,14 +118,14 @@ import LoadingIcon from './LoadingIcon.vue'
     computed：type に応じて kingaku1 を自動切替
   ----------------------------------------- */
   // ExpenseForm.vue（支出）
-  const kingaku2 = computed({
+  /*const kingaku2 = computed({
     get() {
-      return localForm.value.kingaku2
+      return localForm.value.kingaku1
     },
     set(value) {
-      localForm.value.kingaku2 = value
+      localForm.value.kingaku1 = value
     }
-  })
+  })*/
 
 
   // ---------------------------
