@@ -15,7 +15,7 @@
           :key="item.code"
           :value="item.code"
         >
-          {{ item.shoukoumoku }}
+          {{ item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
       </select>
     </div>
@@ -34,7 +34,7 @@
           :key="item.code"
           :value="item.code"
         >
-          {{ item.shoukoumoku }}
+          {{ item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
       </select>
     </div>
@@ -114,6 +114,7 @@ import loadingStore from "@/stores/loadingStore"
   const today = new Date().toISOString().slice(0, 10)
     var k1
     var k2
+    console.log("propsData:",props.form)
     if(props.form?.kingaku2<0){       //収入
       k1=props.form?.kingaku1
       k2=props.form?.kingaku2

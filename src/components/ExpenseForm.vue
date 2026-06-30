@@ -15,7 +15,7 @@
           :key="item.code"
           :value="item.code"
         >
-          {{ item.daikoumoku }}_{{ item.shokoumoku }}
+          {{ item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
       </select>
     </div>
@@ -28,7 +28,7 @@
           :key="item.code" 
           :value="item.code"
         >
-          {{ item.shokoumoku }}
+          {{ item.shoukoumoku }}
         </option>
       </select>
     </div>
@@ -102,6 +102,7 @@ import LoadingIcon from './LoadingIcon.vue'
   const today = new Date().toISOString().slice(0, 10)
     var k1
     var k2
+    console.log("propsData:",props.form)
     if(props.form?.kingaku2<0){       //収入
       k1=props.form?.kingaku1
       k2=props.form?.kingaku2
