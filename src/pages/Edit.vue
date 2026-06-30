@@ -66,19 +66,20 @@ const updateItem = async (formData) => {
     const iso = String(formData.date)
     const dateOnly = iso.split("T")[0]  // ← これが超重要
     var k1
-    if(formData.kingaku1===0){
-      k1=-formData.kingaku2
-    }else{
-      k1=formData.kingaku1
-    }
     var k2
-    if(formData.kingaku2===0){
+    if(formData.type="income"){       //収入
+      k1=-formData.kingaku1
+      k2=formData.kingaku1
+    }else if(formData.type="expense"){  //支出
+      k1=formData.kingaku1
       k2=-formData.kingaku1
-    }else{
+    }else{                         //振替
+      k1=formData.kingaku1
       k2=formData.kingaku2
     }
     const params = new URLSearchParams()
     params.append("mode", "rewrite")
+    params.append("type", formData.type)
     params.append("rowNo", rowNo)
     params.append("date",dateOnly)
     params.append("kamoku1",formData.kamoku1)

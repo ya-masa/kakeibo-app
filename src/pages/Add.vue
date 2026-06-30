@@ -31,13 +31,26 @@ const addItem = async (formData) => {
   try{
     const iso = String(formData.date)
     const dateOnly = iso.split("T")[0]  // ← これが超重要
+    var k1
+    var k2
+    if(formData.type="income"){       //収入
+      k1=formData.kingaku1
+      k2=-formData.kingaku1
+    }else if(formData.type="expense"){  //支出
+      k1=-formData.kingaku1
+      k2=formData.kingaku1
+    }else{                         //振替
+      k1=formData.kingaku1
+      k2=formData.kingaku2
+    }
     const payload = new URLSearchParams()
     payload.append("mode", "add")
+    payload.append("type", formData.type)
     payload.append("date",dateOnly)
     payload.append("kamoku1",formData.kamoku1)
     payload.append("kamoku2",formData.kamoku2)
-    payload.append("kingaku1",formData.kingaku1)
-    payload.append("kingaku2",-formData.kingaku1)
+    payload.append("kingaku1",k1)
+    payload.append("kingaku2",k2)
     payload.append("naiyo",formData.naiyo)
     payload.append("aite",formData.aite)
     payload.append("kakunin",formData.kakunin)

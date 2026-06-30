@@ -100,16 +100,27 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-
+    var k1
+    var k2
+    if(props.form?.kingaku2<0){       //収入
+      k1=formData.kingaku1
+      k2=formData.kingaku2
+    }else if(props.form?.kingaku1<0){  //支出
+      k1=formData.kingaku2
+      k2=formData.kingaku1
+    }else{                         //振替
+      k1=formData.kingaku1
+      k2=formData.kingaku2
+    }
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:props.form?.type ||"",
+    type:props.form?.type ||"income",
     date: props.form?.date || today,
     kamoku1: props.form?.kamoku2 || "",
     kamoku2: props.form?.kamoku2 || "",
     aite: props.form?.aite || "",
-    kingaku1: -props.form?.kingaku1 || 0,
-    kingaku2:props.form?.kingaku2 || 0,
+    kingaku1: -props.form?.kingaku1 || "",
+    kingaku2:props.form?.kingaku2 || "",
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
