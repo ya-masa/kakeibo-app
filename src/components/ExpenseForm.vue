@@ -9,7 +9,7 @@
 
     <div class="row">
       <label  class="form-lavel">科目</label>
-      <select v-model="localForm.kamoku1"  class="select-field">
+      <select v-model="localForm.kamoku2"  class="select-field">
         <option 
           v-for="item in props.listKamoku"
           :key="item.code"
@@ -22,7 +22,7 @@
 
     <div class="row">
       <label  class="form-lavel">口座</label>
-      <select v-model="localForm.kamoku2"  class="select-field">
+      <select v-model="localForm.kamoku1"  class="select-field">
         <option 
           v-for="item in props.listHouhou" 
           :key="item.code" 
@@ -106,8 +106,8 @@ import LoadingIcon from './LoadingIcon.vue'
     type:"expense",
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: String(props.form?.kamoku1 || ""),
-    kamoku2: String(props.form?.kamoku2 || ""),
+    kamoku1: String(props.form?.kamoku2 || ""),
+    kamoku2: String(props.form?.kamoku1 || ""),
     aite: props.form?.aite || "",
     kingaku1: props.form?.kingaku1 || "",
     naiyo: props.form?.naiyo || "",

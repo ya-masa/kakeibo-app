@@ -9,7 +9,7 @@
 
     <div class="row">
       <label  class="form-lavel">科目</label>
-      <select v-model="localForm.kamoku1"  class="select-field">
+      <select v-model="localForm.kamoku2"  class="select-field">
         <option 
           v-for="item in props.listKamoku"
           :key="item.code"
@@ -22,7 +22,7 @@
 
     <div class="row">
       <label  class="form-lavel">口座</label>
-      <select v-model="localForm.kamoku2"  class="select-field">
+      <select v-model="localForm.kamoku1"  class="select-field">
         <option 
           v-for="item in props.listHouhou" 
           :key="item.code" 
@@ -92,6 +92,7 @@ import LoadingIcon from './LoadingIcon.vue'
     listCodeShops: { type: Array, default: () => [] },
     mode: { type: String, default: "add" },   // add / edit
     form: { type: Object, default: null }     // 修正時のデータ
+    
   })
 
   const emit = defineEmits(["submit", "delete"])
@@ -100,14 +101,16 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-
+  console.log("listKamoku:",listKamoku) 
+  console.log("listHouhou:",listHouhou) 
+  console.log("listCodeShops:",listCodeShops) 
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
     type:"income",
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: String(props.form?.kamoku1 || ""),
-    kamoku2: String(props.form?.kamoku2 || ""),
+    kamoku1: String(props.form?.kamoku2 || ""),
+    kamoku2: String(props.form?.kamoku1 || ""),
     aite: props.form?.aite || "",
     kingaku1: props.form?.kingaku1 || "",
     naiyo: props.form?.naiyo || "",
