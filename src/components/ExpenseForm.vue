@@ -13,7 +13,7 @@
         <option 
           v-for="item in props.listKamoku"
           :key="item.code"
-          :value="item.code"
+          :value="String(item.code)"
         >
           {{ item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
@@ -106,14 +106,14 @@ import LoadingIcon from './LoadingIcon.vue'
     type:"expense",
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: props.form?.kamoku1 || "",
-    kamoku2: props.form?.kamoku2 || "",
+    kamoku1: String(props.form?.kamoku1 || ""),
+    kamoku2: String(props.form?.kamoku2 || ""),
     aite: props.form?.aite || "",
     kingaku1: props.form?.kingaku1 || "",
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
-  
+
   /* -----------------------------------------
     computed：kingaku1 を自動切替
   ----------------------------------------- */
