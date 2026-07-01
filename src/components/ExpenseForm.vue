@@ -117,21 +117,22 @@ import LoadingIcon from './LoadingIcon.vue'
   /* -----------------------------------------
     computed：kingaku1 を自動切替
   ----------------------------------------- */
-  const rawKingaku1 = ref("");
-
   const kingaku1 = computed({
     get() {
-      // 入力値をそのまま返す（表示用）
-      return rawKingaku1.value;
+      return localForm.value.kingaku1;
     },
     set(value) {
-      // 数値化
       const num = Number(value) || 0;
+      const absInt = Math.round(Math.abs(num));
 
-      // 絶対値＋整数化（四捨五入）
-      rawKingaku1.value = Math.round(Math.abs(num));
+      // 表示用
+      rawKingaku1.value = absInt;
+
+      // 保存用（formData）
+      localForm.value.kingaku1 = absInt;
     }
   });
+
 
 
   // ---------------------------
