@@ -143,7 +143,7 @@ import LoadingIcon from './LoadingIcon.vue'
       return props.listCodeShops.flatMap(i => i.shops)
     }
 
-    const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku1)
+    const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku2)
     return item?.shops || []
   })
 
