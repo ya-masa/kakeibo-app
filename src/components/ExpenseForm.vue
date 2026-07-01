@@ -15,7 +15,7 @@
           :key="item.code"
           :value="String(item.code)"
         >
-          {{item.code}}_{{item.daikoumoku }}_{{ item.shoukoumoku }}
+          {{item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
       </select>
     </div>
@@ -26,7 +26,7 @@
         <option 
           v-for="item in props.listHouhou" 
           :key="item.code" 
-          :value="item.code"
+          :value="String(item.code)"
         >
           {{ item.shoukoumoku }}
         </option>
