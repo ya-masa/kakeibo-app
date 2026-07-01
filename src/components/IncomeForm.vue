@@ -26,7 +26,7 @@
         <option 
           v-for="item in props.listHouhou" 
           :key="item.code" 
-          :value="String(item.code)"
+          :value="item.code"
         >
           {{ item.shoukoumoku }}
         </option>
@@ -109,8 +109,8 @@ import LoadingIcon from './LoadingIcon.vue'
     type:"income",
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: String(props.form?.kamoku2 || ""),
-    kamoku2: String(props.form?.kamoku1 || ""),
+    kamoku1: props.form?.kamoku2 || "",
+    kamoku2: props.form?.kamoku1 || "",
     aite: props.form?.aite || "",
     kingaku1: props.form?.kingaku1 || "",
     naiyo: props.form?.naiyo || "",
