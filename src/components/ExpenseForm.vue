@@ -123,6 +123,7 @@ import LoadingIcon from './LoadingIcon.vue'
     },
     set(value){
       const num = Number(value) || 0;
+      kingaku1=num;
       localForm.value.kingaku1 = num;
     }
   });
