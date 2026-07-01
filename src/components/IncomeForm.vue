@@ -103,13 +103,13 @@ import LoadingIcon from './LoadingIcon.vue'
 
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:props.form?.type ||"income",
+    type:"income",
+    mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: props.form?.kamoku2 || "",
+    kamoku1: props.form?.kamoku1 || "",
     kamoku2: props.form?.kamoku2 || "",
     aite: props.form?.aite || "",
     kingaku1: props.form?.kingaku1 || "",
-    kingaku2:props.form?.kingaku2 || "",
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })

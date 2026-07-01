@@ -115,7 +115,8 @@ import loadingStore from "@/stores/loadingStore"
   console.log("propsData:",props.form)                      //振替
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:props.form?.type || "transfer",
+    mode:props.form?.mode || "add",
+    type:"transfer",
     date: props.form?.date || today,
     kamoku1: props.form?.kamoku1 || "",
     kamoku2: props.form?.kamoku2 || "",

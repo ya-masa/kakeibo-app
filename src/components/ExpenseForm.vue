@@ -100,16 +100,16 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-  
+
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:props.form?.type ||"expense",
+    type:"expense",
+    mode:props.form?.mode || "add",
     date: props.form?.date || today,
     kamoku1: props.form?.kamoku1 || "",
     kamoku2: props.form?.kamoku2 || "",
     aite: props.form?.aite || "",
-    kingaku1: props.form?.kingaku2 || "",
-    kingaku2: props.form?.kingaku1 || "",
+    kingaku1: props.form?.kingaku1 || "",
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
