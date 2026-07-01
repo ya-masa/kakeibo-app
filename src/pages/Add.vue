@@ -43,6 +43,7 @@ const addItem = async (formData) => {
       k1=formData.kingaku1
       k2=formData.kingaku2
     }
+    console.log("formData:",formData)
     const payload = new URLSearchParams()
     payload.append("mode", "add")
     payload.append("type", formData.type)

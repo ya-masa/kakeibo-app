@@ -100,19 +100,7 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-    var k1
-    var k2
-    console.log("propsData:",props.form)
-    if(props.form?.kingaku2<0){       //収入
-      k1=props.form?.kingaku1
-      k2=props.form?.kingaku2
-    }else if(props.form?.kingaku1<0){  //支出
-      k1=props.form?.kingaku2
-      k2=props.form?.kingaku1
-    }else{                         //振替
-      k1=props.form?.kingaku1
-      k2=props.form?.kingaku2
-    }
+
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
     type:props.form?.type ||"income",
@@ -120,7 +108,7 @@ import LoadingIcon from './LoadingIcon.vue'
     kamoku1: props.form?.kamoku2 || "",
     kamoku2: props.form?.kamoku2 || "",
     aite: props.form?.aite || "",
-    kingaku1: -props.form?.kingaku1 || "",
+    kingaku1: props.form?.kingaku1 || "",
     kingaku2:props.form?.kingaku2 || "",
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
@@ -173,10 +161,11 @@ import LoadingIcon from './LoadingIcon.vue'
   // 送信（追加 or 修正）
   // ---------------------------
   const submitForm = async () => {
-    try {
-      isLoading.value = true
+    
+    console.log("localForm:",localForm.value) 
+    isLoading.value = true
 
-      console.log("送信:", localForm.value)
+    try {
       emit("submit", { ...localForm.value })
     } finally {
       isLoading.value = false
