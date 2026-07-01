@@ -67,10 +67,10 @@ const updateItem = async (formData) => {
     const dateOnly = iso.split("T")[0]  // ← これが超重要
     var k1
     var k2
-    if(formData.type="income"){       //収入
+    if(formData.type==="income"){       //収入
       k1=-formData.kingaku1
       k2=formData.kingaku1
-    }else if(formData.type="expense"){  //支出
+    }else if(formData.type==="expense"){  //支出
       k1=formData.kingaku1
       k2=-formData.kingaku1
     }else{                         //振替
