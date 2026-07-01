@@ -13,7 +13,7 @@
         <option 
           v-for="item in props.listKamoku"
           :key="item.code"
-          :value="item.code"
+          :value="String(item.code)"
         >
           {{item.code}}_{{item.daikoumoku }}_{{ item.shoukoumoku }}
         </option>
