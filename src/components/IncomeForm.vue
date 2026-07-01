@@ -121,15 +121,9 @@ import LoadingIcon from './LoadingIcon.vue'
     get() {
       return localForm.value.kingaku1;
     },
-    set(value) {
+    set(value){
       const num = Number(value) || 0;
-      const absInt = Math.round(Math.abs(num));
-
-      // 表示用
-      rawKingaku1.value = absInt;
-
-      // 保存用（formData）
-      localForm.value.kingaku1 = absInt;
+      localForm.value.kingaku1 = num;
     }
   });
 
