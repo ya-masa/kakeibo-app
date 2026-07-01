@@ -115,17 +115,23 @@ import LoadingIcon from './LoadingIcon.vue'
   })
 
   /* -----------------------------------------
-    computed：type に応じて kingaku1 を自動切替
+    computed：kingaku1 を自動切替
   ----------------------------------------- */
-  // ExpenseForm.vue（支出）
-  /*const kingaku2 = computed({
+  const rawKingaku1 = ref("");
+
+  const kingaku1 = computed({
     get() {
-      return localForm.value.kingaku1
+      // 入力値をそのまま返す（表示用）
+      return rawKingaku1.value;
     },
     set(value) {
-      localForm.value.kingaku1 = value
+      // 数値化
+      const num = Number(value) || 0;
+
+      // 絶対値＋整数化（四捨五入）
+      rawKingaku1.value = Math.round(Math.abs(num));
     }
-  })*/
+  });
 
 
   // ---------------------------
