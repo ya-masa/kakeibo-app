@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, computed ,onMounted} from 'vue'
+import { ref, computed ,onMounted,watch} from 'vue'
 import loadingStore from "@/stores/loadingStore"
 import LoadingIcon from './LoadingIcon.vue'
 
