@@ -131,7 +131,18 @@ import LoadingIcon from './LoadingIcon.vue'
   });
 
 
-
+  watch(() => props.listKamoku, () => {
+    // 科目リストが更新されたら選択値を再調整
+    if (!props.listKamoku.some(i => i.code === localForm.value.kamoku2)) {
+      localForm.value.kamoku2 = props.listKamoku[0]?.code || ""
+    }
+  })
+  watch(() => props.listHouhou, () => {
+    // 口座リストが更新されたら選択値を再調整
+    if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
+      localForm.value.kamoku1 = props.listHouhou[0]?.code || ""
+    }
+  })
 
   // ---------------------------
   // 相手の店リスト
