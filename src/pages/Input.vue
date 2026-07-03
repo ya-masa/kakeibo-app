@@ -119,7 +119,7 @@ onMounted(async () => {
   listKouza.value = all.filter(i => 
     i.group?.startsWith("1_資産") || i.group?.startsWith("2_負債")
   )
-  listAllKouza.value =all
+  listAllKouza.value =all.value
   listCodeShops.value = all.filter(i => Array.isArray(i.shops))
     requestAnimationFrame(() => {
     requestAnimationFrame(() => {
