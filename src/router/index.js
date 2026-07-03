@@ -6,7 +6,7 @@ import Add from "@/pages/Add.vue"
 import Edit from "@/pages/Edit.vue"
 import Setting from "@/pages/Setting.vue"
 import Home from "@/pages/Home.vue"
-import Kamoku from "@/pages/SettingsUnifiedTabs.vue"
+import Kamoku from "@/components/SettingsUnifiedTabs.vue"
 
 
 const routes = [
