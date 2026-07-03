@@ -15,6 +15,7 @@
 
 <script>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 
 export default {
@@ -23,7 +24,7 @@ export default {
     const router = useRouter()
 
     const goCategories = () => {
-      router.push('/settings/categories')
+      router.push('/settings/kamoku')
     }
 
     onMounted(() => {

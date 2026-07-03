@@ -13,7 +13,6 @@
 
 <script setup>
 import { ref, onMounted, isShallow } from "vue"
-import { useRoute } from "vue-router"
 import Input from "@/pages/Input.vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
