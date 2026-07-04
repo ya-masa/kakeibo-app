@@ -139,6 +139,7 @@
                 </button>
             </div>
             <!-- ショップ入力欄（10個） -->
+             <div>
             <div v-if="openedCode === item.code" class="shop-editor">
             <div
                 v-for="(shop, sIndex) in item.shops"
@@ -148,11 +149,12 @@
                 <span class="item-input">{{sIndex}}</span>
                 <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
             </div>
+            <button class="update-btn" @click="update(item)">
+                更新
+            </button>
+            </div>
         </div>
 
-        <button class="update-btn" @click="update(item)">
-            更新
-        </button>
         </div>
       </div>
     </div>
