@@ -7,6 +7,8 @@
     /* GASから取得した生データ */
     const rawList = ref([])
 
+    const openedCode = ref(null)
+
     /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
     const mode = ref(100)
 

@@ -117,7 +117,7 @@ import LoadingIcon from './LoadingIcon.vue'
   /* -----------------------------------------
     computed：kingaku1 を自動切替
   ----------------------------------------- */
-  const kingaku1 = computed({
+  var kingaku1 = computed({
     get() {
       return localForm.value.kingaku1;
     },
