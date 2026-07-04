@@ -184,8 +184,12 @@ try {
         >
           <input type="checkbox" v-model="item.disabled" />
           
-          <span>item.code</span>
-
+          <span
+            v-model="item.code"
+            type="text"
+            class="item-input"
+            :class="{ disabled: item.disabled }"
+          />
           <input
             v-model="item.name"
             type="text"
