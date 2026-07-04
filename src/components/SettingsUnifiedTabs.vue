@@ -12,6 +12,7 @@ const mode = ref(100)
 /* GASから一覧データ取得 */
 onMounted(async () => {
   const res = await fetch(`${GAS_URL}?list=ALLLIST`)
+  console.log("ALLLIST:")
   const all = await res.json()
 
   rawList.value = all
@@ -70,22 +71,48 @@ const categories = computed(() => {
 
 /* 小項目追加（最大10件） */
 const addItem = (category) => {
-  // rawList から該当大項目のデータを探す
+  // 現在のタブの group（例：1_資産）
+  const group = modeGroup.value
+
+  // rawList から該当大項目のデータを抽出
   const targetList = rawList.value.filter(
-    i => i.group === modeGroup.value && i.daikoumoku === category.daikoumoku
+    i => i.group === group && i.daikoumoku === category.daikoumoku
   )
 
+  // 10件以上なら追加不可
   if (targetList.length >= 10) return
 
-  // 新しい小項目を rawList に追加
+  // 既存コードの1の位（小項目番号）を抽出
+  const usedSmallCodes = targetList
+    .map(i => i.code % 10) // 1の位だけ取り出す
+    .sort((a, b) => a - b)
+
+  // 次の番号を決める（0〜9）
+  let nextSmallCode = 0
+  for (let i = 0; i < 10; i++) {
+    if (!usedSmallCodes.includes(i)) {
+      nextSmallCode = i
+      break
+    }
+  }
+
+  // 大項目コード（10の位）を取得
+  const firstItem = targetList[0]
+  const daikoumokuCode = Math.floor(firstItem.code / 10) * 10
+
+  // 新しい code を作成
+  const newCode = daikoumokuCode + nextSmallCode
+
+  // rawList に追加
   rawList.value.push({
-    code: null,                 // 新規コードは後で採番
-    group: modeGroup.value,     // 現在のタブのグループ
+    code: newCode,
+    group: group,
     daikoumoku: category.daikoumoku,
     shoukoumoku: "",
-    hihyouji: targetList.length + 1  // 表示順
+    hihyouji: targetList.length + 1 // 表示順
   })
 }
+
 
 /* 小項目削除 */
 const removeItem = (category, index) => {
@@ -101,13 +128,18 @@ const removeItem = (category, index) => {
 
 const saveAll = async () => {
   loadingStore.globalLoading.value = true
-
+try {
   const res = await fetch(`${GAS_URL}?mode=kamoku`, {
     method: "POST",
     body: JSON.stringify(rawList.value)
   })
 
   const result = await res.json()
+     alert(result.message)
+     router.push('/Setting')
+}   catch (e) {
+    alert("更新に失敗しました"+e.message)
+  } 
 
   loadingStore.globalLoading.value = false
 }
