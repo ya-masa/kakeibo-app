@@ -7,8 +7,6 @@
     /* GASから取得した生データ */
     const rawList = ref([])
 
-    const openedCode = ref(null)
-
     /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
     const mode = ref(100)
 
@@ -72,8 +70,10 @@
     })
 
 
+    const openedCode = ref(null)
     //トグルボタンを押したときの動作
     const toggle = (code) => {
+        console.log("toggle:", code)
         openedCode.value = openedCode.value === code ? null : code
     }
   
@@ -128,7 +128,6 @@
             v-for="(item, index) in category.items"
             :key="index"
             class="item-row"
-            dirty: false
             >
             <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}🔒</span>
             <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}🔒</span>
@@ -137,22 +136,21 @@
             <button @click="toggle(item.code)">
                 ＋
             </button>
-            <!-- ショップ入力欄（10個） -->
-            <div v-if="openedCode === item.code" class="shop-editor">
-            <div
-                v-for="(shop, sIndex) in item.shops"
-                :key="sIndex"
-                class="shop-row"
-            >
-                <span class="item-input">{{sIndex}}</span>
-                <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
-            </div>
+        </div>
+        <!-- ショップ入力欄（10個） -->
+        <div v-if="openedCode === item.code" class="shop-editor">
+        <div
+            v-for="(shop, sIndex) in item.shops"
+            :key="sIndex"
+            class="shop-row"
+        >
+            <span class="item-input">{{sIndex}}</span>
+            <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
+        </div>
 
-            <button class="update-btn" @click="update(item)">
-                更新
-            </button>
-            </div>
-
+        <button class="update-btn" @click="update(item)">
+            更新
+        </button>
         </div>
       </div>
     </div>
