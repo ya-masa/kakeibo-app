@@ -4,10 +4,11 @@
 
     <!-- 科目や大小項目編集へ遷移 -->
     <button class="nav-btn" @click="goCategories">
-      科目や大小項目編集
+      口座や小項目編集
     </button>
-
-    <p>よく使うお店の登録</p>
+    <button class="nav-btn" @click="goShops">
+      よく使うお店の編集
+    </button>
     <p>毎月の定期収支設定</p>
     <p>年1回の定期収支設定</p>
   </div>
@@ -27,6 +28,11 @@ export default {
     const goCategories = () => {
       router.push('/setting/kamoku')
     }
+    const goShops = () => {
+      router.push('/setting/shops')
+    }
+
+
 
     onMounted(() => {
       setTimeout(() => {

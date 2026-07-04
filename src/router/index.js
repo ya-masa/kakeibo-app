@@ -7,7 +7,7 @@ import Edit from "@/pages/Edit.vue"
 import Setting from "@/pages/Setting.vue"
 import Home from "@/pages/Home.vue"
 import Kamoku from "@/components/SettingsUnifiedTabs.vue"
-
+import shops from "@/components/settingShops.vue"
 
 const routes = [
 
@@ -23,9 +23,11 @@ const routes = [
   // ★ 設定画面
   { path: "/setting", name: "setting", component: Setting },
 
-  // ★ 設定画面
+  // 科目設定画面
   { path: "/setting/kamoku", name: "kamoku", component: Kamoku },
 
+  // お店設定画面
+  { path: "/setting/shops", name: "shops", component: shops },
   // ★ ホーム画面
   { path: "/home", name: "home", component: Home },
   

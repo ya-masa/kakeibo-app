@@ -55,7 +55,8 @@ const categories = computed(() => {
       code: item.code,
       name: item.shoukoumoku,
       disabled: item.hihyouji === true,
-      order: item.hihyouji === true ? null : item.hihyouji
+      order: item.hihyouji === true ? null : item.hihyouji,
+      shops:item.shops
     })
   })
 
@@ -69,81 +70,31 @@ const categories = computed(() => {
 })
 
 
-
-/* 小項目追加（最大10件） */
-const addItem = (category) => {
-  // 現在のタブの group（例：1_資産）
-  const group = modeGroup.value
-
-  // rawList から該当大項目のデータを抽出
-  const targetList = rawList.value.filter(
-    i => i.group === group && i.daikoumoku === category.daikoumoku
-  )
-
-  // 10件以上なら追加不可
-  if (targetList.length >= 10) return
-
-  // 既存コードの1の位（小項目番号）を抽出
-  const usedSmallCodes = targetList
-    .map(i => i.code % 10) // 1の位だけ取り出す
-    .sort((a, b) => a - b)
-
-  // 次の番号を決める（0〜9）
-  let nextSmallCode = 0
-  for (let i = 0; i < 10; i++) {
-    if (!usedSmallCodes.includes(i)) {
-      nextSmallCode = i
-      break
-    }
+  //トグルボタンを押したときの動作
+  const toggle = (code) => {
+    openedCode.value = openedCode.value === code ? null : code
   }
+  
+  //更新ボタン押下時の処理
+  const update = (item) => {
+    item.dirty = false
+    loadingStore.globalLoading.value = true
+    try {
+        const res = await fetch(`${GAS_URL}?mode=kamoku`, {
+            method: "POST",
+            body: JSON.stringify(rawList.value)
+        })
 
-  // 大項目コード（10の位）を取得
-  const firstItem = targetList[0]
-  const daikoumokuCode = Math.floor(firstItem.code / 10) * 10
+        const result = await res.json()
+            alert(result.message)
+            item.dirty = false
+        }   catch (e) {
+            alert("更新に失敗しました"+e.message)
+    } 
 
-  // 新しい code を作成
-  const newCode = daikoumokuCode + nextSmallCode
-
-  // rawList に追加
-  rawList.value.push({
-    code: newCode,
-    group: group,
-    daikoumoku: category.daikoumoku,
-    shoukoumoku: "",
-    hihyouji: targetList.length + 1 // 表示順
-  })
-}
-
-
-/* 小項目削除 */
-const removeItem = (category, index) => {
-  const targetList = rawList.value.filter(
-    i => i.group === modeGroup.value && i.daikoumoku === category.daikoumoku
-  )
-
-  const item = targetList[index]
-
-  // rawList から削除
-  rawList.value = rawList.value.filter(i => i !== item)
-}
-
-const saveAll = async () => {
-  loadingStore.globalLoading.value = true
-try {
-  const res = await fetch(`${GAS_URL}?mode=kamoku`, {
-    method: "POST",
-    body: JSON.stringify(rawList.value)
-  })
-
-  const result = await res.json()
-     alert(result.message)
-     router.push('/setting')
-}   catch (e) {
-    alert("更新に失敗しました"+e.message)
-  } 
-
-  loadingStore.globalLoading.value = false
-}
+    loadingStore.globalLoading.value = false
+    
+  }
 
 </script>
 
@@ -178,31 +129,36 @@ try {
 
       <div class="item-list">
         <div
-          v-for="(item, index) in category.items"
-          :key="index"
-          class="item-row"
-        >
-          <input type="checkbox" v-model="item.disabled" />
-          
-          <span class="item-code">{{ item.code }}🔒</span>
+            v-for="(item, index) in category.items"
+            :key="index"
+            class="item-row"
+            dirty: false
+            >
+            <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}🔒</span>
+            <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}🔒</span>
 
-          <input
-            v-model="item.name"
-            type="text"
-            class="item-input"
-            :class="{ disabled: item.disabled }"
-          />
-              
+            <!-- ＋ボタン -->
+            <button @click="toggle(item.code)">
+                ＋
+            </button>
+            <!-- ショップ入力欄（10個） -->
+            <div v-if="openedCode === item.code" class="shop-editor">
+            <div
+                v-for="(shop, sIndex) in item.shops"
+                :key="sIndex"
+                class="shop-row"
+            >
+                <span class="item-input">{{sIndex}}</span>
+                <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
+            </div>
+
+            <button class="update-btn" @click="update(item)">
+                更新
+            </button>
+            </div>
+
         </div>
       </div>
-
-      <button
-        class="add-btn"
-        @click="addItem(category)"
-        :disabled="category.items.length >= 10"
-      >
-        ＋ 小項目を追加
-      </button>
     </div>
 
   </div>
@@ -324,5 +280,7 @@ try {
   color: #555;
   font-size: 14px;
 }
-
+.dirty {
+  color: red;
+}
 </style>
