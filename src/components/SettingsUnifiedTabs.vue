@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
-import { useRouter } from 'vue-router'
 
 /* GASから取得した生データ */
 const rawList = ref([])
@@ -12,17 +11,17 @@ const mode = ref(100)
 
 /* GASから一覧データ取得 */
 onMounted(async () => {
-  const res = await fetch(`${GAS_URL}?list=ALLLIST`)
+  const res = await fetch(`${GAS_URL}?mode=ALLLIST`)
   const all = await res.json()
 
   rawList.value = all
-
+  console.log("rawList:",rawList)
   // ローディング解除
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
         loadingStore.globalLoading.value = false
-      }, 500)
+      }, 10)
     })
   })
 })
@@ -39,13 +38,13 @@ const modeGroup = computed(() => {
 const categories = computed(() => {
   const list = rawList.value.filter(i => i.group === modeGroup.value)
 
-  // 大項目ごとにまとめる
   const map = {}
 
   list.forEach(item => {
     if (!map[item.daikoumoku]) {
       map[item.daikoumoku] = {
         daikoumoku: item.daikoumoku,
+        daikoumokuCode: Math.floor(item.code / 10) * 10, // 大項目コード
         items: []
       }
     }
@@ -53,34 +52,77 @@ const categories = computed(() => {
     map[item.daikoumoku].items.push({
       code: item.code,
       name: item.shoukoumoku,
-      disabled: item.hihyouji === true,   // TRUE → 非表示
+      disabled: item.hihyouji === true,
       order: item.hihyouji === true ? null : item.hihyouji
     })
   })
 
-  return Object.values(map)
+  // 🔥 小項目を code 順に並べ替え
+  Object.values(map).forEach(category => {
+    category.items.sort((a, b) => a.code - b.code)
+  })
+
+  // 🔥 大項目も code 順に並べ替え
+  return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
 })
+
+
 
 /* 小項目追加（最大10件） */
 const addItem = (category) => {
-  if (category.items.length >= 10) return
+  // rawList から該当大項目のデータを探す
+  const targetList = rawList.value.filter(
+    i => i.group === modeGroup.value && i.daikoumoku === category.daikoumoku
+  )
 
-  category.items.push({
-    code: null,
-    name: "",
-    disabled: false,
-    order: category.items.length + 1
+  if (targetList.length >= 10) return
+
+  // 新しい小項目を rawList に追加
+  rawList.value.push({
+    code: null,                 // 新規コードは後で採番
+    group: modeGroup.value,     // 現在のタブのグループ
+    daikoumoku: category.daikoumoku,
+    shoukoumoku: "",
+    hihyouji: targetList.length + 1  // 表示順
   })
 }
 
 /* 小項目削除 */
 const removeItem = (category, index) => {
-  category.items.splice(index, 1)
+  const targetList = rawList.value.filter(
+    i => i.group === modeGroup.value && i.daikoumoku === category.daikoumoku
+  )
+
+  const item = targetList[index]
+
+  // rawList から削除
+  rawList.value = rawList.value.filter(i => i !== item)
 }
+
+const saveAll = async () => {
+  loadingStore.globalLoading.value = true
+
+  const res = await fetch(`${GAS_URL}?mode=kamoku`, {
+    method: "POST",
+    body: JSON.stringify(rawList.value)
+  })
+
+  const result = await res.json()
+
+  loadingStore.globalLoading.value = false
+}
+
 </script>
 
 <template>
   <div class="settings-wrapper">
+
+    <!-- 固定ヘッダー（保存ボタン） -->
+    <div class="header-save">
+      <button class="save-btn" @click="saveAll">
+        保存する
+      </button>
+    </div>
 
     <!-- タブUI -->
     <div class="tabs">
@@ -107,10 +149,8 @@ const removeItem = (category, index) => {
           :key="index"
           class="item-row"
         >
-          <!-- 非表示チェック -->
           <input type="checkbox" v-model="item.disabled" />
 
-          <!-- 小項目名 -->
           <input
             v-model="item.name"
             type="text"
@@ -118,14 +158,12 @@ const removeItem = (category, index) => {
             :class="{ disabled: item.disabled }"
           />
 
-          <!-- 削除 -->
           <button class="delete" @click="removeItem(category, index)">
             削除
           </button>
         </div>
       </div>
 
-      <!-- 追加ボタン -->
       <button
         class="add-btn"
         @click="addItem(category)"
@@ -228,4 +266,24 @@ const removeItem = (category, index) => {
 .add-btn:disabled {
   background: #ccc;
 }
+
+/*固定ヘッダー */
+.header-save {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 12px;
+  z-index: 100;
+  border-bottom: 1px solid #ddd;
+}
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  background: #66aaff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
 </style>
