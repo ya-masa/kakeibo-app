@@ -56,7 +56,7 @@
         name: item.shoukoumoku,
         disabled: item.hihyouji === true,
         order: item.hihyouji === true ? null : item.hihyouji,
-        shops:item.shops
+        shops:item.shops?? Array(10).fill(""),
         })
     })
 
@@ -101,13 +101,6 @@
 
 <template>
   <div class="settings-wrapper">
-
-    <!-- 固定ヘッダー（保存ボタン） -->
-    <div class="header-save">
-      <button class="save-btn" @click="saveAll">
-        保存する
-      </button>
-    </div>
 
     <!-- タブUI -->
     <div class="tabs">
