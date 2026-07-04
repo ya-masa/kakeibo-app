@@ -7,7 +7,7 @@ import Edit from "@/pages/Edit.vue"
 import Setting from "@/pages/Setting.vue"
 import Home from "@/pages/Home.vue"
 import Kamoku from "@/components/SettingsUnifiedTabs.vue"
-import shops from "@/components/settingShops.vue"
+import shops from "@/components/SettingShops.vue"
 
 const routes = [
 
