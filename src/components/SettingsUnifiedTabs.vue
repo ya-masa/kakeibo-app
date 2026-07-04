@@ -11,7 +11,7 @@ const mode = ref(100)
 
 /* GASから一覧データ取得 */
 onMounted(async () => {
-  const res = await fetch(`${GAS_URL}?mode=ALLLIST`)
+  const res = await fetch(`${GAS_URL}?list=ALLLIST`)
   const all = await res.json()
 
   rawList.value = all
