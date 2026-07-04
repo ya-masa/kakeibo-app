@@ -184,11 +184,8 @@ try {
         >
           <input type="checkbox" v-model="item.disabled" />
           
-          <span
-            v-model="item.code"
-            :class="{ disabled: item.disabled }"
-          />
-          
+          <span>item.code</span>
+
           <input
             v-model="item.name"
             type="text"
