@@ -184,12 +184,8 @@ try {
         >
           <input type="checkbox" v-model="item.disabled" />
           
-          <input
-            v-model="item.code"
-            type="text"
-            class="item-input"
-            :class="{ disabled: item.disabled }"
-          />
+          <span class="item-code">{{ item.code }}</span>
+
           <input
             v-model="item.name"
             type="text"
@@ -197,9 +193,9 @@ try {
             :class="{ disabled: item.disabled }"
           />
 
-          <button class="delete" @click="removeItem(category, index)">
+ <!--   <button class="delete" @click="removeItem(category, index)">
             削除
-          </button>
+          </button>-->      
         </div>
       </div>
 
@@ -323,6 +319,13 @@ try {
   border: none;
   border-radius: 8px;
   font-size: 16px;
+}
+.item-code {
+  width: 60px;
+  display: inline-block;
+  text-align: center;
+  color: #555;
+  font-size: 14px;
 }
 
 </style>
