@@ -12,20 +12,20 @@
 
     /* GASから一覧データ取得 */
     onMounted(async () => {
-    const res = await fetch(`${GAS_URL}?list=ALLLIST`)
-    console.log("ALLLIST:")
-    const all = await res.json()
+        const res = await fetch(`${GAS_URL}?list=ALLLIST`)
+        console.log("ALLLIST:")
+        const all = await res.json()
 
-    rawList.value = all
-    console.log("rawList:",rawList)
-    // ローディング解除
-    requestAnimationFrame(() => {
+        rawList.value = all
+        console.log("rawList:",rawList)
+        // ローディング解除
         requestAnimationFrame(() => {
-        setTimeout(() => {
-            loadingStore.globalLoading.value = false
-        }, 10)
+            requestAnimationFrame(() => {
+            setTimeout(() => {
+                loadingStore.globalLoading.value = false
+            }, 10)
+            })
         })
-    })
     })
 
     /* モードに応じて group を決める */

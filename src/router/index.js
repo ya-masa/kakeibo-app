@@ -28,6 +28,7 @@ const routes = [
 
   // お店設定画面
   { path: "/setting/shops", name: "shops", component: shops },
+  
   // ★ ホーム画面
   { path: "/home", name: "home", component: Home },
   

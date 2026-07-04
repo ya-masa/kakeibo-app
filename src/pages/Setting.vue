@@ -28,12 +28,6 @@ export default {
     const goCategories = () => {
       router.push('/setting/kamoku')
     }
-    const goShops = () => {
-      router.push('/setting/shops')
-    }
-
-
-
     onMounted(() => {
       setTimeout(() => {
         loadingStore.globalLoading.value = false
@@ -41,6 +35,25 @@ export default {
     })
 
     return { goCategories }
+  },
+}
+
+export default {
+  name: 'SettingsPage',
+  setup() {
+    const router = useRouter()
+
+    const goShops = () => {
+      router.push('/setting/shops')
+    }
+
+    onMounted(() => {
+      setTimeout(() => {
+        loadingStore.globalLoading.value = false
+      }, 10)
+    })
+
+    return { goShops }
   },
 }
 </script>
