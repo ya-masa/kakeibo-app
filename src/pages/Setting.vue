@@ -6,9 +6,12 @@
     <button class="nav-btn" @click="goCategories">
       口座や小項目編集
     </button>
+
+    <!-- よく使うお店の編集へ遷移 -->
     <button class="nav-btn" @click="goShops">
       よく使うお店の編集
     </button>
+
     <p>毎月の定期収支設定</p>
     <p>年1回の定期収支設定</p>
   </div>
@@ -19,7 +22,6 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import loadingStore from "@/stores/loadingStore"
 
-
 export default {
   name: 'SettingsPage',
   setup() {
@@ -28,20 +30,6 @@ export default {
     const goCategories = () => {
       router.push('/setting/kamoku')
     }
-    onMounted(() => {
-      setTimeout(() => {
-        loadingStore.globalLoading.value = false
-      }, 10)
-    })
-
-    return { goCategories }
-  },
-}
-
-export default {
-  name: 'SettingsPage',
-  setup() {
-    const router = useRouter()
 
     const goShops = () => {
       router.push('/setting/shops')
@@ -53,7 +41,7 @@ export default {
       }, 10)
     })
 
-    return { goShops }
+    return { goCategories, goShops }
   },
 }
 </script>
