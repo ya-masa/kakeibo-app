@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
-import { useRouter } from 'vue-router'
 
 
 /* GASから取得した生データ */
@@ -138,7 +137,7 @@ try {
 
   const result = await res.json()
      alert(result.message)
-     router.push('/Setting')
+     router.push('/setting')
 }   catch (e) {
     alert("更新に失敗しました"+e.message)
   } 
