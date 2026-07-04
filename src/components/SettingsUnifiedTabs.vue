@@ -184,7 +184,7 @@ try {
         >
           <input type="checkbox" v-model="item.disabled" />
           
-          <span class="item-code">{{ item.code }}</span>
+          <span class="item-code">{{ item.code }}🔒</span>
 
           <input
             v-model="item.name"
