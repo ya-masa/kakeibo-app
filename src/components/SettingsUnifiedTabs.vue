@@ -184,7 +184,7 @@ try {
         >
           <input type="checkbox" v-model="item.disabled" />
           
-          <span
+          <input
             v-model="item.code"
             type="text"
             class="item-input"
