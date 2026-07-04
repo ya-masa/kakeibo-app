@@ -130,8 +130,7 @@
             class="item-row"
             >
             <div>
-                <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}🔒</span>
-                <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}🔒</span>
+                <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}</span>
 
                 <!-- ＋ボタン -->
                 <button @click="toggle(item.code)">
@@ -139,21 +138,22 @@
                 </button>
             </div>
             <!-- ショップ入力欄（10個） -->
-             <div>
-            <div v-if="openedCode === item.code" class="shop-editor">
-            <div
-                v-for="(shop, sIndex) in item.shops"
-                :key="sIndex"
-                class="shop-row"
-            >
-                <span class="item-input">{{sIndex}}</span>
-                <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
+            <div v-for="item in items" :key="item.code" class="card">
+
+              <div class="row">
+                {{ item.code }} {{ item.name }}
+                <button @click="toggle(item)">＋</button>
+              </div>
+
+              <div v-if="item.open" class="shop-area">
+                <div v-for="(shop, index) in item.shops" :key="index">
+                  {{ index + 1 }}、<input v-model="item.shops[index]" placeholder="お店" />
+                </div>
+
+                <button @click="update(item)">更新</button>
+              </div>
+
             </div>
-            <button class="update-btn" @click="update(item)">
-                更新
-            </button>
-            </div>
-        </div>
 
         </div>
       </div>
