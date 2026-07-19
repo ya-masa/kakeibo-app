@@ -1,114 +1,100 @@
 <script setup>
-    import { ref, computed, onMounted } from 'vue'
-    import { GAS_URL } from '@/constants/index.js'
-    import loadingStore from "@/stores/loadingStore"
+  import { ref, computed, onMounted } from 'vue'
+  import { GAS_URL } from '@/constants/index.js'
+  import loadingStore from "@/stores/loadingStore"
 
+  /* GASから取得した生データ */
+  const rawList = ref([])
 
-    /* GASから取得した生データ */
-    const rawList = ref([])
+  /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
+  const mode = ref(100)
 
-    /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
-    const mode = ref(100)
+  /* GASから一覧データ取得 */
+  onMounted(async () => {
+      const res = await fetch(`${GAS_URL}?list=ALLLIST`)
+      console.log("ALLLIST:")
+      const all = await res.json()
 
-    /* GASから一覧データ取得 */
-    onMounted(async () => {
-        const res = await fetch(`${GAS_URL}?list=ALLLIST`)
-        console.log("ALLLIST:")
-        const all = await res.json()
+      rawList.value = all
+      console.log("rawList:",rawList)
+      // ローディング解除
+      requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+          setTimeout(() => {
+              loadingStore.globalLoading.value = false
+          }, 10)
+          })
+      })
+  })
 
-        rawList.value = all
-        console.log("rawList:",rawList)
-        // ローディング解除
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-            setTimeout(() => {
-                loadingStore.globalLoading.value = false
-            }, 10)
-            })
-        })
-    })
-
-    /* モードに応じて group を決める */
-    const modeGroup = computed(() => {
+  /* モードに応じて group を決める */
+  const modeGroup = computed(() => {
     if (mode.value === 100) return "1_資産"
     if (mode.value === 200) return "2_負債"
     if (mode.value === 400) return "4_収入"
     if (mode.value === 500) return "5_支出"
-    })
+  })
 
-    /* 大項目ごとにカード化する */
-    const categories = computed(() => {
-    const list = rawList.value.filter(i => i.group === modeGroup.value)
+  /* 大項目ごとにカード化する */
+  const categories = computed(() => {
+  const list = rawList.value.filter(i => i.group === modeGroup.value)
 
-    const map = {}
+  const map = {}
 
-    list.forEach(item => {
-        if (!map[item.daikoumoku]) {
-        map[item.daikoumoku] = {
-            daikoumoku: item.daikoumoku,
-            daikoumokuCode: Math.floor(item.code / 10) * 10, // 大項目コード
-            items: []
-        }
-        }
-
-        map[item.daikoumoku].items.push({
-        code: item.code,
-        name: item.shoukoumoku,
-        disabled: item.hihyouji === true,
-        order: item.hihyouji === true ? null : item.hihyouji,
-        shops:item.shops?? Array(10).fill(""),
-        })
-    })
-
-    // 🔥 小項目を code 順に並べ替え
-    Object.values(map).forEach(category => {
-        category.items.sort((a, b) => a.code - b.code)
-    })
-
-    // 🔥 大項目も code 順に並べ替え
-    return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
-    })
-
-
-    const openedCode = ref(null)
-    //トグルボタンを押したときの動作
-    const toggle = (code) => {
-        console.log("toggle:", code)
-        openedCode.value = openedCode.value === code ? null : code
+  list.forEach(item => {
+    if (!map[item.daikoumoku]) {
+      map[item.daikoumoku] = {
+        daikoumoku: item.daikoumoku,
+        daikoumokuCode: Math.floor(item.code / 10) * 10, // 大項目コード
+        items: []
+      }
     }
+
+    map[item.daikoumoku].items.push({
+      code: item.code,
+      name: item.shoukoumoku,
+      disabled: item.hihyouji === true,
+      order: item.hihyouji === true ? null : item.hihyouji,
+      shops:item.shops?? Array(10).fill(""),
+    })
+  })
+
+  // 🔥 小項目を code 順に並べ替え
+  Object.values(map).forEach(category => {
+    category.items.sort((a, b) => a.code - b.code)
+  })
+  // 🔥 大項目も code 順に並べ替え
+  return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
+  })
+
+
+  const openedCode = ref(null)
+  //トグルボタンを押したときの動作
+  const toggle = (code) => {
+    console.log("toggle:", code)
+    openedCode.value = openedCode.value === code ? null : code
+  }
   
-    //更新ボタン押下時の処理
-    const update = async (item) => {
-    item.dirty = false
-    loadingStore.globalLoading.value = true
+  //更新ボタン押下時の処理
+  const update = async (item) => {
+  item.dirty = false
+  loadingStore.globalLoading.value = true
 
-    try {
-        const res = await fetch(`${GAS_URL}?mode=kamoku`, {
-        method: "POST",
-        body: JSON.stringify(rawList.value)
-        })
+  try {
+    const res = await fetch(`${GAS_URL}?mode=kamoku`, {
+      method: "POST",
+      body: JSON.stringify(rawList.value)
+    })
 
-        const result = await res.json()
-        alert(result.message)
-        item.dirty = false
-
-    } catch (e) {
-        alert("更新に失敗しました" + e.message)
-    }
-
-    loadingStore.globalLoading.value = false
-    }
-    
-    function normalizeShops(shops) {
-  const result = [];
-
-  for (let i = 0; i < 10; i++) {
-    result.push(shops[i] || "");   // 足りない分は空欄
+    const result = await res.json()
+      alert(result.message)
+      item.dirty = false
+  } catch (e) {
+      alert("更新に失敗しました" + e.message)
   }
 
-  return result;
+  loadingStore.globalLoading.value = false
 }
-
 </script>
 
 <template>
@@ -132,43 +118,23 @@
         <h3>{{ category.daikoumoku }}</h3>
         <span class="lock">🔒</span>
       </div>
+      <!-- ショップ入力欄（10個） -->
+      <div v-for="item in items" :key="item.code" class="card">
 
-      <div class="item-list">
-        <div
-            v-for="(item, index) in category.items"
-            :key="index"
-            class="item-row"
-            >
-            <div>
-                <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}🔒</span>
-                <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}🔒</span>
-
-                <!-- ＋ボタン -->
-                <button @click="toggle(item.code)">
-                    ＋
-                </button>
-            </div>
-            <!-- ショップ入力欄（10個） -->
-             <div>
-            <div v-if="openedCode === item.code" class="shop-editor">
-            <div
-                v-for="(shop, sIndex) in item.shops"
-                :key="sIndex"
-                class="shop-row"
-            >
-                <span class="item-input">{{sIndex}}</span>
-                <input v-model="item.shops[sIndex]" placeholder="ショップ名" @input="item.dirty = true" />
-            </div>
-            <button class="update-btn" @click="update(item)">
-                更新
-            </button>
-            </div>
+        <div class="row">
+          {{ item.code }} {{ item.name }}
+          <button @click="toggle(item)">＋</button>
         </div>
 
+        <div v-if="item.open" class="shop-area">
+          <div v-for="shop in item.shops" :key="shop.id">
+            {{ shop.id }}、<input v-model="shop.name" placeholder="お店" />
+          </div>
+
+          <button @click="update(item)">更新</button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
