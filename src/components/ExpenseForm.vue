@@ -11,7 +11,7 @@
       <label  class="form-lavel">科目</label>
       <select v-model="localForm.kamoku2"  class="select-field">
         <option 
-          v-for="item in props.listKamoku"
+          v-for="item in props.listShishutsu"
           :key="item.code"
           :value="item.code"
         >
@@ -87,7 +87,7 @@ import loadingStore from "@/stores/loadingStore"
 import LoadingIcon from './LoadingIcon.vue'
 
   const props = defineProps({
-    listKamoku: { type: Array, default: () => [] },
+    listShishutsu: { type: Array, default: () => [] },
     listHouhou: { type: Array, default: () => [] },
     listCodeShops: { type: Array, default: () => [] },
     mode: { type: String, default: "add" },   // add / edit

@@ -18,7 +18,7 @@
     <!-- 支出 -->
     <div class="tab-card" v-if="currentTab === 'expense'">
       <ExpenseForm 
-        :listKamoku="listShishutsu"
+        :listShishutsu="listShishutsu"
         :listHouhou="listKouza"
         :listCodeShops="listCodeShops"
         :mode="props.mode"
@@ -31,7 +31,7 @@
     <!-- 収入 -->
     <div class="tab-card" v-if="currentTab === 'income'">
       <IncomeForm 
-        :listKamoku="listShunyu"
+        :listShunyu="listShunyu"
         :listHouhou="listKouza"
         :listCodeShops="listCodeShops"
         :mode="props.mode"
