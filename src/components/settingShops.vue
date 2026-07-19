@@ -66,11 +66,6 @@
   return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
   })
 
-  this.items.forEach(item => {
-    const shopsFromGas = gasData[item.code] || [];
-    item.shops = normalizeShops(shopsFromGas);
-  })
-
   const openedCode = ref(null)
   //トグルボタンを押したときの動作
   const toggle = (code) => {
