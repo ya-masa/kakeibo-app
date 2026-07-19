@@ -268,14 +268,14 @@ function normalizeShops(shops) {
   color: red;
 }
 
-.row ,.shop-area{
+.row ,.shop-area,.item-list{
   margin-left: 70px; /* コードの下に少しインデント */
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.item-list{
+.item-row{
   display: flex;
   flex-direction: row;
   gap: 10px;
