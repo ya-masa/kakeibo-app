@@ -49,13 +49,12 @@
         items: []
       }
     }
-
     map[item.daikoumoku].items.push({
       code: item.code,
-      name: item.shoukoumoku,
+      shoukoumoku: item.shoukoumoku,   // ← name ではなく shoukoumoku に統一
       disabled: item.hihyouji === true,
       order: item.hihyouji === true ? null : item.hihyouji,
-      shops:item.shops?? Array(10).fill(""),
+      shops: normalizeShops(item.shops ?? [])
     })
   })
 
@@ -132,28 +131,21 @@ function normalizeShops(shops) {
         <h3>{{ category.daikoumoku }}</h3>
         <span class="lock">🔒</span>
       </div>
-
       <div class="item-list">
-        <div
-          v-for="(item, index) in category.items"
-          :key="index"
-          class="item-row"
-        >
-        <span class="item-code" >{{ item.code }}</span>
-        <span class="item-input">{{ item.shoukoumoku }}</span>
-        <!-- ＋ボタン -->
-        <button @click="toggle(item.shops)">
-            ＋
-        </button>
-        </div>
-        <div v-if="item.open" class="shop-area">
-          <div v-for="shop in item.shops" :key="shop.id">
-            <div class="row">
-              {{ item.name }}
-              <button class="update-btn" @click="update(item)">
-                  更新
-              </button>
+        <div v-for="(item, index) in category.items" :key="index" class="item-row">
+          <span class="item-code">{{ item.code }}</span>
+          <span class="item-input">{{ item.shoukoumoku }}</span>
+
+          <button @click="toggle(item.code)">＋</button>
+
+          <div v-if="openedCode === item.code" class="shop-area">
+            <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="row">
+              <input v-model="item.shops[sIndex]" placeholder="ショップ名" />
             </div>
+
+            <button class="update-btn" @click="update(item)">
+              更新
+            </button>
           </div>
         </div>
       </div>
