@@ -139,15 +139,14 @@ function normalizeShops(shops) {
           :key="index"
           class="item-row"
         >
-        <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
-        <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}</span>
+        <span class="item-code" >{{ item.code }}</span>
+        <span class="item-input">{{ item.shoukoumoku }}</span>
         <!-- ＋ボタン -->
         <button @click="toggle(item.shops)">
             ＋
         </button>
-      </div>
-
-      <div v-if="item.open" class="shop-area">
+        </div>
+        <div v-if="item.open" class="shop-area">
           <div v-for="shop in item.shops" :key="shop.id">
             <div class="row">
               {{ item.name }}
