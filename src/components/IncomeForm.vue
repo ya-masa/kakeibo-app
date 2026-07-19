@@ -11,7 +11,7 @@
       <label  class="form-lavel">科目</label>
       <select v-model="localForm.kamoku2"  class="select-field">
         <option 
-          v-for="item in props.listShunyu"
+          v-for="item in props.listSyunyu"
           :key="item.code"
           :value="item.code"
         >

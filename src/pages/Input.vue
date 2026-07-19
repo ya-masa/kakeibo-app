@@ -31,7 +31,7 @@
     <!-- 収入 -->
     <div class="tab-card" v-if="currentTab === 'income'">
       <IncomeForm 
-        :listShunyu="listShunyu"
+        :listSyunyu="listSyunyu"
         :listHouhou="listKouza"
         :listCodeShops="listCodeShops"
         :mode="props.mode"
