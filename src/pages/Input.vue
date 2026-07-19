@@ -104,7 +104,7 @@ const localForm = ref({
 
 /* データ */
 const listShishutsu = ref([])
-const listShunyu = ref([])
+const listSyunyu = ref([])
 const listKouza = ref([])
 const listAllKouza =ref([])
 const listCodeShops = ref([])
@@ -115,7 +115,7 @@ onMounted(async () => {
   const all = await res.json()
 
   listShishutsu.value = all.filter(i => i.group?.startsWith("5_支出"))
-  listShunyu.value = all.filter(i => i.group?.startsWith("4_収入"))
+  listSyunyu.value = all.filter(i => i.group?.startsWith("4_収入"))
   listKouza.value = all.filter(i => 
     i.group?.startsWith("1_資産") || i.group?.startsWith("2_負債")
   )
