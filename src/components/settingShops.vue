@@ -126,12 +126,11 @@ function normalizeShops(shops) {
         <h3>{{ category.daikoumoku }}</h3>
         <span class="lock">🔒</span>
       </div>
-      <div class="item-list">
-        <div v-for="(item, index) in category.items" :key="index" class="row">
+      <div class="item-area">
+        <div v-for="(item, index) in category.items" :key="index" class="item-list">
           <div class="item-row">
             <span class="item-code">{{ item.code }}</span>
             <span class="item-input">{{ item.shoukoumoku }}</span>
-
             <button @click="toggle(item.code)">＋</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
@@ -190,6 +189,7 @@ function normalizeShops(shops) {
 .card-header {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -199,25 +199,32 @@ function normalizeShops(shops) {
 }
 
 /* 小項目行 */
-.item-row {
+.item-area {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  width:100%;
   gap: 10px;
+}
+
+.item-row ,.shop-row{
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
   margin-bottom: 10px;
+  width:100%;
 }
 
-.item-input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.item-list,.shop-area{
+  display: flex;
+  flex-direction: column;
+  align-items: right;
+  gap: 10px;
 }
 
-.item-input.disabled {
-  background: #f0f0f0;
-  color: #999;
+.shop-row input{
+  width: 80%;
+  margin-left:40px;
 }
-
 /* 削除ボタン */
 .delete {
   padding: 6px 10px;
@@ -265,21 +272,17 @@ function normalizeShops(shops) {
   color: #555;
   font-size: 14px;
 }
+.item-input{
+  width: 80%;
+  display: inline-block;
+  text-align: left;
+  color: #555;
+  font-size: 14px;
+}
+
 .dirty {
   color: red;
 }
 
-.row ,.shop-area,.item-list{
-  margin-left: 70px; /* コードの下に少しインデント */
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.item-row{
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-}
 
 </style>
