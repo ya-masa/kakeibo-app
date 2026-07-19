@@ -132,7 +132,7 @@ function normalizeShops(shops) {
           <span class="item-input">{{ item.shoukoumoku }}</span>
 
           <button @click="toggle(item.code)">＋</button>
-
+          
           <div v-if="openedCode === item.code" class="shop-area">
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="row">
               <input v-model="item.shops[sIndex]" placeholder="ショップ名" />
