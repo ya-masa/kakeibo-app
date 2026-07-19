@@ -87,7 +87,7 @@ import loadingStore from "@/stores/loadingStore"
 import LoadingIcon from './LoadingIcon.vue'
 
   const props = defineProps({
-    listShunyu: { type: Array, default: () => [] },
+    listSyunyu: { type: Array, default: () => [] },
     listHouhou: { type: Array, default: () => [] },
     listCodeShops: { type: Array, default: () => [] },
     mode: { type: String, default: "add" },   // add / edit
