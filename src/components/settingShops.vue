@@ -67,6 +67,10 @@
   return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
   })
 
+  this.items.forEach(item => {
+    const shopsFromGas = gasData[item.code] || [];
+    item.shops = normalizeShops(shopsFromGas);
+  })
 
   const openedCode = ref(null)
   //トグルボタンを押したときの動作
@@ -95,6 +99,16 @@
 
   loadingStore.globalLoading.value = false
 }
+
+function normalizeShops(shops) {
+  const result = [];
+
+  for (let i = 0; i < 10; i++) {
+    result.push(shops[i] || "");   // 足りない分は空欄
+  }
+
+  return result;
+}
 </script>
 
 <template>
@@ -118,20 +132,30 @@
         <h3>{{ category.daikoumoku }}</h3>
         <span class="lock">🔒</span>
       </div>
-      <!-- ショップ入力欄（10個） -->
-      <div v-for="item in items" :key="item.code" class="card">
 
-        <div class="row">
-          {{ item.code }} {{ item.name }}
-          <button @click="toggle(item)">＋</button>
-        </div>
+      <div class="item-list">
+        <div
+          v-for="(item, index) in category.items"
+          :key="index"
+          class="item-row"
+        >
+        <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
+        <span class="item-input" :class="{ dirty: item.dirty }">{{ item.name }}</span>
+        <!-- ＋ボタン -->
+        <button @click="toggle(item.shops)">
+            ＋
+        </button>
+      </div>
 
-        <div v-if="item.open" class="shop-area">
+      <div v-if="item.open" class="shop-area">
           <div v-for="shop in item.shops" :key="shop.id">
-            {{ shop.id }}、<input v-model="shop.name" placeholder="お店" />
+            <div class="row">
+              {{ item.name }}
+              <button class="update-btn" @click="update(item)">
+                  更新
+              </button>
+            </div>
           </div>
-
-          <button @click="update(item)">更新</button>
         </div>
       </div>
     </div>
