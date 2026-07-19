@@ -128,16 +128,16 @@ function normalizeShops(shops) {
       </div>
       <div class="item-list">
         <div v-for="(item, index) in category.items" :key="index" class="item-row">
-          <span class="item-code">{{ item.code }}</span>
-          <span class="item-input">{{ item.shoukoumoku }}</span>
+          <div class="row">
+            <span class="item-code">{{ item.code }}</span>
+            <span class="item-input">{{ item.shoukoumoku }}</span>
 
-          <button @click="toggle(item.code)">＋</button>
-
+            <button @click="toggle(item.code)">＋</button>
+          </div>
           <div v-if="openedCode === item.code" class="shop-area">
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="row">
               <input v-model="item.shops[sIndex]" placeholder="ショップ名" />
             </div>
-
             <button class="update-btn" @click="update(item)">
               更新
             </button>
@@ -268,7 +268,7 @@ function normalizeShops(shops) {
   color: red;
 }
 
-.shop-area {
+.item-row {
   margin-left: 70px; /* コードの下に少しインデント */
   display: flex;
   flex-direction: column;
