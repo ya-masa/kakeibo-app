@@ -127,8 +127,8 @@ function normalizeShops(shops) {
         <span class="lock">🔒</span>
       </div>
       <div class="item-list">
-        <div v-for="(item, index) in category.items" :key="index" class="item-row">
-          <div class="row">
+        <div v-for="(item, index) in category.items" :key="index" class="row">
+          <div class="item-row">
             <span class="item-code">{{ item.code }}</span>
             <span class="item-input">{{ item.shoukoumoku }}</span>
 
@@ -268,14 +268,14 @@ function normalizeShops(shops) {
   color: red;
 }
 
-.row {
+.item-row ,.shop-area{
   margin-left: 70px; /* コードの下に少しインデント */
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.shop-area {
+.row{
   display: flex;
   flex-direction: row;
   gap: 10px;
