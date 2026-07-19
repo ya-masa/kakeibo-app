@@ -101,7 +101,7 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-  console.log("listSyunyu:",listShunyu) 
+  console.log("listSyunyu:",listSyunyu) 
   console.log("listHouhou:",listHouhou) 
   console.log("listCodeShops:",listCodeShops) 
   const localForm = ref({
