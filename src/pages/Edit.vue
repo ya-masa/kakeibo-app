@@ -18,8 +18,6 @@ import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import { useRouter } from 'vue-router'
 
-
-const route = useRoute()
 const rowNo = route.query.rowNo
 const router = useRouter()
 
