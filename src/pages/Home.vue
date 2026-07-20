@@ -1,20 +1,20 @@
 <template>
 
   <div class="month-switch">
-    <button @click="goPrevMonth">前月</button>
+    <button class="nav-btn prev" @click="goPrevMonth">前月</button>
 
-    <span>{{ outputYear }} 年 {{ outputMonth }} 月</span>
+    <div class="month-label">
+      {{ outputYear }} 年 {{ outputMonth }} 月
+    </div>
 
-    <!-- 翌月ボタン：当月のときは非表示 -->
     <button
+      class="nav-btn next"
       v-if="!(outputYear === now.getFullYear() && outputMonth === now.getMonth() + 1)"
       @click="goNextMonth"
     >
       翌月
     </button>
   </div>
-
-
   <div class="has-footer">
 
     <!-- 今月の収支 -->
