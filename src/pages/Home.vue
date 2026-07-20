@@ -19,7 +19,7 @@
 
     <!-- 今月の収支 -->
     <section class="card">
-      <h2>今月の収支</h2>
+      <h2>一か月の収支</h2>
       <div class="row">
         <span>収入</span>
         <span class ="amount">{{ monthly.income }} 円</span>
@@ -36,7 +36,7 @@
 
     <!-- 今月の支出（円グラフ＋大項目） -->
     <section class="card">
-        <h2>今月の支出</h2>
+        <h2>一か月の支出</h2>
       <div class="toggle-header" @click="showExpense = !showExpense">
       </div>
 
