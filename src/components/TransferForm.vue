@@ -149,14 +149,14 @@ import loadingStore from "@/stores/loadingStore"
   watch(() => localForm.value.kingaku1, (val) => {
     if (updating) return
     updating = true
-    localForm.value.kingaku2 = val ? -Number(val) : ""
+    localForm.value.kingaku2 = val ? -val: ""
     updating = false
   })
 
   watch(() => localForm.value.kingaku2, (val) => {
     if (updating) return
     updating = true
-    localForm.value.kingaku1 = val ? -Number(val) : ""
+    localForm.value.kingaku1 = val ? -val: ""
     updating = false
   })
 

@@ -112,7 +112,7 @@ import LoadingIcon from './LoadingIcon.vue'
     kamoku1: Number(props.form?.kamoku2) || 700,
     kamoku2: Number(props.form?.kamoku1) || 700,
     aite: props.form?.aite || "",
-    kingaku1: props.form?.kingaku1 || "",
+    kingaku1: props.form?.kingaku1 || 0,
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
