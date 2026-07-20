@@ -101,9 +101,9 @@ import LoadingIcon from './LoadingIcon.vue'
   // 初期値（追加 or 修正）
   // ---------------------------
   const today = new Date().toISOString().slice(0, 10)
-  console.log("listSyunyu:",listSyunyu) 
-  console.log("listHouhou:",listHouhou) 
-  console.log("listCodeShops:",listCodeShops) 
+  console.log("listSyunyu:",props.listSyunyu) 
+  console.log("listHouhou:",props.listHouhou) 
+  console.log("listCodeShops:",props.listCodeShops) 
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
     type:"income",
@@ -131,7 +131,7 @@ import LoadingIcon from './LoadingIcon.vue'
   });
 
 
-  watch(() => props.listKamoku, () => {
+  watch(() => props.listSyunyu, () => {
     // 科目リストが更新されたら選択値を再調整
     if (!props.listSyunyu.some(i => i.code === localForm.value.kamoku2)) {
       localForm.value.kamoku2 = props.listSyunyu[0]?.code || ""

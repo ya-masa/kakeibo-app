@@ -128,10 +128,10 @@ import LoadingIcon from './LoadingIcon.vue'
     }
   });
 
-  watch(() => props.listKamoku, () => {
+  watch(() => props.listShishutsu, () => {
     // 科目リストが更新されたら選択値を再調整
-    if (!props.listKamoku.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = props.listKamoku[0]?.code || ""
+    if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
+      localForm.value.kamoku2 = props.listShishutsu[0]?.code || ""
     }
   })
   watch(() => props.listHouhou, () => {
