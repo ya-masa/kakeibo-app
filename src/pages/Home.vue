@@ -1,4 +1,20 @@
 <template>
+
+  <div class="month-switch">
+    <button @click="goPrevMonth">前月</button>
+
+    <span>{{ outputYear }} 年 {{ outputMonth }} 月</span>
+
+    <!-- 翌月ボタン：当月のときは非表示 -->
+    <button
+      v-if="!(outputYear === now.getFullYear() && outputMonth === now.getMonth() + 1)"
+      @click="goNextMonth"
+    >
+      翌月
+    </button>
+  </div>
+
+
   <div class="has-footer">
 
     <!-- 今月の収支 -->
@@ -101,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed,watch } from "vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import PieChart from "@/components/PieChart.vue"
@@ -120,15 +136,18 @@ const openLarge = ref(null)
 const openKouza = ref(null)
 
 
+const now = new Date()
 
+const outputYear = ref(now.getFullYear()) // 初期値＝現在の年
+const outputMonth = ref(now.getMonth() + 1)   // 初期値＝当月（今なら7）
+
+//月の開始日を計算する
 function getMonthStart() {
-  const now = new Date()
-  return `${now.getFullYear()}/${String(now.getMonth() + 1)}/1`
+  return `${outputYear.value}/${String(outputMonth.value)}/1`
 }
-
+//月の終了日を計算する
 function getMonthEnd() {
-  const now = new Date()
-  const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const last = new Date(outputYear.value, outputMonth.value, 0)
   return `${last.getFullYear()}/${String(last.getMonth() + 1)}/${String(last.getDate())}`
 }
 
@@ -144,6 +163,41 @@ async function fetchThisMonth() {
   const res = await fetch(`${GAS_URL}?${params}`)
   list.value = await res.json()
 }
+
+watch(outputMonth, async () => {
+  await fetchThisMonth()
+  calcMonthly()
+  calcExpenseSummary()
+  calcAccounts()
+})
+
+//年またぎ対応関数
+function goPrevMonth() {
+  if (outputMonth.value === 1) {
+    outputMonth.value = 12
+    outputYear.value--
+  } else {
+    outputMonth.value--
+  }
+}
+
+function goNextMonth() {
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1
+
+  // 当月より先には進めない
+  if (outputYear.value === currentYear && outputMonth.value === currentMonth) {
+    return
+  }
+
+  if (outputMonth.value === 12) {
+    outputMonth.value = 1
+    outputYear.value++
+  } else {
+    outputMonth.value++
+  }
+}
+
 
 function calcMonthly() {
   monthly.value.income = list.value
