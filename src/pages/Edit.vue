@@ -18,7 +18,7 @@ import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import { useRouter } from 'vue-router'
 
-const rowNo = route.query.rowNo
+const rowNo = router.query.rowNo
 const router = useRouter()
 
 const form = ref(null)
