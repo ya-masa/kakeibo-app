@@ -145,18 +145,30 @@ const saveAll = async () => {
   loadingStore.globalLoading.value = true
   
 try {
+    const payload = new URLSearchParams()
+
+    payload.append("mode", "kamoku")
+
+    rawList.value.forEach((item, index) => {
+      payload.append(`code_${index}`, item.code)
+      payload.append(`group_${index}`, item.group)
+      payload.append(`daikomoku_${index}`, item.daikomoku)
+      payload.append(`shoukomoku_${index}`, item.shoukomoku)
+      payload.append(`hihyouji_${index}`, item.hihyouji)
+    })
+
+    // 件数も送る（GAS側で復元するため）
+    payload.append("length", rawList.value.length)
+    
   const res = await fetch(`${GAS_URL}?mode=kamoku`, {
     method: "POST",
-    headers: {
-    "Content-Type": "application/json"
-    },
-    body: JSON.stringify(rawList.value)
+    body: payload   // ← JSON ではない
   })
-  console.log("rawList:",JSON.stringify(rawList.value))  
-  const result = await res.json()
+    console.log("rawList:",payload)  
+    const result = await res.json()
      alert(result.message)
      router.push('/setting')
-}   catch (e) {
+  }   catch (e) {
     alert("更新に失敗しました"+e.message)
   } 
 
