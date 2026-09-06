@@ -107,7 +107,7 @@ import LoadingIcon from './LoadingIcon.vue'
   console.log("listCodeShops:",props.listCodeShops) 
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:"income",
+    type:  'income',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
     kamoku1: Number(props.form?.kamoku2) || 700,

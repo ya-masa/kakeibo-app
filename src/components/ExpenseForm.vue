@@ -103,7 +103,7 @@ import LoadingIcon from './LoadingIcon.vue'
 
   const localForm = ref({
     rowNo: props.form?.rowNo || "",
-    type:"expense",
+    type:'expense',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
     kamoku1: Number(props.form?.kamoku2) || 700,
