@@ -12,8 +12,9 @@
       よく使うお店の編集
     </button>
 
-    <p>毎月の定期収支設定</p>
-    <p>年1回の定期収支設定</p>
+    <button class="nav-btn" @click="goMonthlys">
+      定期収支設定
+    </button>
   </div>
 </template>
 
@@ -35,13 +36,17 @@ export default {
       router.push('/setting/shops')
     }
 
+    const goMonthlys = () => {
+      router.push('/setting/monthly')
+    }
+
     onMounted(() => {
       setTimeout(() => {
         loadingStore.globalLoading.value = false
       }, 10)
     })
 
-    return { goCategories, goShops }
+    return { goCategories, goShops ,goMonthlys}
   },
 }
 </script>

@@ -8,6 +8,7 @@ import Setting from "@/pages/Setting.vue"
 import Home from "@/pages/Home.vue"
 import Kamoku from "@/components/SettingsUnifiedTabs.vue"
 import shops from "@/components/SettingShops.vue"
+import monthly from "@/components/SettingMonthly.vue"
 
 const routes = [
 
@@ -28,6 +29,9 @@ const routes = [
 
   // お店設定画面
   { path: "/setting/shops", name: "shops", component: shops },
+  
+  // 定期収支設定画面
+  { path: "/setting/monthly", name: "monthly", component: monthly },
   
   // ★ ホーム画面
   { path: "/home", name: "home", component: Home },
