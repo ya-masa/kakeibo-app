@@ -53,7 +53,7 @@ const categories = computed(() => {
 
     map[item.daikoumoku].items.push({
       code: item.code,
-      name: item.shoukoumoku,
+      shoukoumoku: item.shoukoumoku,
       disabled: item.hihyouji === true,
       order: item.hihyouji === true ? null : item.hihyouji
     })
@@ -164,7 +164,7 @@ try {
     method: "POST",
     body: payload   // ← JSON ではない
   })
-    console.log("rawList:",payload)  
+    console.log("rawList:"+payload,)  
     const result = await res.json()
      alert(result.message)
      router.push('/setting')
@@ -217,7 +217,7 @@ try {
           <span class="item-code">{{ item.code }}🔒</span>
 
           <input
-            v-model="item.name"
+            v-model="item.shoukoumoku"
             type="text"
             class="item-input"
             @input="changeItem(item)"
