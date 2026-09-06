@@ -147,7 +147,10 @@ const saveAll = async () => {
 try {
   const res = await fetch(`${GAS_URL}?mode=kamoku`, {
     method: "POST",
-    body: JSON.stringify(rawList.value)
+    headers: {
+    "Content-Type": "application/json"
+    },
+    body: rawList.value
   })
   console.log("rawList:",rawList.value)  
   const result = await res.json()
