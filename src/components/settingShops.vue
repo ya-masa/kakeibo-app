@@ -7,7 +7,7 @@
   const rawList = ref([])
 
   /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
-  const mode = ref(100)
+  const mode = ref(500)
 
   /* GASから一覧データ取得 */
   onMounted(async () => {
@@ -75,24 +75,37 @@
   
   //更新ボタン押下時の処理
   const update = async (item) => {
-  item.dirty = false
-  loadingStore.globalLoading.value = true
+  loadingStore.globalLoading.value = true;
 
   try {
-    const res = await fetch(`${GAS_URL}?mode=kamoku`, {
-      method: "POST",
-      body: JSON.stringify(rawList.value)
-    })
+    const payload = new URLSearchParams();
 
-    const result = await res.json()
-      alert(result.message)
-      item.dirty = false
+    payload.append("mode", "shops");
+    payload.append("code", item.code);
+    payload.append("group", modeGroup.value);          // ← item.group は存在しないので修正
+    payload.append("daikoumoku", item.daikoumoku);     // ← daikomoku → daikoumoku に修正
+    payload.append("shoukoumoku", item.shoukoumoku);
+    payload.append("hihyouji", item.disabled ? true : false);
+    payload.append("shops", JSON.stringify(item.shops)); // ← 配列は JSON にするのが安全
+
+    const res = await fetch(`${GAS_URL}?mode=shops`, {
+      method: "POST",
+      body: payload
+    });
+
+    const result = await res.json();
+    alert(result.message);
+
+    // 🔥 更新成功 → dirty を消す
+    item.dirty = false;
+
   } catch (e) {
-      alert("更新に失敗しました" + e.message)
+    alert("更新に失敗しました: " + e.message);
   }
 
-  loadingStore.globalLoading.value = false
-}
+  loadingStore.globalLoading.value = false;
+  };
+
 
 function normalizeShops(shops) {
   const result = [];
@@ -128,9 +141,10 @@ function normalizeShops(shops) {
       </div>
       <div class="item-area">
         <div v-for="(item, index) in category.items" :key="index" class="item-list">
+
           <div class="item-row">
-            <span class="item-code">{{ item.code }}</span>
-            <span class="item-input">{{ item.shoukoumoku }}</span>
+            <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
+            <span class="item-input":class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
             <button @click="toggle(item.code)">＋</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
@@ -196,6 +210,12 @@ function normalizeShops(shops) {
 
 .lock {
   opacity: 0.6;
+}
+
+.item-code.dirty {
+  background-color: #ffe5e5; /* 薄い赤 */
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 /* 小項目行 */
