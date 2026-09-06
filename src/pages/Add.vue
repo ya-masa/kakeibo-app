@@ -33,10 +33,10 @@ const addItem = async (formData) => {
     const dateOnly = iso.split("T")[0]  // ← これが超重要
     var k1
     var k2
-    if(formData.type="income" && 400<=formData.Numbe(formData.kamoku1)<500){       //収入
+    if(formData.type="income" && 400<=Number(formData.kamoku1)<500){       //収入
       k1=-formData.kingaku1
       k2=formData.kingaku1
-    }else if(formData.type="expense" && 500<=Numbe(formData.kamoku1)<600){  //支出
+    }else if(formData.type="expense" && 500<=Number(formData.kamoku1)<600){  //支出
       k1=formData.kingaku1
       k2=-formData.kingaku1
     }else{                         //振替
