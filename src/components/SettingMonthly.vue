@@ -1,3 +1,84 @@
+<template>
+  <div class="settings-wrapper">
+
+    <div
+      v-for="category in categories"
+      :key="category.daikoumoku"
+      class="card"
+    >
+      <div class="item-area">
+
+        <div
+          v-for="(item, index) in category.items"
+          :key="index"
+          class="item-list"
+        >
+
+          <div class="item-row">
+            <span class="item-No">{{ item.No }}</span>
+            <span class="item-date">{{ item.day }}</span>
+            <span class="item-name">{{ item.name }}</span>
+            <button @click="toggle(item)">＋</button>
+          </div>
+
+          <div v-if="openedCode === item.No" class="info-area">
+
+            <label>科目（増えるもの）</label>      
+              <select v-model="form.kamoku1"  class="select-field">
+                <option 
+                  v-for="item in listAllKouza"
+                  :key="item.code"
+                  :value="item.code"
+                >
+                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
+                </option>
+              </select>
+
+            <label>金額</label>
+            <input type="number" v-model="form.kingaku">
+
+            <label>支払元（減るもの）</label>
+              <select v-model="form.kamoku2"  class="select-field">
+                <option 
+                  v-for="item in listAllKouza"
+                  :key="item.code"
+                  :value="item.code"
+                >
+                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
+                </option>
+              </select>
+
+            <label>店（相手）</label>
+            <input v-model="form.aite">
+
+            <label>内容</label>
+            <input v-model="form.naiyo">
+
+            <label>毎月チェック</label>
+            <div class="month-check">
+              <label v-for="m in 12" :key="m">
+                <input type="checkbox" v-model="form.month[m]"> {{m}}月
+              </label>
+            </div>
+
+            <button class="update-btn" @click="update(item)">
+              更新
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+      <button class="add-btn">
+        新規追加
+      </button>
+
+    </div>
+  </div>
+</template>
+
+
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
@@ -48,15 +129,14 @@ const toggle = (item) => {
   }
 }
 
-/* カテゴリ化（科目CD1ごと） */
 const categories = computed(() => {
-  if (!monthlyData.value) return []
-
-  return monthlyData.value.map(row => ({
+  const rows = monthlyData.value || []
+  return rows.map(row => ({
     daikoumoku: row.kamoku1,
     items: [row]
   }))
 })
+
 
 /* GASからデータ取得 */
 onMounted(async () => {
@@ -73,15 +153,15 @@ onMounted(async () => {
 })
 
 
-watch(() => listAllKouza, () => {
-    // 科目リストが更新されたら選択値を再調整
-    if (!listAllKouza.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = listAllKouza[0]?.code || ""
-    }
-    if (!listAllKouza.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1 = listAllKouza[0]?.code || ""
-    }
-  })
+watch(() => listAllKouza.value, () => {
+  if (!listAllKouza.value.some(i => i.code === form.value.kamoku2)) {
+    form.value.kamoku2 = listAllKouza.value[0]?.code || ""
+  }
+  if (!listAllKouza.value.some(i => i.code === form.value.kamoku1)) {
+    form.value.kamoku1 = listAllKouza.value[0]?.code || ""
+  }
+})
+
 
 /* 更新処理 */
 const update = async (item) => {
@@ -124,84 +204,7 @@ const update = async (item) => {
 </script>
 
 
-<template>
-  <div class="settings-wrapper">
 
-    <div
-      v-for="category in categories"
-      :key="category.daikoumoku"
-      class="card"
-    >
-      <div class="item-area">
-
-        <div
-          v-for="(item, index) in category.items"
-          :key="index"
-          class="item-list"
-        >
-
-          <div class="item-row">
-            <span class="item-No">{{ item.No }}</span>
-            <span class="item-date">{{ item.day }}</span>
-            <span class="item-name">{{ item.name }}</span>
-            <button @click="toggle(item)">＋</button>
-          </div>
-
-          <div v-if="openedCode === item.No" class="info-area">
-
-            <label>科目（増えるもの）</label>      
-              <select v-model="localForm.kamoku1"  class="select-field">
-                <option 
-                  v-for="item in props.listAllKouza"
-                  :key="item.code"
-                  :value="item.code"
-                >
-                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
-                </option>
-              </select>
-
-            <label>金額</label>
-            <input type="number" v-model="form.kingaku">
-
-            <label>支払元（減るもの）</label>
-              <select v-model="localForm.kamoku2"  class="select-field">
-                <option 
-                  v-for="item in props.listAllKouza"
-                  :key="item.code"
-                  :value="item.code"
-                >
-                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
-                </option>
-              </select>
-
-            <label>店（相手）</label>
-            <input v-model="form.aite">
-
-            <label>内容</label>
-            <input v-model="form.naiyo">
-
-            <label>毎月チェック</label>
-            <div class="month-check">
-              <label v-for="m in 12" :key="m">
-                <input type="checkbox" v-model="form.month[m]"> {{m}}月
-              </label>
-            </div>
-
-            <button class="update-btn" @click="update(item)">
-              更新
-            </button>
-
-          </div>
-        </div>
-      </div>
-
-      <button class="add-btn">
-        新規追加
-      </button>
-
-    </div>
-  </div>
-</template>
 
 
 <style scoped>
