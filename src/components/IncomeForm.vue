@@ -43,7 +43,8 @@
 
     <div class="row">
       <label  class="form-lavel">金額</label>
-      <input class="input-field input-number" type="number" v-model="kingaku1" />
+      <input class="input-field input-number" type="number" v-model="localForm.kingaku1" />
+
     </div>
 
     <div class="row">

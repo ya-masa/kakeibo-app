@@ -43,7 +43,7 @@
 
     <div class="row">
       <label  class="form-lavel">金額</label>
-      <input class="input-field input-number" type="number" v-model="kingaku1" />
+      <input class="input-field input-number" type="number" v-model="localForm.kingaku1" />
     </div>
 
     <div class="row">
@@ -135,7 +135,7 @@ import LoadingIcon from './LoadingIcon.vue'
     }
   })
   watch(() => props.listHouhou, () => {
-    // リストが口座リストが更新されたら選択値を再調整
+    // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
       localForm.value.kamoku1 = props.listHouhou[0]?.code || ""
     }
