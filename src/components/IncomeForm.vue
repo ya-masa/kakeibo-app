@@ -120,7 +120,7 @@ import LoadingIcon from './LoadingIcon.vue'
   /* -----------------------------------------
     computed：kingaku1 を自動切替
   ----------------------------------------- */
-  const kingaku1 = computed({
+  /*const kingaku1 = computed({
     get() {
       return localForm.value.kingaku1;
     },
@@ -128,7 +128,7 @@ import LoadingIcon from './LoadingIcon.vue'
       const num = Number(value) || 0;
       localForm.value.kingaku1 = num;
     }
-  });
+  });*/
 
 
   watch(() => props.listSyunyu, () => {

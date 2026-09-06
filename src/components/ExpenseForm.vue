@@ -117,7 +117,7 @@ import LoadingIcon from './LoadingIcon.vue'
   /* -----------------------------------------
     computed：kingaku1 を自動切替
   ----------------------------------------- */
-  var kingaku1 = computed({
+  /*var kingaku1 = computed({
     get() {
       return localForm.value.kingaku1;
     },
@@ -126,7 +126,7 @@ import LoadingIcon from './LoadingIcon.vue'
       kingaku1=num;
       localForm.value.kingaku1 = num;
     }
-  });
+  });*/
 
   watch(() => props.listShishutsu, () => {
     // 科目リストが更新されたら選択値を再調整
