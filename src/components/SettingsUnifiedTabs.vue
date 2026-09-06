@@ -152,8 +152,8 @@ try {
     rawList.value.forEach((item, index) => {
       payload.append(`code_${index}`, item.code)
       payload.append(`group_${index}`, item.group)
-      payload.append(`daikomoku_${index}`, item.daikomoku)
-      payload.append(`shoukomoku_${index}`, item.shoukomoku)
+      payload.append(`daikomoku_${index}`, item.daikoumoku)
+      payload.append(`shoukomoku_${index}`, item.shoukoumoku)
       payload.append(`hihyouji_${index}`, item.hihyouji)
     })
 
