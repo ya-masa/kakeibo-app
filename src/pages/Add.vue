@@ -33,10 +33,10 @@ const addItem = async (formData) => {
     const dateOnly = iso.split("T")[0]  // ← これが超重要
     var k1
     var k2
-    if(400<=formData.kamoku1<500){       //収入
+    if(400<=formData.kamoku2<500){       //収入
       k1=formData.kingaku1
       k2=-formData.kingaku1
-    }else if(500<=formData.kamoku1<600){  //支出
+    }else if(500<=formData.kamoku2<600){  //支出
       k1=-formData.kingaku1
       k2=formData.kingaku1
     }else{                         //振替
@@ -55,13 +55,12 @@ const addItem = async (formData) => {
     payload.append("naiyo",formData.naiyo)
     payload.append("aite",formData.aite)
     payload.append("kakunin",formData.kakunin)
-
-    console.log("送信データ:", payload)
+    
+    console.log("送信データpayload:", payload)
     const res = await fetch(GAS_URL, {
       method: "POST",
       body: payload   // ← headers も JSON.stringify も不要
     })
-    
     const result = await res.json()
     alert(result.message)
     router.push('/list')
