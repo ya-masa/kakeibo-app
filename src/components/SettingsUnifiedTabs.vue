@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, methods } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
 
@@ -127,6 +127,19 @@ const removeItem = (category, index) => {
   rawList.value = rawList.value.filter(i => i !== item)
 }
 
+/*小項目の変更を反映 */
+const changeItem = (item) => {
+  // rawList の該当データを探す
+  const target = rawList.value.find(i => i.code === item.code)
+
+  if (target) {
+    target.shoukoumoku = item.name   // ← 保存用データを更新
+  }
+
+  console.log("保存:", target)
+}
+
+
 /*全項目保存 */
 const saveAll = async () => {
   loadingStore.globalLoading.value = true
@@ -192,6 +205,7 @@ try {
             v-model="item.name"
             type="text"
             class="item-input"
+            @input="changeItem(item)"
             :class="{ disabled: item.disabled }"
           />
               
