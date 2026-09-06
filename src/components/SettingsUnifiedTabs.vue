@@ -150,9 +150,9 @@ try {
     headers: {
     "Content-Type": "application/json"
     },
-    body: rawList.value
+    body: JSON.stringify(rawList.value)
   })
-  console.log("rawList:",rawList.value)  
+  console.log("rawList:",JSON.stringify(rawList.value))  
   const result = await res.json()
      alert(result.message)
      router.push('/setting')
