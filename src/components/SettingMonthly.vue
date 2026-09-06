@@ -72,6 +72,17 @@ onMounted(async () => {
   loadingStore.globalLoading.value = false
 })
 
+
+watch(() => listAllKouza, () => {
+    // 科目リストが更新されたら選択値を再調整
+    if (!listAllKouza.some(i => i.code === localForm.value.kamoku2)) {
+      localForm.value.kamoku2 = listAllKouza[0]?.code || ""
+    }
+    if (!listAllKouza.some(i => i.code === localForm.value.kamoku1)) {
+      localForm.value.kamoku1 = listAllKouza[0]?.code || ""
+    }
+  })
+
 /* 更新処理 */
 const update = async (item) => {
   loadingStore.globalLoading.value = true;
@@ -138,14 +149,30 @@ const update = async (item) => {
 
           <div v-if="openedCode === item.No" class="info-area">
 
-            <label>科目（増えるもの）</label>
-            <input v-model="form.kamoku1">
+            <label>科目（増えるもの）</label>      
+              <select v-model="localForm.kamoku1"  class="select-field">
+                <option 
+                  v-for="item in props.listAllKouza"
+                  :key="item.code"
+                  :value="item.code"
+                >
+                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
+                </option>
+              </select>
 
             <label>金額</label>
             <input type="number" v-model="form.kingaku">
 
             <label>支払元（減るもの）</label>
-            <input v-model="form.kamoku2">
+              <select v-model="localForm.kamoku2"  class="select-field">
+                <option 
+                  v-for="item in props.listAllKouza"
+                  :key="item.code"
+                  :value="item.code"
+                >
+                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
+                </option>
+              </select>
 
             <label>店（相手）</label>
             <input v-model="form.aite">
