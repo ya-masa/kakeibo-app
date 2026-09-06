@@ -133,7 +133,7 @@ const changeItem = (item) => {
   const target = rawList.value.find(i => i.code === item.code)
 
   if (target) {
-    target.shoukoumoku = item.name   // ← 保存用データを更新
+    target.shoukoumoku = item.shoukoumoku   // ← 保存用データを更新
   }
 
   console.log("保存:", target)
@@ -153,7 +153,7 @@ try {
       payload.append(`code_${index}`, item.code)
       payload.append(`group_${index}`, item.group)
       payload.append(`daikomoku_${index}`, item.daikoumoku)
-      payload.append(`shoukomoku_${index}`, item.shoukoumoku)
+      payload.append(`shoukoumoku_${index}`, item.shoukoumoku)
       payload.append(`hihyouji_${index}`, item.hihyouji)
     })
 
