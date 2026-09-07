@@ -96,7 +96,6 @@ const listAllKouza = ref([])
 const monthlyData = ref([])
 
 const openedCode = ref(null)
-const hindo=ref('選択月')
 
 const form = ref({
   no: "",
@@ -149,8 +148,10 @@ onMounted(async () => {
 
   const res2 = await fetch(`${GAS_URL}?list=Monthly`)
   monthlyData.value = await res2.json()
-
+  console.log("isInitializing:",isInitializing.value )
   isInitializing.value = false
+  
+  console.log("isInitializing:",isInitializing.value )
   loadingStore.globalLoading.value = false
 })
 
@@ -167,6 +168,8 @@ onMounted(async () => {
   /* 毎月選択時、全部の月にチェックはいる
   　　選択月　選択時　全部の月のチェック消える　 */
   watch(form.value.hindo,(newVal) => {
+    
+    console.log("isInitializing:",isInitializing.value )
     if (isInitializing.value) return
 
     if (newVal === "毎月") {
@@ -214,7 +217,7 @@ onMounted(async () => {
     form.value.kamoku2 = ""
     form.value.aite = ""
     form.value.naiyo = ""
-    form.value.hindo = ""
+    form.value.hindo = "選択月"
 
     for (let m = 1; m <= 12; m++) {
       form.value.month[m] = false
@@ -257,6 +260,8 @@ const update = async (item) => {
     const res2 = await fetch(`${GAS_URL}?list=Monthly`)
     monthlyData.value = await res2.json()
     isInitializing.value = false
+    
+    console.log("isInitializing:",isInitializing.value )
 
   } catch (e) {
     alert("更新に失敗しました: " + e.message)
