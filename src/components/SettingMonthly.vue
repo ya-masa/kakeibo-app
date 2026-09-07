@@ -69,7 +69,7 @@
                 <input type="checkbox" v-model="form.month[m]" /> {{ m }}月
               </label>
             </div>
-            <button class="update-btn" @click="update">
+            <button class="update-btn" @click="update(item)">
               更新
             </button>
           </div>
@@ -91,6 +91,7 @@ import { ref, onMounted, watch } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
 
+const isInitializing = ref(true)
 const listAllKouza = ref([])
 const monthlyData = ref([])
 
@@ -122,7 +123,7 @@ const toggle = (item) => {
   form.value.kamoku1 = item.kamokuCD1
   form.value.kingaku = item.amount
   form.value.kamoku2 = item.kamokuCD2
-  form.value.aite = item.shop
+  form.value.aite = item.aite
   form.value.naiyo = item.naiyo
   form.value.hindo = item.hindo
 
@@ -142,6 +143,7 @@ const toggle = (item) => {
 
 /* GASからデータ取得 */
 onMounted(async () => {
+  isInitializing.value = false
   const res1 = await fetch(`${GAS_URL}?list=ALLLIST`)
   listAllKouza.value = await res1.json()
 
@@ -163,16 +165,20 @@ onMounted(async () => {
 
   /* 毎月選択時、全部の月にチェックはいる
   　　選択月　選択時　全部の月のチェック消える　 */
-  watch(() => form.value.hindo, (val) => {
-    if (val === "毎月") {
-      // 全チェック ON
-      for (let m = 1; m <= 12; m++) {
-        form.value.month[m] = true
+  watch(frequency, (newVal) => {
+    if (isInitializing.value) return
+
+    // 毎月 → 全部チェック入れ直す
+    if (newVal === '毎月') {
+      if (selectedMonths.value.length !== ALL_MONTHS.length) {
+        selectedMonths.value = [...ALL_MONTHS]
       }
-    } else if (val === "選択月") {
-      // 全チェック OFF
-      for (let m = 1; m <= 12; m++) {
-        form.value.month[m] = false
+    }
+
+    // 選択月 → 全部チェック消す
+    if (newVal === '選択月') {
+      if (selectedMonths.value.length !== 0) {
+        selectedMonths.value = []
       }
     }
   })
@@ -243,7 +249,7 @@ const update = async (item) => {
       method: "POST",
       body: payload
     })
-
+    console.log("form:",form.value)
     const result = await res.json()
     alert(result.message)
 
