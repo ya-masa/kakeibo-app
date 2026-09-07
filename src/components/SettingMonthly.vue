@@ -148,7 +148,7 @@ onMounted(async () => {
 
   const res2 = await fetch(`${GAS_URL}?list=Monthly`)
   monthlyData.value = await res2.json()
-  
+
   isInitializing.value = false
   loadingStore.globalLoading.value = false
 })
@@ -165,7 +165,7 @@ onMounted(async () => {
 
   /* 毎月選択時、全部の月にチェックはいる
   　　選択月　選択時　全部の月のチェック消える　 */
-  watch(frequency, (newVal) => {
+  watch((newVal) => {
     if (isInitializing.value) return
 
     // 毎月 → 全部チェック入れ直す
