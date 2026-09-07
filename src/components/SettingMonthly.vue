@@ -1,101 +1,103 @@
 <template>
   <div class="settings-wrapper">
 
-    <div
-      v-for="category in categories"
-      :key="category.daikoumoku"
-      class="card"
-    >
+    <div class="card">
       <div class="item-area">
 
         <div
-          v-for="(item, index) in category.items"
-          :key="index"
+          v-for="item in monthlyData"
+          :key="item.no"
           class="item-list"
         >
-
           <div class="item-row">
-            <span class="item-No">{{ item.No }}</span>
-            <span class="item-date">{{ item.day }}</span>
+            <span class="item-No">{{ item.no }}</span>
             <span class="item-name">{{ item.name }}</span>
             <button @click="toggle(item)">＋</button>
           </div>
 
-          <div v-if="openedCode === item.No" class="info-area">
+          <!-- 展開フォーム -->
+          <div v-if="openedCode === item.no" class="info-area">
 
-            <label>科目（増えるもの）</label>      
-              <select v-model="form.kamoku1"  class="select-field">
-                <option 
-                  v-for="item in listAllKouza"
-                  :key="item.code"
-                  :value="item.code"
-                >
-                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
-                </option>
-              </select>
+            <label>名前</label>
+            <input v-model="form.name" />
+
+            <label>日</label>
+            <select v-model="form.day">
+              <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
+            </select>
+
+            <label>科目1</label>
+            <select v-model="form.kamoku1" class="select-field">
+              <option 
+                v-for="k in listAllKouza"
+                :key="k.code"
+                :value="k.code"
+              >
+                {{ k.daikoumoku }}_{{ k.shoukoumoku }}
+              </option>
+            </select>
 
             <label>金額</label>
-            <input type="number" v-model="form.kingaku">
+            <input type="number" v-model="form.kingaku" />
 
-            <label>支払元（減るもの）</label>
-              <select v-model="form.kamoku2"  class="select-field">
-                <option 
-                  v-for="item in listAllKouza"
-                  :key="item.code"
-                  :value="item.code"
-                >
-                  {{item.daikoumoku }}_{{ item.shoukoumoku }}
-                </option>
-              </select>
+            <label>科目2</label>
+            <select v-model="form.kamoku2" class="select-field">
+              <option 
+                v-for="k in listAllKouza"
+                :key="k.code"
+                :value="k.code"
+              >
+                {{ k.daikoumoku }}_{{ k.shoukoumoku }}
+              </option>
+            </select>
 
-            <label>店（相手）</label>
-            <input v-model="form.aite">
+            <label>店</label>
+            <input v-model="form.aite" />
 
             <label>内容</label>
-            <input v-model="form.naiyo">
+            <input v-model="form.naiyo" />
 
-            <label>毎月チェック</label>
+            <label>頻度</label>
+            <select v-model="form.hindo">
+              <option value="毎月">毎月</option>
+              <option value="選択月">選択月</option>
+            </select>
+
+            <label>月チェック</label>
             <div class="month-check">
               <label v-for="m in 12" :key="m">
-                <input type="checkbox" v-model="form.month[m]"> {{m}}月
+                <input type="checkbox" v-model="form.month[m]" /> {{ m }}月
               </label>
             </div>
-
-            <button class="update-btn" @click="update(item)">
+            <button class="update-btn" @click="update">
               更新
             </button>
-
           </div>
         </div>
       </div>
-
-      <button class="add-btn">
+      <button class="add-btn" @click="addNew">
         新規追加
       </button>
-
     </div>
+
   </div>
 </template>
 
 
 
+
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
 
-/* 口座一覧（ALLLIST） */
 const listAllKouza = ref([])
-
-/* monthly データ */
 const monthlyData = ref([])
 
-/* 展開中の行 No */
 const openedCode = ref(null)
 
-/* 編集フォーム */
 const form = ref({
-  No: "",
+  no: "",
   name: "",
   day: "",
   kamoku1: "",
@@ -110,98 +112,154 @@ const form = ref({
   }
 })
 
-/* 行を開く */
+/* ＋を押したときの展開処理 */
 const toggle = (item) => {
-  openedCode.value = openedCode.value === item.No ? null : item.No
+  openedCode.value = openedCode.value === item.no ? null : item.no
 
-  form.value.No = item.No
+  form.value.no = item.no
   form.value.name = item.name
   form.value.day = item.day
-  form.value.kamoku1 = item.kamoku1
-  form.value.kingaku = item.kingaku
-  form.value.kamoku2 = item.kamoku2
-  form.value.aite = item.aite
+  form.value.kamoku1 = item.kamokuCD1
+  form.value.kingaku = item.amount
+  form.value.kamoku2 = item.kamokuCD2
+  form.value.aite = item.shop
   form.value.naiyo = item.naiyo
   form.value.hindo = item.hindo
 
-  for (let m = 1; m <= 12; m++){
-    form.value.month[m] = item.month[m]
+  // GAS の m01〜m12 → チェックボックス true/false
+  for (let m = 1; m <= 12; m++) {
+    const key = `m${String(m).padStart(2, "0")}`
+    form.value.month[m] = item[key] === "〇"
+  }
+
+  // 頻度が毎月なら全部チェック
+  if (form.value.hindo === "毎月") {
+    for (let m = 1; m <= 12; m++) {
+      form.value.month[m] = true
+    }
   }
 }
 
-const categories = computed(() => {
-  const rows = monthlyData.value || []
-  return rows.map(row => ({
-    daikoumoku: row.kamoku1,
-    items: [row]
-  }))
-})
-
-
 /* GASからデータ取得 */
 onMounted(async () => {
-
-  // 口座一覧
   const res1 = await fetch(`${GAS_URL}?list=ALLLIST`)
   listAllKouza.value = await res1.json()
 
-  // monthly
   const res2 = await fetch(`${GAS_URL}?list=Monthly`)
   monthlyData.value = await res2.json()
 
   loadingStore.globalLoading.value = false
 })
 
+  /* 科目コードが存在しない場合の補正 */
+  watch(() => listAllKouza.value, () => {
+    if (!listAllKouza.value.some(i => i.code === form.value.kamoku1)) {
+      form.value.kamoku1 = listAllKouza.value[0]?.code || ""
+    }
+    if (!listAllKouza.value.some(i => i.code === form.value.kamoku2)) {
+      form.value.kamoku2 = listAllKouza.value[0]?.code || ""
+    }
+  })
 
-watch(() => listAllKouza.value, () => {
-  if (!listAllKouza.value.some(i => i.code === form.value.kamoku2)) {
-    form.value.kamoku2 = listAllKouza.value[0]?.code || ""
-  }
-  if (!listAllKouza.value.some(i => i.code === form.value.kamoku1)) {
-    form.value.kamoku1 = listAllKouza.value[0]?.code || ""
-  }
-})
+  /* 毎月選択時、全部の月にチェックはいる
+  　　選択月　選択時　全部の月のチェック消える　 */
+  watch(() => form.value.hindo, (val) => {
+    if (val === "毎月") {
+      // 全チェック ON
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = true
+      }
+    } else if (val === "選択月") {
+      // 全チェック OFF
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = false
+      }
+    }
+  })
 
+  /* 新規追加ボタン押したときの処理 */
+  const addNew = () => {
+    // 新規行の仮No（GAS側で本Noを採番するなら "" のままでOK）
+    const newItem = {
+      no: "",
+      name: "",
+      day: "",
+      kamokuCD1: "",
+      amount: 0,
+      kamokuCD2: "",
+      aite: "",
+      naiyo: "",
+      hindo: "",
+      m01: "", m02: "", m03: "", m04: "", m05: "", m06: "",
+      m07: "", m08: "", m09: "", m10: "", m11: "", m12: ""
+    }
+
+    // MonthlyData に追加
+    monthlyData.value.push(newItem)
+
+    // 展開する
+    openedCode.value = newItem.no
+
+    // フォームに反映
+    form.value.no = ""
+    form.value.name = ""
+    form.value.day = ""
+    form.value.kamoku1 = ""
+    form.value.kingaku = 0
+    form.value.kamoku2 = ""
+    form.value.aite = ""
+    form.value.naiyo = ""
+    form.value.hindo = ""
+
+    for (let m = 1; m <= 12; m++) {
+      form.value.month[m] = false
+    }
+  }
 
 /* 更新処理 */
 const update = async (item) => {
-  loadingStore.globalLoading.value = true;
+  loadingStore.globalLoading.value = true
 
   try {
-    const payload = new URLSearchParams();
+    const payload = new URLSearchParams()
 
-    payload.append("mode", "MonthlyUpdate");
-    payload.append("No", form.value.No);
-    payload.append("name", form.value.name);
-    payload.append("day", form.value.day);
-    payload.append("kamoku1", form.value.kamoku1);
-    payload.append("kingaku", form.value.kingaku);
-    payload.append("kamoku2", form.value.kamoku2);
-    payload.append("aite", form.value.aite);
-    payload.append("naiyo", form.value.naiyo);
-    payload.append("hindo", form.value.hindo);
+    const mode = item.no ? "MonthlyUpdate" : "MonthlyAdd"
+    payload.append("mode", mode)
+    payload.append("no", form.value.no)
+    payload.append("name", form.value.name)
+    payload.append("day", form.value.day)
+    payload.append("kamoku1", form.value.kamoku1)
+    payload.append("kingaku", form.value.kingaku)
+    payload.append("kamoku2", form.value.kamoku2)
+    payload.append("aite", form.value.aite)
+    payload.append("naiyo", form.value.naiyo)
+    payload.append("hindo", form.value.hindo)
 
-    for (let m = 1; m <= 12; m++){
-      payload.append(`month${m}`, form.value.month[m] ? "〇" : "");
+    for (let m = 1; m <= 12; m++) {
+      payload.append(`month${m}`, form.value.month[m] ? "〇" : "")
     }
 
-    const res = await fetch(`${GAS_URL}?mode=MonthlyUpdate`, {
+    const res = await fetch(`${GAS_URL}?mode=${mode}`, {
       method: "POST",
       body: payload
-    });
+    })
 
-    const result = await res.json();
-    alert(result.message);
+    const result = await res.json()
+    alert(result.message)
 
-    item.dirty = false;
+    // GAS側で新しいNoが返ってきたら反映
+    const res2 = await fetch(`${GAS_URL}?list=Monthly`)
+    monthlyData.value = await res2.json()
 
   } catch (e) {
-    alert("更新に失敗しました: " + e.message);
+    alert("更新に失敗しました: " + e.message)
   }
 
-  loadingStore.globalLoading.value = false;
-};
+  loadingStore.globalLoading.value = false
+}
+
 </script>
+
 
 
 
