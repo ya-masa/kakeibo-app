@@ -107,7 +107,7 @@ const form = ref({
   kamoku2: "",
   aite: "",
   naiyo: "",
-  hindo: "選択月",
+  hindo: '選択月',
   month: {
     1:false,2:false,3:false,4:false,5:false,6:false,
     7:false,8:false,9:false,10:false,11:false,12:false
@@ -166,7 +166,7 @@ onMounted(async () => {
 
   /* 毎月選択時、全部の月にチェックはいる
   　　選択月　選択時　全部の月のチェック消える　 */
-  watch(hindo,(newVal) => {
+  watch(form.value.hindo,(newVal) => {
     if (isInitializing.value) return
 
     if (newVal === "毎月") {
@@ -194,7 +194,7 @@ onMounted(async () => {
       kamokuCD2: "",
       aite: "",
       naiyo: "",
-      hindo: "",
+      hindo:'選択月',
       m01: "", m02: "", m03: "", m04: "", m05: "", m06: "",
       m07: "", m08: "", m09: "", m10: "", m11: "", m12: ""
     }
