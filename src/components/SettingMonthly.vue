@@ -169,17 +169,15 @@ onMounted(async () => {
   watch(hindo,(newVal) => {
     if (isInitializing.value) return
 
-    // 毎月 → 全部チェック入れ直す
-    if (newVal === '毎月') {
-      if (selectedMonths.value.length !== ALL_MONTHS.length) {
-        selectedMonths.value = [...ALL_MONTHS]
+    if (newVal === "毎月") {
+      // 全チェック ON
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = true
       }
-    }
-
-    // 選択月 → 全部チェック消す
-    if (newVal === '選択月') {
-      if (selectedMonths.value.length !== 0) {
-        selectedMonths.value = []
+    } else if (newVal === "選択月") {
+      // 全チェック OFF
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = false
       }
     }
   })
