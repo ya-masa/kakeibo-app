@@ -18,15 +18,15 @@
           <!-- 展開フォーム -->
           <div v-if="openedCode === item.no" class="info-area">
 
-            <label>名前</label>
-            <input v-model="form.name" />
+            <label class="form-label">名前</label>
+            <input v-model="form.name" class="input-field"/>
 
-            <label>日</label>
-            <select v-model="form.day">
+            <label class="form-label">日</label>
+            <select v-model="form.day" class="select-field">
               <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
             </select>
 
-            <label>科目1</label>
+            <label class="form-label">科目1</label>
             <select v-model="form.kamoku1" class="select-field">
               <option 
                 v-for="k in listAllKouza"
@@ -37,10 +37,10 @@
               </option>
             </select>
 
-            <label>金額</label>
-            <input type="number" v-model="form.kingaku" />
+            <label class="form-label">金額</label>
+            <input type="number" v-model="form.kingaku" class="input-field"/>
 
-            <label>科目2</label>
+            <label class="form-label">科目2</label>
             <select v-model="form.kamoku2" class="select-field">
               <option 
                 v-for="k in listAllKouza"
@@ -51,19 +51,19 @@
               </option>
             </select>
 
-            <label>店</label>
-            <input v-model="form.aite" />
+            <label class="form-label">店</label>
+            <input v-model="form.aite" class="textarea-field"/>
 
-            <label>内容</label>
-            <input v-model="form.naiyo" />
+            <label class="form-label">内容</label>
+            <input v-model="form.naiyo" class="textarea-field"/>
 
-            <label>頻度</label>
-            <select v-model="form.hindo">
+            <label class="form-label">頻度</label>
+            <select v-model="form.hindo" class="select-field" @change="hindoUpdate(form.hindo)">
               <option value="毎月">毎月</option>
               <option value="選択月">選択月</option>
             </select>
 
-            <label>月チェック</label>
+            <label class="form-label">実行月</label>
             <div class="month-check">
               <label v-for="m in 12" :key="m">
                 <input type="checkbox" v-model="form.month[m]" /> {{ m }}月
@@ -223,7 +223,19 @@ onMounted(async () => {
       form.value.month[m] = false
     }
   }
-
+const hindoUpdate= async (item) => {
+    if (item === "毎月") {
+      // 全チェック ON
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = true
+      }
+    } else if (item === "選択月") {
+      // 全チェック OFF
+      for (let m = 1; m <= 12; m++) {
+        form.value.month[m] = false
+      }
+    }
+}
 /* 更新処理 */
 const update = async (item) => {
   loadingStore.globalLoading.value = true
