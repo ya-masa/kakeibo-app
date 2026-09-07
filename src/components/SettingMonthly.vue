@@ -143,13 +143,13 @@ const toggle = (item) => {
 
 /* GASからデータ取得 */
 onMounted(async () => {
-  isInitializing.value = false
   const res1 = await fetch(`${GAS_URL}?list=ALLLIST`)
   listAllKouza.value = await res1.json()
 
   const res2 = await fetch(`${GAS_URL}?list=Monthly`)
   monthlyData.value = await res2.json()
-
+  
+  isInitializing.value = false
   loadingStore.globalLoading.value = false
 })
 
