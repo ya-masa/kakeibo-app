@@ -96,6 +96,7 @@ const listAllKouza = ref([])
 const monthlyData = ref([])
 
 const openedCode = ref(null)
+const hindo=ref('選択月')
 
 const form = ref({
   no: "",
@@ -106,7 +107,7 @@ const form = ref({
   kamoku2: "",
   aite: "",
   naiyo: "",
-  hindo: "",
+  hindo: "選択月",
   month: {
     1:false,2:false,3:false,4:false,5:false,6:false,
     7:false,8:false,9:false,10:false,11:false,12:false
@@ -165,7 +166,7 @@ onMounted(async () => {
 
   /* 毎月選択時、全部の月にチェックはいる
   　　選択月　選択時　全部の月のチェック消える　 */
-  watch((newVal) => {
+  watch(hindo,(newVal) => {
     if (isInitializing.value) return
 
     // 毎月 → 全部チェック入れ直す
@@ -254,8 +255,10 @@ const update = async (item) => {
     alert(result.message)
 
     // GAS側で新しいNoが返ってきたら反映
+    isInitializing.value = true
     const res2 = await fetch(`${GAS_URL}?list=Monthly`)
     monthlyData.value = await res2.json()
+    isInitializing.value = false
 
   } catch (e) {
     alert("更新に失敗しました: " + e.message)
