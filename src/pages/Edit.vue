@@ -33,16 +33,17 @@ onMounted(async () => {
     list: "detail",
     rowNo: rowNo
   })
+  console.log("rowNo:"+rowNo)
   const res = await fetch(`${GAS_URL}?${params}`)
   const data = await res.json()
 
   form.value = data
 
-  if (data.type?.includes("income")) {
+  if (form.value.type?.includes("income")) {
     activeTab.value = "income"
-  } else if (data.type?.includes("transfer")) {
+  } else if (form.value.type?.includes("transfer")) {
     activeTab.value = "transfer"
-  } else if (data.type?.includes("expense")) {
+  } else if (form.value.type?.includes("expense")) {
     activeTab.value = "expense"
   }else {
     activeTab.value = "transfer"
