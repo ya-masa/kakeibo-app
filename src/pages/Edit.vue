@@ -16,11 +16,13 @@ import { ref, onMounted, isShallow } from "vue"
 import Input from "@/pages/Input.vue"
 import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
-import { useRouter } from 'vue-router'
-
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
-const rowNo = router.query.rowNo
+const route = useRoute()
+
+const rowNo = route.query.rowNo
+console.log("rowNo:"+rowNo)
 
 const form = ref(null)
 const activeTab = ref("expense")
