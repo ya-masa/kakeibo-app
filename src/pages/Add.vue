@@ -56,7 +56,7 @@ const addItem = async (formData) => {
     payload.append("aite",formData.aite)
     payload.append("kakunin",formData.kakunin)
     
-    console.log("送信データpayload:", payload)
+    console.log("送信データpayload:"+ payload)
     const res = await fetch(GAS_URL, {
       method: "POST",
       body: payload   // ← headers も JSON.stringify も不要
