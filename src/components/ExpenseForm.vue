@@ -163,7 +163,7 @@ import LoadingIcon from './LoadingIcon.vue'
       // ここでローディングを消す（長めにしたいなら調整）
       setTimeout(() => {
         loadingStore.globalLoading.value = false
-      }, 500) // ← ここを好きな時間にできる
+      }, 50) // ← ここを好きな時間にできる
       })
     })
   })

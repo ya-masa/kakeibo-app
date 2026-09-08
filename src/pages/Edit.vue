@@ -56,7 +56,7 @@ onMounted(async () => {
       // ここでローディングを消す（長めにしたいなら調整）
       setTimeout(() => {
         loadingStore.globalLoading.value = false
-      }, 250) // ← ここを好きな時間にできる
+      }, 25) // ← ここを好きな時間にできる
     })
   })
 
