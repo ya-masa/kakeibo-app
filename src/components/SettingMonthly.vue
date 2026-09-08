@@ -16,7 +16,7 @@
           </div>
 
           <!-- 展開フォーム -->
-          <div v-if="openedCode === item.no" class="info-area">
+          <div v-if="openedCode === item.no" class="card">
 
             <label class="form-label">名前</label>
             <input v-model="form.name" class="input-field"/>
@@ -38,7 +38,7 @@
             </select>
 
             <label class="form-label">金額</label>
-            <input type="number" v-model="form.kingaku" class="input-field"/>
+            <input type="number" v-model="form.kingaku" class="input-number"/>
 
             <label class="form-label">科目2</label>
             <select v-model="form.kamoku2" class="select-field">
@@ -69,13 +69,13 @@
                 <input type="checkbox" v-model="form.month[m]" /> {{ m }}月
               </label>
             </div>
-            <button class="update-btn" @click="update(item)">
+            <button class="btn-red" @click="update(item)">
               更新
             </button>
           </div>
         </div>
       </div>
-      <button class="add-btn" @click="addNew">
+      <button class="btn" @click="addNew">
         新規追加
       </button>
     </div>
@@ -297,15 +297,6 @@ const update = async (item) => {
   gap: 20px;
 }
 
-/* カード */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  flex-direction: row;
-}
-
 
 .dirty {
   background-color: #ffe5e5; /* 薄い赤 */
@@ -317,7 +308,7 @@ const update = async (item) => {
 .item-area {
   display: flex;
   flex-direction: column;
-  width:100%;
+  width:90%;
   gap: 10px;
 }
 

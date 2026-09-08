@@ -2,17 +2,17 @@
   <div class="settings-page">
     <h1>設定</h1>
 
-    <!-- 科目や大小項目編集へ遷移 -->
-    <button class="nav-btn" @click="goCategories">
+    <!-- 科目CDや大小項目編集へ遷移 -->
+    <button class="btn" @click="goCategories">
       口座や小項目編集
     </button>
 
     <!-- よく使うお店の編集へ遷移 -->
-    <button class="nav-btn" @click="goShops">
+    <button class="btn" @click="goShops">
       よく使うお店の編集
     </button>
 
-    <button class="nav-btn" @click="goMonthlys">
+    <button class="btn" @click="goMonthlys">
       定期収支設定
     </button>
   </div>

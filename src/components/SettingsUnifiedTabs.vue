@@ -182,7 +182,7 @@ try {
 
     <!-- 固定ヘッダー（保存ボタン） -->
     <div class="header-save">
-      <button class="save-btn" @click="saveAll">
+      <button class="btn" @click="saveAll">
         保存する
       </button>
     </div>
@@ -228,7 +228,7 @@ try {
       </div>
 
       <button
-        class="add-btn"
+        class="btn"
         @click="addItem(category)"
         :disabled="category.items.length >= 10"
       >
@@ -252,28 +252,6 @@ try {
   display: flex;
   gap: 6px;
   margin-bottom: 16px;
-}
-
-.tabs button {
-  flex: 1;
-  padding: 10px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
-}
-
-.tabs button.active {
-  background: #d0e8ff;
-  border-color: #66aaff;
-  font-weight: bold;
-}
-
-/* カード */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 /* 大項目ヘッダー */

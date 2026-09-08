@@ -201,7 +201,7 @@ h2 {
   gap: 6px;
 }
 
-.tab-btn {
+.tab-btn , .tabs button{
   flex: 1;
   padding: 12px 0;
   border-right: 1px solid var(--rightist);
@@ -215,11 +215,11 @@ h2 {
   font-size: 16px;
 }
 
-.tab-btn:hover {
+.tab-btn:hover ,.tabs button:hover{
   background: var(--beige-light);
 }
 
-.tab-btn.active {
+.tab-btn.active ,.tabs button.active{
   background: var(--beige-light);
   color: var(--dark-brown);
   border: 1px solid var(--coffee);
@@ -302,14 +302,24 @@ h2 {
 
 /* 左端の前月ボタン */
 .nav-btn.prev {
+  color: var(--dark-brown);
   position: absolute;
   left: 12px;
+  background: var(--beige-light);
+  border: 1px solid var(--coffee);
+  border-radius: 8px;
+  font-size: 12pt;
 }
 
 /* 右端の翌月ボタン */
 .nav-btn.next {
+  color: var(--dark-brown);
   position: absolute;
   right: 12px;
+  background: var(--beige-light);
+  border: 1px solid var(--coffee);
+  border-radius: 8px;
+  font-size: 12pt;
 }
 
 .month-label {

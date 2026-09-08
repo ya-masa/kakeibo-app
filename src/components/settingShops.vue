@@ -151,7 +151,7 @@ function normalizeShops(shops) {
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="shop-row">
               <input v-model="item.shops[sIndex]" placeholder="ショップ名" />
             </div>
-            <button class="update-btn" @click="update(item)">
+            <button class="btn" @click="update(item)">
               更新
             </button>
           </div>
@@ -176,28 +176,6 @@ function normalizeShops(shops) {
   margin-bottom: 16px;
 }
 
-.tabs button {
-  flex: 1;
-  padding: 10px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
-}
-
-.tabs button.active {
-  background: #d0e8ff;
-  border-color: #66aaff;
-  font-weight: bold;
-}
-
-/* カード */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  flex-direction: row;
-}
 
 /* 大項目ヘッダー */
 .card-header {
@@ -231,7 +209,7 @@ function normalizeShops(shops) {
   flex-direction: row;
   gap: 8px;
   margin-bottom: 10px;
-  width:100%;
+  width:80%;
 }
 
 .item-list,.shop-area{
