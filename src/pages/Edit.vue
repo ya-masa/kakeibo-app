@@ -18,8 +18,9 @@ import { GAS_URL } from "@/constants/index.js"
 import loadingStore from "@/stores/loadingStore"
 import { useRouter } from 'vue-router'
 
-const rowNo = router.query.rowNo
+
 const router = useRouter()
+const rowNo = router.query.rowNo
 
 const form = ref(null)
 const activeTab = ref("expense")
@@ -28,7 +29,11 @@ const activeTab = ref("expense")
 // ① GASから詳細データ取得
 // ---------------------------
 onMounted(async () => {
-  const res = await fetch(`${GAS_URL}?list=detail&rowNo=${rowNo}`)
+    const params = new URLSearchParams({
+    list: "detail",
+    rowNo: rowNo
+  })
+  const res = await fetch(`${GAS_URL}?${params}`)
   const data = await res.json()
 
   form.value = data
@@ -65,8 +70,8 @@ const updateItem = async (formData) => {
     var k1
     var k2
     if(formData.type==="income"){       //収入
-      k1=-formData.kingaku1
-      k2=formData.kingaku1
+      k1=formData.kingaku1
+      k2=-formData.kingaku1
     }else if(formData.type==="expense"){  //支出
       k1=formData.kingaku1
       k2=-formData.kingaku1
