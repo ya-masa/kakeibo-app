@@ -27,7 +27,7 @@ body {
   color: var(--coffee);
   font-family: sans-serif;
   margin: 0 10px;
-  padding: 0;
+  padding: 10px;
   text-align: center;
   
   padding-bottom: 90px;
@@ -38,7 +38,7 @@ body {
    ============================ */
 .card {
   max-width:600px;
-  min-width: 375px;
+  min-width: 370px;
   background: var(--beige-light);
   border: 1px solid var(--coffee);
   border-radius: 8px;
@@ -76,7 +76,7 @@ h2 {
    ＋／－ の開閉ボタン
    ============================ */
 .toggle-btn {
-  background: none;
+  background: var(--beige-light);
   border: 1px solid var(--coffee);
   color: var(--coffee);
   padding: 4px 10px;
@@ -219,7 +219,15 @@ h2 {
   background: var(--beige-light);
 }
 
-.tab-btn.active ,.tabs button.active{
+.tabs button.active{
+  background: var(--beige-light);
+  color: var(--dark-brown);
+  border: 1px solid var(--coffee);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.tab-btn.active {
   background: var(--beige-light);
   color: var(--dark-brown);
   border: 1px solid var(--coffee);
@@ -227,7 +235,6 @@ h2 {
   font-weight: bold;
   text-decoration: underline;
 }
-
 /* ============================
    フッター固定ナビ（下固定バー）
    ============================ */

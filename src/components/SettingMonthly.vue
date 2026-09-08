@@ -12,7 +12,7 @@
           <div class="item-row">
             <span class="item-No">{{ item.no }}</span>
             <span class="item-name">{{ item.name }}</span>
-            <button @click="toggle(item)">＋</button>
+            <button class="toggle-btn" @click="toggle(item)">{{ openLarge === item.no ? '－' : '＋' }}</button>
           </div>
 
           <!-- 展開フォーム -->
@@ -38,7 +38,7 @@
             </select>
 
             <label class="form-label">金額</label>
-            <input type="number" v-model="form.kingaku" class="input-number"/>
+            <input type="number" v-model="form.kingaku" class="input-field input-number"/>
 
             <label class="form-label">科目2</label>
             <select v-model="form.kamoku2" class="select-field">

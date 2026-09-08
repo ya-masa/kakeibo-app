@@ -145,7 +145,7 @@ function normalizeShops(shops) {
           <div class="item-row">
             <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
             <span class="item-input":class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
-            <button @click="toggle(item.code)">＋</button>
+            <button class="toggle-btn" @click="toggle(item.code)">{{ openLarge === item.code ? '－' : '＋' }}</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="shop-row">
