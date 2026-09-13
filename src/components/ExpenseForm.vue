@@ -131,13 +131,13 @@ import LoadingIcon from './LoadingIcon.vue'
   watch(() => props.listShishutsu, () => {
     // 科目リストが更新されたら選択値を再調整
     if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = props.listShishutsu[0]?.code || ""
+      localForm.value.kamoku2 = props.form?.kamoku1|| ""
     }
   })
   watch(() => props.listHouhou, () => {
     // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1 = props.listHouhou[0]?.code || ""
+      localForm.value.kamoku1=props.form?.kamoku2|| ""
     }
   })
   watch(  () => props.form,(newForm) => {
