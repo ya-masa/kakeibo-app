@@ -106,10 +106,10 @@ import LoadingIcon from './LoadingIcon.vue'
     type:'expense',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: Math.floor(props.form?.kamoku2) || 700,
-    kamoku2: Math.floor(props.form?.kamoku1) || 700,
+    kamoku1: String(props.form?.kamoku2) || 700,
+    kamoku2: String(props.form?.kamoku1)|| 700,
     aite: props.form?.aite || "",
-    kingaku1: Math.floor(props.form?.kingaku1) || 0,
+    kingaku1: Math.abs(Number(props.form?.kingaku1)) || 0,
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
@@ -140,7 +140,23 @@ import LoadingIcon from './LoadingIcon.vue'
       localForm.value.kamoku1 = props.listHouhou[0]?.code || ""
     }
   })
-
+  watch(  () => props.form,(newForm) => {
+    if (!newForm) return
+      localForm.value = {
+        rowNo: newForm.rowNo || "",
+        type: "expense",
+        mode: newForm.mode || "edit",
+        date: newForm.date || today,
+        kamoku1: String(newForm.kamoku1) || 700,
+        kamoku2: String(newForm.kamoku2) || 700,
+        aite: newForm.aite || "",
+        kingaku1: Math.abs(Number(newForm.kingaku1)) || 0,
+        naiyo: newForm.naiyo || "",
+        kakunin: String(newForm.kakunin ?? "false")
+      }
+    },
+    { immediate: true }
+  )
 
   // ---------------------------
   // 相手の店リスト
