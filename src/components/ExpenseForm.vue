@@ -107,7 +107,7 @@ import LoadingIcon from './LoadingIcon.vue'
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
     kamoku1: Math.floor(props.form?.kamoku2) || 700,
-    kamoku2: NuMath.floor(props.form?.kamoku1) || 700,
+    kamoku2: Math.floor(props.form?.kamoku1) || 700,
     aite: props.form?.aite || "",
     kingaku1: Math.floor(props.form?.kingaku1) || 0,
     naiyo: props.form?.naiyo || "",
