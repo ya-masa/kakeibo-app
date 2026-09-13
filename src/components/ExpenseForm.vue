@@ -142,10 +142,9 @@ import LoadingIcon from './LoadingIcon.vue'
   })
   watch(  () => props.form,(newForm) => {
     if (!newForm) return
+      console.log("watch=",newForm)
       localForm.value = {
         rowNo: newForm.rowNo || "",
-        type: "expense",
-        mode: newForm.mode || "edit",
         date: newForm.date || today,
         kamoku1: String(newForm.kamoku1) || 700,
         kamoku2: String(newForm.kamoku2) || 700,
