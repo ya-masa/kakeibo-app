@@ -101,9 +101,11 @@ const updateItem = async (formData) => {
       body: params   // ← headers も JSON.stringify も不要
     })
     
+    console.log("params",params)
     const result = await res.json()
 
     alert(result.message)
+    console.log(result.message)
     router.push('/list')
 
   } catch (e) {
@@ -128,7 +130,7 @@ const deleteItem = async () => {
       method: "POST",
       body: params   // ← headers も JSON.stringify も不要
     })
-
+    console.log("params",params)
     const result = await res.json()
 
     alert(result.message)
