@@ -132,8 +132,7 @@ import LoadingIcon from './LoadingIcon.vue'
     // 科目リストが更新されたら選択値を再調整
     console.log(props.listShishutsu)
     if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = localForm.value.kamoku2||localForm.value.kamoku1
-      localForm.value.kamoku2 = localForm.value.kamoku2||localForm.value.kamoku1
+      localForm.value.kamoku2 = localForm.value.kamoku2||700,
       console.log("kamoku2"+props.value.kamoku2 )
     }
   })
@@ -141,7 +140,7 @@ import LoadingIcon from './LoadingIcon.vue'
     console.log(props.listHouhou)
     // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1=localForm.value.kamoku1||localForm.value.kamoku2
+      localForm.value.kamoku1=localForm.value.kamoku1||700,
       console.log("kamoku1"+props.value.kamoku1 )
     }
   })
@@ -150,6 +149,7 @@ import LoadingIcon from './LoadingIcon.vue'
       console.log("watch=",newForm)
       localForm.value = {
         rowNo: newForm.rowNo || "",
+        mode:newForm.form?.mode || "add",
         date: newForm.date || today,
         kamoku1: String(newForm.kamoku1) || 700,
         kamoku2: String(newForm.kamoku2) || 700,
