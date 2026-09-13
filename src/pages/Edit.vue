@@ -67,7 +67,7 @@ onMounted(async () => {
 // ---------------------------
 const updateItem = async (formData) => {
   loadingStore.globalLoading.value=true
-  try {
+  try{
     const iso = String(formData.date)
     const dateOnly = iso.split("T")[0]  // ← これが超重要
     var k1
@@ -82,6 +82,7 @@ const updateItem = async (formData) => {
       k1=formData.kingaku1
       k2=formData.kingaku2
     }
+    console.log("formData:",formData)
     const params = new URLSearchParams()
     params.append("mode", "rewrite")
     params.append("type", formData.type)
