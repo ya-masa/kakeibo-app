@@ -106,10 +106,10 @@ import LoadingIcon from './LoadingIcon.vue'
     type:'expense',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: Number(props.form?.kamoku2) || 700,
-    kamoku2: Number(props.form?.kamoku1) || 700,
+    kamoku1: Math.floor(props.form?.kamoku2) || 700,
+    kamoku2: NuMath.floor(props.form?.kamoku1) || 700,
     aite: props.form?.aite || "",
-    kingaku1: props.form?.kingaku1 || 0,
+    kingaku1: Math.floor(props.form?.kingaku1) || 0,
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })

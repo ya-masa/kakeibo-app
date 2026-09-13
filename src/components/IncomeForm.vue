@@ -110,10 +110,10 @@ import LoadingIcon from './LoadingIcon.vue'
     type:  'income',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: Number(props.form?.kamoku2) || 700,
-    kamoku2: Number(props.form?.kamoku1) || 700,
+    kamoku1: Math.floor(props.form?.kamoku2) || 700,
+    kamoku2: Math.floor(props.form?.kamoku1) || 700,
     aite: props.form?.aite || "",
-    kingaku1: props.form?.kingaku1 || 0,
+    kingaku1: Math.floor(props.form?.kingaku1 )|| 0,
     naiyo: props.form?.naiyo || "",
     kakunin: props.form?.kakunin || "false"
   })
@@ -158,7 +158,6 @@ import LoadingIcon from './LoadingIcon.vue'
     const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku2)
     return item?.shops || []
   })
-
 
   onMounted(() => {
     requestAnimationFrame(() => {
