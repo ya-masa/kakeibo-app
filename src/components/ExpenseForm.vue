@@ -149,6 +149,7 @@ import LoadingIcon from './LoadingIcon.vue'
       console.log("watch=",newForm)
       localForm.value = {
         rowNo: newForm.rowNo || "",
+        type:'expense',
         mode:newForm.form?.mode || "add",
         date: newForm.date || today,
         kamoku1: String(newForm.kamoku1) || 700,
