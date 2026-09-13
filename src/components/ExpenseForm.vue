@@ -137,7 +137,7 @@ import LoadingIcon from './LoadingIcon.vue'
   watch(() => props.listHouhou, () => {
     // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1=localForm.value.kamoku1
+      localForm.value.kamoku1=localForm.value.kamoku2
     }
   })
   watch(  () => props.form,(newForm) => {
