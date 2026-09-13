@@ -106,8 +106,8 @@ import LoadingIcon from './LoadingIcon.vue'
     type:'expense',
     mode:props.form?.mode || "add",
     date: props.form?.date || today,
-    kamoku1: String(props.form?.kamoku2) || 700,
-    kamoku2: String(props.form?.kamoku1)|| 700,
+    kamoku1: String(props.form?.kamoku1) || 700,
+    kamoku2: String(props.form?.kamoku2)|| 700,
     aite: props.form?.aite || "",
     kingaku1: Math.abs(Number(props.form?.kingaku1)) || 0,
     naiyo: props.form?.naiyo || "",
@@ -132,14 +132,17 @@ import LoadingIcon from './LoadingIcon.vue'
     // 科目リストが更新されたら選択値を再調整
     console.log(props.listShishutsu)
     if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = localForm.value.kamoku1||localForm.value.kamoku2
+      localForm.value.kamoku2 = localForm.value.kamoku2||localForm.value.kamoku1
+      localForm.value.kamoku2 = localForm.value.kamoku2||localForm.value.kamoku1
+      console.log("kamoku2"+props.value.kamoku2 )
     }
   })
   watch(() => props.listHouhou, () => {
     console.log(props.listHouhou)
     // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1=localForm.value.kamoku2||localForm.value.kamoku1
+      localForm.value.kamoku1=localForm.value.kamoku1||localForm.value.kamoku2
+      console.log("kamoku1"+props.value.kamoku1 )
     }
   })
   watch(  () => props.form,(newForm) => {
