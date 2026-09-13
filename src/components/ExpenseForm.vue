@@ -130,11 +130,13 @@ import LoadingIcon from './LoadingIcon.vue'
 
   watch(() => props.listShishutsu, () => {
     // 科目リストが更新されたら選択値を再調整
+    console.log(props.listShishutsu)
     if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
       localForm.value.kamoku2 = localForm.value.kamoku1||localForm.value.kamoku2
     }
   })
   watch(() => props.listHouhou, () => {
+    console.log(props.listHouhou)
     // 口座リストが更新されたら選択値を再調整
     if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
       localForm.value.kamoku1=localForm.value.kamoku2||localForm.value.kamoku1
