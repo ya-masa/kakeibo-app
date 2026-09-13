@@ -37,8 +37,8 @@ const addItem = async (formData) => {
       k1=formData.kingaku1
       k2=-formData.kingaku1
     }else if(formData.type==="expense"){  //支出
-      k1=-formData.kingaku1
-      k2=formData.kingaku1
+      k1=formData.kingaku1
+      k2=-formData.kingaku1
     }else{                         //振替
       k1=formData.kingaku1
       k2=formData.kingaku2
