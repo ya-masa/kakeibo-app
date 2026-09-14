@@ -22,7 +22,10 @@ const router = useRouter()
 const route = useRoute()
 
 const rowNo = route.query.rowNo
+const id = route.query.id
+
 console.log("rowNo:"+rowNo)
+console.log("id:"+id)
 
 const form = ref(null)
 const activeTab = ref("expense")
@@ -33,7 +36,8 @@ const activeTab = ref("expense")
 onMounted(async () => {
     const params = new URLSearchParams({
     list: "detail",
-    rowNo: rowNo
+    rowNo: rowNo,
+    id:id
   })
   console.log("rowNo:"+rowNo)
   const res = await fetch(`${GAS_URL}?${params}`)
@@ -87,6 +91,7 @@ const updateItem = async (formData) => {
     params.append("mode", "rewrite")
     params.append("type", formData.type)
     params.append("rowNo", rowNo)
+    params.append("id", id)
     params.append("date",dateOnly)
     params.append("kamoku1",formData.kamoku1)
     params.append("kamoku2",formData.kamoku2)
@@ -126,6 +131,7 @@ const deleteItem = async () => {
     const params = new URLSearchParams()
     params.append("mode", "delete")
     params.append("rowNo", rowNo)
+    params.append("id", id)
 
     const res = await fetch(GAS_URL, {
       method: "POST",

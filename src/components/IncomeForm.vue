@@ -106,6 +106,7 @@ import LoadingIcon from './LoadingIcon.vue'
   console.log("listHouhou:",props.listHouhou) 
   console.log("listCodeShops:",props.listCodeShops) 
   const localForm = ref({
+    id: props.form?.id || "",
     rowNo: props.form?.rowNo || "",
     type:  'income',
     mode:props.form?.mode || "add",
@@ -153,6 +154,7 @@ import LoadingIcon from './LoadingIcon.vue'
       console.log("watch=",newForm)
       localForm.value = {
         rowNo: newForm.rowNo || "",
+        id: newForm.id || "",
         type:'income',
         mode:newForm.form?.mode || "add",
         date: newForm.date || today,

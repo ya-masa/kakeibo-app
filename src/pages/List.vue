@@ -64,7 +64,7 @@
         <tr 
           class="tr-check"
           v-for="item in list" 
-          :key="item.rowNo"
+          :key="item.id"
           :class="{
             unchecked: item.check === false
           }"
@@ -74,7 +74,7 @@
           <input 
             type="checkbox" 
             v-if="item.check === false"
-            :value="item.rowNo"
+            :value="item.id"
             v-model="selectedRows"
           >
         </td>
@@ -96,7 +96,7 @@
           </td>
             <!-- ここに修正ボタンを置く -->
           <td>
-            <button class="btn" @click="goEdit(item.rowNo)">修正</button>
+            <button class="btn" @click="goEdit(item.id)">修正</button>
           </td>
           <hr>
         </tr>
@@ -260,11 +260,11 @@ const updateCheck = async () => {
 //修正画面に移動する
 import { useRouter } from "vue-router"
 const router = useRouter()
-const goEdit = (rowNo) => {
+const goEdit = (id) => {
   console.log("rowNo="+rowNo)
   router.push({
     name: "edit",     // ルート名（後で説明）
-    query: { rowNo }  // 修正したい行番号
+    query: { id }  // 修正したい行番号
   })
 }
 </script>
