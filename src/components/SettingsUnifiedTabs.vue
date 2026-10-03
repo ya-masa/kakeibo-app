@@ -165,7 +165,8 @@ try {
     method: "POST",
     body: payload   // ← JSON ではない
   })
-    console.log("rawList:"+payload,)  
+    console.log("保存件数:", rawList.value.length)
+    console.log("送信データ:", payload.toString())
     const result = await res.json()
      alert(result.message)
      router.push('/setting')
