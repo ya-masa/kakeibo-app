@@ -64,7 +64,7 @@
         <tr 
           class="tr-check"
           v-for="item in list" 
-          :key="item.rowNo"
+          :key="item.id"
           :class="{
             unchecked: item.check === false
           }"
@@ -74,8 +74,8 @@
           <input 
             type="checkbox" 
             v-if="item.check === false"
-            :value="item.rowNo"
-            v-model="selectedRows"
+            :value="item.id"
+            v-model="selectedIds"
           >
         </td>
           <td class="date"
@@ -127,8 +127,8 @@ const isLoading = ref(false)
   const small = ref("")
   const keyword = ref("")
 
-  // チェックされた rowNo を保持
-  const selectedRows = ref([])
+  // チェックされた id を保持
+  const selectedIds = ref([])
 
   // カテゴリ取得
   const categoriesData = ref({})
@@ -204,7 +204,7 @@ const list = ref([])
 const fetchList = async () => {
   isLoading.value = true
   list.value = []
-  selectedRows.value = []
+  selectedIds.value = []
 
   const params = new URLSearchParams({
     list: "sortlist",
@@ -227,7 +227,7 @@ const fetchList = async () => {
 
 // チェック更新（Vue → GAS）
 const updateCheck = async () => {
-  if (selectedRows.value.length === 0) {
+  if (selectedIds.value.length === 0) {
     alert("チェックがありません")
     return
   }
@@ -240,7 +240,7 @@ const updateCheck = async () => {
       },
       body: new URLSearchParams({
         mode: "updateCheck",   // ← ここに置くのが正しい
-        rows: selectedRows.value
+        ids: selectedIds.value
       })
     })
 
@@ -248,7 +248,7 @@ const updateCheck = async () => {
     console.log("更新結果:", result)
 
     alert("更新しました")
-    selectedRows.value = []
+    selectedIds.value = []
     fetchList()
 
   } catch (e) {
@@ -264,7 +264,7 @@ const goEdit = (rowNo) => {
   console.log("rowNo="+rowNo)
   router.push({
     name: "edit",     // ルート名（後で説明）
-    query: { rowNo }  // 修正したい行番号
+    query: { id }  // 修正したいid
   })
 }
 </script>

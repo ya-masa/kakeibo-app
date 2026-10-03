@@ -155,6 +155,7 @@ watch(
     console.log(f)
     localForm.value = {
       rowNo: f.rowNo || "",
+      id:f.id || "",
       type: f.type || "",
       date: dateOnly || today(),
       kamoku1: f.kamoku1 || "",
