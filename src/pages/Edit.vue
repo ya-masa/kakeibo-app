@@ -39,7 +39,7 @@ onMounted(async () => {
     rowNo: rowNo,
     id:id
   })
-  console.log("rowNo:"+rowNo)
+  console.log("id:"+id)
   const res = await fetch(`${GAS_URL}?${params}`)
   const data = await res.json()
 
@@ -125,7 +125,7 @@ const updateItem = async (formData) => {
 // ---------------------------
 const deleteItem = async () => {
   if (!confirm("本当に削除しますか")) return
-    console.log("削除時 rowNo:", rowNo)
+    console.log("削除時 id:", id)
   try {
     loadingStore.globalLoading.value=true
     const params = new URLSearchParams()
