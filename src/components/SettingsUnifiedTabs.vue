@@ -146,7 +146,8 @@ const saveAll = async () => {
   
 try {
     const payload = new URLSearchParams()
-
+    console.log("rawList件数:", rawList.value.length)
+    console.table(rawList.value)
     payload.append("mode", "kamoku")
 
     rawList.value.forEach((item, index) => {
@@ -174,7 +175,13 @@ try {
 
   loadingStore.globalLoading.value = false
 }
+  const changeDisabled = (item, disabled) => {
+    const target = rawList.value.find(i => i.code === item.code)
 
+    if (target) {
+      target.hihyouji = disabled ? true : item.order
+    }
+  }
 </script>
 
 <template>
@@ -212,8 +219,11 @@ try {
           :key="index"
           class="item-row"
         >
-          <input type="checkbox" v-model="item.disabled" />
-          
+          <input
+            type="checkbox"
+            :checked="item.disabled"
+            @change="changeDisabled(item, $event.target.checked)"
+          />
           <span class="item-code">{{ item.code }}</span>
 
           <input
