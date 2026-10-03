@@ -88,7 +88,7 @@
       class="btn-red"
       v-if="props.mode === 'edit'"  
       type="button":disabled="isLoading"
-      @click="localForm?.value?.rowNo && emit('delete', localForm.value.rowNo)"
+      @click="localForm?.value?.id && emit('delete', localForm.value.id)"
     >
       削除
     </button>

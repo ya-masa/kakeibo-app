@@ -72,7 +72,7 @@
       class="btn-red"
       v-if="props.mode === 'edit'" 
       type="button"
-      @click="emit('delete', props.form.rowNo)"
+      @click="emit('delete', props.form.id)"
     >
       削除
     </button>

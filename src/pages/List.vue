@@ -260,7 +260,7 @@ const updateCheck = async () => {
 //修正画面に移動する
 import { useRouter } from "vue-router"
 const router = useRouter()
-const goEdit = (rowNo) => {
+const goEdit = (id) => {
   console.log("rowNo="+rowNo)
   router.push({
     name: "edit",     // ルート名（後で説明）
