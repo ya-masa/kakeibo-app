@@ -261,7 +261,7 @@ const updateCheck = async () => {
 import { useRouter } from "vue-router"
 const router = useRouter()
 const goEdit = (id) => {
-  console.log("rowNo="+rowNo)
+  console.log("id="+id)
   router.push({
     name: "edit",     // ルート名（後で説明）
     query: { id }  // 修正したいid
