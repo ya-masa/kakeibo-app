@@ -96,7 +96,7 @@
           </td>
             <!-- ここに修正ボタンを置く -->
           <td>
-            <button class="btn" @click="goEdit(item.rowNo)">修正</button>
+            <button class="btn" @click="goEdit(item.id)">修正</button>
           </td>
           <hr>
         </tr>
