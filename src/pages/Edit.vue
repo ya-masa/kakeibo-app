@@ -44,6 +44,7 @@ onMounted(async () => {
   const data = await res.json()
 
   form.value = data
+  console.log("GAS受信直後の日付:", data.date)
 
   if (form.value.type?.includes("income")) {
     activeTab.value = "income"
