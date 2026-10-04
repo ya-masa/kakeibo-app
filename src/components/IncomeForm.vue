@@ -158,7 +158,9 @@ import LoadingIcon from './LoadingIcon.vue'
         id: newForm.id || "",
         type:'income',
         mode:newForm.form?.mode || "add",
-        date: newForm.date || today,
+        date: newForm.date? new Date(newForm.date).toLocaleDateString("sv-SE", {
+              timeZone: "Asia/Tokyo"
+            }): today,
         kamoku1: String(newForm.kamoku1) || 700,
         kamoku2: String(newForm.kamoku2) || 700,
         aite: newForm.aite || "",
