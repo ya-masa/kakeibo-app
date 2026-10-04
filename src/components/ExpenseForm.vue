@@ -106,10 +106,7 @@ import LoadingIcon from './LoadingIcon.vue'
     id:props.form?.id || "",
     type:'expense',
     mode:props.form?.mode || "add",
-    date: newForm.date
-      ? new Date(newForm.date).toLocaleDateString("sv-SE", {
-          timeZone: "Asia/Tokyo"
-        }): today,
+    date: props.date ? new Date(props.date).toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo"}): today,
     kamoku1: String(props.form?.kamoku1) || 700,
     kamoku2: String(props.form?.kamoku2)|| 700,
     aite: props.form?.aite || "",
@@ -156,7 +153,7 @@ import LoadingIcon from './LoadingIcon.vue'
         id: newForm.id || "",
         type:'expense',
         mode:newForm.form?.mode || "add",
-        date: newForm.date || today,
+        date: newForm.date? new Date(newForm.date).toLocaleDateString("sv-SE", {timeZone: "Asia/Tokyo"}): today,
         kamoku1: String(newForm.kamoku1) || 700,
         kamoku2: String(newForm.kamoku2) || 700,
         aite: newForm.aite || "",
