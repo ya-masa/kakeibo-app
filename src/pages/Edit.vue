@@ -43,8 +43,11 @@ onMounted(async () => {
   const res = await fetch(`${GAS_URL}?${params}`)
   const data = await res.json()
 
+  console.log("① GAS data.date =", data.date)
+
   form.value = data
-  console.log("GAS受信直後の日付:", data.date)
+
+  console.log("② form.value.date =", form.value.date)
 
   if (form.value.type?.includes("income")) {
     activeTab.value = "income"

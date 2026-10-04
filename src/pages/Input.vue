@@ -149,10 +149,8 @@ watch(
   () => props.form,
   (f) => {
     if (!f || Object.keys(f).length === 0) return
-
-    const iso = String(f.date)
-    const dateOnly = iso.split("T")[0]
-    console.log(f)
+    const dateObj = new Date(f.date)
+    const dateOnly = dateObj.toLocaleDateString("sv-SE", {timeZone: "Asia/Tokyo"})
     localForm.value = {
       rowNo: f.rowNo || "",
       id:f.id || "",
