@@ -114,19 +114,36 @@ onMounted(async () => {
   const res = await fetch(`${GAS_URL}?list=ALLLIST`)
   const all = await res.json()
 
-  listShishutsu.value = all.filter(i => i.group?.startsWith("5_支出"))
-  listSyunyu.value = all.filter(i => i.group?.startsWith("4_収入"))
-  listKouza.value = all.filter(i => 
+  // 非表示（TRUE）を除外し、表示順の数字で並べる
+  const visible = all
+    .filter(i => String(i.hihyouji).toUpperCase() !== "TRUE")
+    .sort((a, b) => {
+      const orderA = Number(a.hihyouji)
+      const orderB = Number(b.hihyouji)
+
+      // 数字でない値は最後に並べる
+      const aHasOrder = Number.isFinite(orderA)
+      const bHasOrder = Number.isFinite(orderB)
+
+      if (aHasOrder && bHasOrder) return orderA - orderB
+      if (aHasOrder) return -1
+      if (bHasOrder) return 1
+      return 0
+    })
+
+  listShishutsu.value = visible.filter(i => i.group?.startsWith("5_支出"))
+  listSyunyu.value = visible.filter(i => i.group?.startsWith("4_収入"))
+  listKouza.value = visible.filter(i =>
     i.group?.startsWith("1_資産") || i.group?.startsWith("2_負債")
   )
-  listAllKouza.value =all
-  listCodeShops.value = all.filter(i => Array.isArray(i.shops))
+  listAllKouza.value = visible
+  listCodeShops.value = visible.filter(i => Array.isArray(i.shops))
+
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      // ここでローディングを消す（長めにしたいなら調整）
       setTimeout(() => {
         loadingStore.globalLoading.value = false
-      }, 500) // ← ここを好きな時間にできる
+      }, 500)
     })
   })
 })
