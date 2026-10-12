@@ -215,10 +215,22 @@ function goNextMonth() {
 
   // 今月の未確認件数
   function calcUncheckedCount() {
+    console.log("① calcUncheckedCount 開始")
+    console.log("② list件数:", list.value.length)
+
+    console.log(
+      "③ 収入・支出データ:",
+      list.value.filter(item =>
+        ["4_収入", "5_支出"].includes(item.group)
+      )
+    )
+
     uncheckedCount.value = list.value.filter(item =>
       ["4_収入", "5_支出"].includes(item.group) &&
       item.check === false
     ).length
+
+    console.log("④ 今月の未確認件数:", uncheckedCount.value)
   }
 
   function calcExpenseSummary() {
