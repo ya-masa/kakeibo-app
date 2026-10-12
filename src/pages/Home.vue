@@ -153,6 +153,9 @@ function getMonthEnd() {
 
 const list = ref([])
 
+const uncheckedCount = ref(0)
+
+
 async function fetchThisMonth() {
   const params = new URLSearchParams({
     list: "homelist",
@@ -169,6 +172,7 @@ watch(outputMonth, async () => {
   calcMonthly()
   calcExpenseSummary()
   calcAccounts()
+  calcUncheckedCount()
 })
 
 //年またぎ対応関数
@@ -199,125 +203,134 @@ function goNextMonth() {
 }
 
 
-function calcMonthly() {
-  monthly.value.income = list.value
-    .filter(item => item.group === "4_収入")
-    .reduce((sum, item) => sum + Number(item.amount), 0)
+  function calcMonthly() {
+    monthly.value.income = list.value
+      .filter(item => item.group === "4_収入")
+      .reduce((sum, item) => sum + Number(item.amount), 0)
 
-  monthly.value.expense = list.value
-    .filter(item => item.group === "5_支出")
-    .reduce((sum, item) => sum + Number(item.amount), 0)
-}
+    monthly.value.expense = list.value
+      .filter(item => item.group === "5_支出")
+      .reduce((sum, item) => sum + Number(item.amount), 0)
+  }
 
-function calcExpenseSummary() {
-  const big = {}
-  const short = {}
+  // 今月の未確認件数
+  function calcUncheckedCount() {
+    uncheckedCount.value = list.value.filter(item =>
+      ["4_収入", "5_支出"].includes(item.group) &&
+      item.check === false
+    ).length
+  }
 
-  list.value
-    .filter(item => item.group === "5_支出")
-    .forEach(item => {
-      const amount = Number(item.amount ?? 0)
+  function calcExpenseSummary() {
+    const big = {}
+    const short = {}
 
-      // ★ large が無いデータは完全スキップ
-      if (!item.large) return
+    list.value
+      .filter(item => item.group === "5_支出")
+      .forEach(item => {
+        const amount = Number(item.amount ?? 0)
 
-      // 大項目
-      big[item.large] = (big[item.large] || 0) + amount
+        // ★ large が無いデータは完全スキップ
+        if (!item.large) return
 
-      // ★ small が無いデータもスキップ
-      if (!item.small) return
+        // 大項目
+        big[item.large] = (big[item.large] || 0) + amount
 
-      // 小項目（large を保持）
-      if (!short[item.small]) {
-        short[item.small] = { amount: 0, large: item.large }
-      }
-      short[item.small].amount += amount
-    })
+        // ★ small が無いデータもスキップ
+        if (!item.small) return
 
-  // 大項目
-  expenseSummary.value = Object.entries(big)
-    .map(([name, amount]) => ({ name, amount }))
-    .sort((a, b) => a.amount - b.amount)
-
-  // 小項目（large を含む）
-  expenseSubSummary.value = Object.entries(short)
-    .map(([name, data]) => ({
-      name,
-      amount: data.amount,
-      large: data.large
-    }))
-    .sort((a, b) => a.amount - b.amount)
-}
-
-function calcAccounts() {
-  const big = {}
-  const small = {}
-
-  list.value
-    .filter(item => ["1_資産", "2_負債"].includes(item.group))
-    .forEach(item => {
-      const amount = Number(item.amount ?? 0)
-
-      // ★ large が無いデータはスキップ
-      if (!item.large) return
-
-      // 大項目
-      if (!big[item.large]) {
-        big[item.large] = { amount: 0, kamokuCD: item.kamokuCD }
-      }
-      big[item.large].amount += amount
-
-      // ★ small が無いデータはスキップ
-      if (!item.small) return
-
-      // 小項目
-      if (!small[item.small]) {
-        small[item.small] = {
-          amount: 0,
-          large: item.large,
-          kamokuCD: item.kamokuCD
+        // 小項目（large を保持）
+        if (!short[item.small]) {
+          short[item.small] = { amount: 0, large: item.large }
         }
-      }
-      small[item.small].amount += amount
-    })
+        short[item.small].amount += amount
+      })
 
-  // 大項目（口座）
-  accounts.value = Object.entries(big)
-    .map(([name, data]) => ({
-      name,
-      amount: data.amount,
-      kamokuCD: data.kamokuCD
-    }))
-    .sort((a, b) => a.kamokuCD - b.kamokuCD)
+    // 大項目
+    expenseSummary.value = Object.entries(big)
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => a.amount - b.amount)
 
-  // 小項目（口座の内訳）
-  accountSubs.value = Object.entries(small)
-    .map(([name, data]) => ({
-      name,
-      large: data.large,
-      amount: data.amount,
-      kamokuCD: data.kamokuCD
-    }))
-    .sort((a, b) => a.kamokuCD - b.kamokuCD)
-}
+    // 小項目（large を含む）
+    expenseSubSummary.value = Object.entries(short)
+      .map(([name, data]) => ({
+        name,
+        amount: data.amount,
+        large: data.large
+      }))
+      .sort((a, b) => a.amount - b.amount)
+  }
+
+  function calcAccounts() {
+    const big = {}
+    const small = {}
+
+    list.value
+      .filter(item => ["1_資産", "2_負債"].includes(item.group))
+      .forEach(item => {
+        const amount = Number(item.amount ?? 0)
+
+        // ★ large が無いデータはスキップ
+        if (!item.large) return
+
+        // 大項目
+        if (!big[item.large]) {
+          big[item.large] = { amount: 0, kamokuCD: item.kamokuCD }
+        }
+        big[item.large].amount += amount
+
+        // ★ small が無いデータはスキップ
+        if (!item.small) return
+
+        // 小項目
+        if (!small[item.small]) {
+          small[item.small] = {
+            amount: 0,
+            large: item.large,
+            kamokuCD: item.kamokuCD
+          }
+        }
+        small[item.small].amount += amount
+      })
+
+    // 大項目（口座）
+    accounts.value = Object.entries(big)
+      .map(([name, data]) => ({
+        name,
+        amount: data.amount,
+        kamokuCD: data.kamokuCD
+      }))
+      .sort((a, b) => a.kamokuCD - b.kamokuCD)
+
+    // 小項目（口座の内訳）
+    accountSubs.value = Object.entries(small)
+      .map(([name, data]) => ({
+        name,
+        large: data.large,
+        amount: data.amount,
+        kamokuCD: data.kamokuCD
+      }))
+      .sort((a, b) => a.kamokuCD - b.kamokuCD)
+  }
 
 
-/* ★★★ ここが超重要 ★★★ */
-const labels = computed(() => expenseSummary.value.map(i => i.name))
-const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
+  /* ★★★ ここが超重要 ★★★ */
+  const labels = computed(() => expenseSummary.value.map(i => i.name))
+  const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
 
-onMounted(async () => {
-  await fetchThisMonth()
-  calcMonthly()
-  console.log("accountSubs:", accountSubs.value)
-  calcExpenseSummary()
-  calcAccounts()
-  console.log("accountSubs:", accountSubs.value)
+  onMounted(async () => {
+    await fetchThisMonth()
+    calcMonthly()
+    console.log("accountSubs:", accountSubs.value)
+    calcExpenseSummary()
+    calcAccounts()
+    calcUncheckedCount()
+    console.log("accountSubs:", accountSubs.value)
 
-  setTimeout(() => {
-    loadingStore.globalLoading.value = false
-  }, 500)
-})
+    setTimeout(() => {
+      loadingStore.globalLoading.value = false
+    }, 500)
+  })
 </script>
 
 
