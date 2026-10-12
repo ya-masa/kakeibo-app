@@ -229,6 +229,18 @@ function goNextMonth() {
       ["4_収入", "5_支出"].includes(item.group) &&
       item.check === false
     ).length
+    
+    console.log(
+      "チェック値の内訳:",
+      list.value
+        .filter(item => ["4_収入", "5_支出"].includes(item.group))
+        .map(item => ({
+          group: item.group,
+          check: item.check,
+          type: typeof item.check
+        }))
+    )
+
 
     console.log("④ 今月の未確認件数:", uncheckedCount.value)
   }
