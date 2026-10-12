@@ -34,6 +34,24 @@
       </div>
     </section>
 
+    <!-- 未確認データ -->
+    <section
+      class="card unchecked-card"
+      :class="{ warning: uncheckedCount > 0 }"
+    >
+      <h2>未確認データ</h2>
+      <div class="unchecked-count">
+        {{ uncheckedCount }}件
+      </div>
+      <p v-if="uncheckedCount > 0">
+        今月、まだ確認していない明細があります。
+      </p>
+      <p v-else>
+        今月の未確認明細はありません。
+      </p>
+      <p>タップして確認</p>
+    </section>
+
     <!-- 今月の支出（円グラフ＋大項目） -->
     <section class="card">
         <h2>一か月の支出</h2>
@@ -229,7 +247,7 @@ function goNextMonth() {
       ["4_収入", "5_支出"].includes(item.group) &&
       item.check === false
     ).length
-    
+
     console.log(
       "チェック値の内訳:",
       list.value
