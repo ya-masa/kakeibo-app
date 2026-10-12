@@ -52,6 +52,35 @@
       <p>タップして確認</p>
     </section>
 
+    <!-- 今日の支出 -->
+    <section class="card">
+      <h2>📅 今日の支出</h2>
+
+      <p>{{ now.getMonth() + 1 }}月{{ now.getDate() }}日</p>
+
+      <div
+        v-for="item in todayExpenseSummary"
+        :key="item.name"
+        class="row"
+      >
+        <span>{{ item.name }}</span>
+        <span class="amount">{{ item.amount }} 円</span>
+      </div>
+
+      <div class="row total">
+        <span>今日の支出合計</span>
+        <span class="amount">{{ todayExpenseTotal }} 円</span>
+      </div>
+
+      <p v-if="todayExpenseTotal === 0">
+        今日の支出はまだありません。
+      </p>
+    </section>
+
+
+
+
+
     <!-- 今月の支出（円グラフ＋大項目） -->
     <section class="card">
         <h2>一か月の支出</h2>
@@ -173,6 +202,10 @@ const list = ref([])
 
 const uncheckedCount = ref(0)
 
+// 今日の支出
+const todayExpenseSummary = ref([])
+const todayExpenseTotal = ref(0)
+
 
 async function fetchThisMonth() {
   const params = new URLSearchParams({
@@ -191,6 +224,7 @@ watch(outputMonth, async () => {
   calcExpenseSummary()
   calcAccounts()
   calcUncheckedCount()
+  calcTodayExpense()
 })
 
 //年またぎ対応関数
@@ -262,6 +296,46 @@ function goNextMonth() {
 
     console.log("④ 今月の未確認件数:", uncheckedCount.value)
   }
+
+  // 今日の支出を費目別に集計
+  function calcTodayExpense() {
+    const summary = {}
+    let total = 0
+
+    const today = new Date()
+
+    list.value
+      .filter(item => {
+        if (item.group !== "5_支出") return false
+
+        const d = new Date(item.date)
+
+        return !isNaN(d.getTime()) &&
+          d.getFullYear() === today.getFullYear() &&
+          d.getMonth() === today.getMonth() &&
+          d.getDate() === today.getDate()
+      })
+      .forEach(item => {
+        const amount = Number(item.amount ?? 0)
+        const name = item.large
+
+        if (!name) return
+
+        summary[name] = (summary[name] || 0) + amount
+        total += amount
+      })
+
+    todayExpenseSummary.value = Object.entries(summary)
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => b.amount - a.amount)
+
+    todayExpenseTotal.value = total
+
+    console.log("今日の支出:", todayExpenseSummary.value)
+    console.log("今日の支出合計:", todayExpenseTotal.value)
+  }
+
+
 
   function calcExpenseSummary() {
     const big = {}
@@ -368,6 +442,7 @@ function goNextMonth() {
     calcAccounts()
     calcUncheckedCount()
     console.log("accountSubs:", accountSubs.value)
+    calcTodayExpense()
 
     setTimeout(() => {
       loadingStore.globalLoading.value = false
