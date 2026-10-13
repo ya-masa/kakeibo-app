@@ -667,25 +667,26 @@ function goNextMonth() {
   }
 
   /* 今日の支出：明細と合計を同じ列幅で表示 */
+  /* 明細と合計を同じ幅の2列にする */
   .today-expense-row,
   .today-expense-total {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 16px;
-    width: fit-content;
-    max-width: 100%;
+    width: 100%;
+    max-width: 320px;
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
   }
 
-  /* 費目名：左端をそろえる */
+  /* 費目・合計ラベルは左揃え */
   .today-expense-row > span:first-child,
   .today-expense-total > span:first-child {
     text-align: left;
   }
 
-  /* 金額：右端をそろえる */
+  /* 金額は右揃え */
   .today-expense-row .amount,
   .today-expense-total .amount {
     text-align: right;
@@ -711,6 +712,11 @@ function goNextMonth() {
     font-weight: 800;
   }
 
+  /* 合計金額は少し大きく */
+  .today-expense-total .amount {
+    font-size: 18px;
+    font-weight: 800;
+  }
  
   .no-expense {
     margin: 8px 0 14px;
