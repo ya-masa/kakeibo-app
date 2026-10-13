@@ -691,27 +691,28 @@ function goNextMonth() {
     font-size: 14px;
   }
 
-  /* 支出一覧と合計の間の区切り */
+  /* 今日の支出合計 */
   .today-expense-total {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 24px;
     margin-top: 12px;
     padding-top: 14px;
     border-top: 2px solid #cbb5a3;
-    color: #6b4f3f;
+    color: var(--coffee);
     font-size: 16px;
     font-weight: 800;
   }
 
   .today-expense-total .amount {
     flex-shrink: 0;
-    margin-right: 0;
+    margin: 0;
     white-space: nowrap;
     font-size: 18px;
     font-variant-numeric: tabular-nums;
   }
+
 
     /* 一か月の収支：費目と金額を中央にまとめる */
   .row {
