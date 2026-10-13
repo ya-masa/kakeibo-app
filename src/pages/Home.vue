@@ -52,33 +52,36 @@
       <p>タップして確認</p>
     </section>
 
+
     <!-- 今日の支出 -->
-    <section class="card">
-      <h2>📅 今日の支出</h2>
-
-      <p>{{ now.getMonth() + 1 }}月{{ now.getDate() }}日</p>
-
-      <div
-        v-for="item in todayExpenseSummary"
-        :key="item.name"
-        class="row"
-      >
-        <span>{{ item.name }}</span>
-        <span class="amount">{{ item.amount }} 円</span>
+    <section class="card today-expense-card">
+      <div class="today-expense-header">
+        <h2>今日の支出</h2>
+        <span class="today-date">
+          {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
+        </span>
       </div>
 
-      <div class="row total">
+      <div class="today-expense-list">
+        <div
+          v-for="item in todayExpenseSummary"
+          :key="item.name"
+          class="today-expense-row"
+        >
+          <span>{{ item.name }}</span>
+          <span class="amount">{{ item.amount }} 円</span>
+        </div>
+
+        <p v-if="todayExpenseTotal === 0" class="no-expense">
+          今日の支出はまだありません。
+        </p>
+      </div>
+
+      <div class="today-expense-total">
         <span>今日の支出合計</span>
         <span class="amount">{{ todayExpenseTotal }} 円</span>
       </div>
-
-      <p v-if="todayExpenseTotal === 0">
-        今日の支出はまだありません。
-      </p>
     </section>
-
-
-
 
 
     <!-- 今月の支出（円グラフ＋大項目） -->
@@ -553,6 +556,159 @@ function goNextMonth() {
     padding: 16px;
     background: #f5e8d8;
   }
+
+/* =========================
+   未確認データ
+========================= */
+
+.unchecked-card {
+  background: #fffaf4;
+  border: 1px solid #e8cfc4;
+}
+
+.unchecked-card h2 {
+  color: #6b4f3f;
+}
+
+.unchecked-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.unchecked-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.unchecked-count {
+  flex-shrink: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #b7473a;
+}
+
+.unchecked-message {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b4f3f;
+}
+
+.unchecked-action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #6b4f3f;
+  border-radius: 8px;
+  background: #6b4f3f;
+  color: #fffaf4;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.unchecked-action:active {
+  background: #523b30;
+}
+
+.action-arrow {
+  font-size: 22px;
+  line-height: 1;
+}
+
+
+  /* =========================
+    今日の支出
+  ========================= */
+
+  .today-expense-card {
+    background: #fffaf4;
+  }
+
+  .today-expense-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .today-expense-header h2 {
+    margin: 0;
+    color: #6b4f3f;
+  }
+
+  .today-date {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: #efe1d2;
+    color: #6b4f3f;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .today-expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .today-expense-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee3d8;
+    color: #4b4038;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .today-expense-row .amount {
+    flex-shrink: 0;
+    margin-right: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .no-expense {
+    margin: 8px 0 14px;
+    color: #8a7769;
+    font-size: 14px;
+  }
+
+  /* 支出一覧と合計の間の区切り */
+  .today-expense-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 2px solid #cbb5a3;
+    color: #6b4f3f;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .today-expense-total .amount {
+    flex-shrink: 0;
+    margin-right: 0;
+    white-space: nowrap;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+  }
+
+
 
   .row > .amount{
     margin:4px 30px;
