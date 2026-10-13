@@ -666,37 +666,43 @@ function goNextMonth() {
     gap: 0;
   }
 
-  /* 今日の支出：費目と金額を中央にまとめる */
+  /* 今日の支出：明細と合計を同じ列幅で表示 */
+  .today-expense-row,
+  .today-expense-total {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 16px;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  /* 費目名：左端をそろえる */
+  .today-expense-row > span:first-child,
+  .today-expense-total > span:first-child {
+    text-align: left;
+  }
+
+  /* 金額：右端をそろえる */
+  .today-expense-row .amount,
+  .today-expense-total .amount {
+    text-align: right;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  /* 明細 */
   .today-expense-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
     padding: 10px 0;
     color: var(--coffee);
     font-size: 14px;
     font-weight: 600;
   }
 
-  .today-expense-row .amount {
-    flex-shrink: 0;
-    margin: 0;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
- 
-  .no-expense {
-    margin: 8px 0 14px;
-    color: #8a7769;
-    font-size: 14px;
-  }
-
-  /* 今日の支出合計 */
+  /* 合計 */
   .today-expense-total {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
     margin-top: 12px;
     padding-top: 14px;
     border-top: 2px solid #cbb5a3;
@@ -705,12 +711,11 @@ function goNextMonth() {
     font-weight: 800;
   }
 
-  .today-expense-total .amount {
-    flex-shrink: 0;
-    margin: 0;
-    white-space: nowrap;
-    font-size: 18px;
-    font-variant-numeric: tabular-nums;
+ 
+  .no-expense {
+    margin: 8px 0 14px;
+    color: #8a7769;
+    font-size: 14px;
   }
 
 
