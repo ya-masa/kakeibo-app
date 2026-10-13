@@ -640,26 +640,64 @@ function goNextMonth() {
     margin-right:40px;
   }
 
+
+  /* 口座残高：小項目のレイアウト */
+  .sub-wrapper {
+    margin: 6px 12px 10px 20px;
+    padding-left: 12px;
+    border-left: 2px solid #e2d2c3;
+  }
+
+  /* 小項目：口座名と照合日 */
   .sub-info {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     min-width: 0;
+    flex: 1;
   }
 
+  .sub-name {
+    text-align: left;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b4038;
+  }
+
+  /* 照合状態・照合日 */
   .check-date {
-    margin-left: 20px;
+    margin-left: 8px;
     font-size: 12px;
     font-weight: normal;
-    color: #6b4f3f;
+    line-height: 1.4;
+    color: #47765a;
   }
 
+  /* 小項目の1行 */
   .sub-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    padding: 6px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee5dc;
   }
+
+  .sub-row:last-child {
+    border-bottom: none;
+  }
+
+  /* 小項目の残高 */
+  .sub-amount {
+    flex-shrink: 0;
+    text-align: right;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #4b4038;
+  }
+
 
 </style>
