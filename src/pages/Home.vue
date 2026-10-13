@@ -603,6 +603,7 @@ function goNextMonth() {
   font-weight: 800;
   line-height: 1.2;
   color: #b7473a;
+  margin:20px;
 }
 
 .unchecked-message {
@@ -652,17 +653,16 @@ function goNextMonth() {
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
-    margin-left:80px;
   }
 
   .today-expense-header h2 {
-    margin: 0;
+    margin: 0 auto;
     color: #6b4f3f;
   }
 
   .today-date {
     flex-shrink: 0;
-    padding: 5px 10px;
+    padding: 5px 20px 5px 5px;
     border-radius: 6px;
     background: #efe1d2;
     color: #6b4f3f;
