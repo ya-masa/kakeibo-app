@@ -707,7 +707,7 @@ function goNextMonth() {
     gap: 12px;
     margin-top: 12px;
     padding-top: 14px;
-    /*border-top: 2px solid #cbb5a3;*/
+    border-top: 2px solid #cbb5a3;
     color: #6b4f3f;
     font-size: 16px;
     font-weight: 800;
