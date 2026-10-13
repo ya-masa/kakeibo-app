@@ -116,10 +116,24 @@ import loadingStore from "@/stores/loadingStore"
 import { fetchCategories } from "@/services/categories.js"
 import LoadingIcon from "@/components/LoadingIcon.vue"
 import AppLinks from '@/components/AppLinks.vue'
+import { useRoute } from "vue-router"
 
-// ローディング
-const isLoading = ref(false)
-/* GASから一覧データ取得 */
+const route = useRoute()
+
+// 未確認データだけを検索するか
+const uncheckedOnly = ref(false)
+
+  //修正画面に移動する
+  const goEdit = (id) => {
+    console.log("id="+id)
+    router.push({
+      name: "edit",     // ルート名（後で説明）
+      query: { id }  // 修正したいid
+    })
+  }
+  // ローディング
+  const isLoading = ref(false)
+  /* GASから一覧データ取得 */
   // 入力項目
   const periodStart = ref("")
   const periodEnd = ref("")
@@ -186,25 +200,33 @@ function formatMD(dateStr) {
   const day = String(d.getDate()).padStart(1, '0')
   return `${m}/${day}`
 }
+  onMounted(async () => {
+    // HOME画面から条件が渡された場合
+    if (route.query.start && route.query.end) {
+      periodStart.value = String(route.query.start)
+      periodEnd.value = String(route.query.end)
+      uncheckedOnly.value = route.query.unchecked === "true"
 
-onMounted(() => {
-  requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    // ここでローディングを消す（長めにしたいなら調整）
-    setTimeout(() => {
-      loadingStore.globalLoading.value = false
-    }, 500) // ← ここを好きな時間にできる
+      // 条件をセットして自動検索
+      await fetchList()
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          loadingStore.globalLoading.value = false
+        }, 500)
+      })
     })
   })
-})
-// 一覧データ
-const list = ref([])
+  // 一覧データ
+  const list = ref([])
 
-// 一覧取得
-const fetchList = async () => {
-  isLoading.value = true
-  list.value = []
-  selectedIds.value = []
+  // 一覧取得
+  const fetchList = async () => {
+    isLoading.value = true
+    list.value = []
+    selectedIds.value = []
 
   const params = new URLSearchParams({
     list: "sortlist",
@@ -212,61 +234,53 @@ const fetchList = async () => {
     end: periodEnd.value,
     big: large.value,
     small: small.value,
-    keyword: keyword.value
+    keyword: keyword.value,
+    unchecked: uncheckedOnly.value ? "true" : "false"
   })
 
-  try {
-    const res = await fetch(`${GAS_URL}?${params}`)
-    const data = await res.json()
-    list.value = data
-  } catch (e) {
-    console.error("一覧取得エラー", e)
+    try {
+      const res = await fetch(`${GAS_URL}?${params}`)
+      const data = await res.json()
+      list.value = data
+    } catch (e) {
+      console.error("一覧取得エラー", e)
+    }
+    isLoading.value = false
   }
-  isLoading.value = false
-}
 
-// チェック更新（Vue → GAS）
-const updateCheck = async () => {
-  if (selectedIds.value.length === 0) {
-    alert("チェックがありません")
-    return
-  }
-  isLoading.value=true
-  try {
-    const res = await fetch(GAS_URL, {
-       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        mode: "updateCheck",   // ← ここに置くのが正しい
-        ids: selectedIds.value
+  // チェック更新（Vue → GAS）
+  const updateCheck = async () => {
+    if (selectedIds.value.length === 0) {
+      alert("チェックがありません")
+      return
+    }
+    isLoading.value=true
+    try {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          mode: "updateCheck",   // ← ここに置くのが正しい
+          ids: selectedIds.value
+        })
       })
-    })
 
-    const result = await res.json()
-    console.log("更新結果:", result)
+      const result = await res.json()
+      console.log("更新結果:", result)
 
-    alert("更新しました")
-    selectedIds.value = []
-    fetchList()
+      alert("更新しました")
+      selectedIds.value = []
+      fetchList()
 
-  } catch (e) {
-    console.error("更新エラー", e)
-    isLoading.value=false
+    } catch (e) {
+      console.error("更新エラー", e)
+      isLoading.value=false
+    }
   }
-}
 
-//修正画面に移動する
-import { useRouter } from "vue-router"
-const router = useRouter()
-const goEdit = (id) => {
-  console.log("id="+id)
-  router.push({
-    name: "edit",     // ルート名（後で説明）
-    query: { id }  // 修正したいid
-  })
-}
+
 </script>
 
 

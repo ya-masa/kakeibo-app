@@ -59,6 +59,7 @@
 
         <button
           class="unchecked-action"
+          @click="goUnchecked"
         >
           タップして確認
           <span class="action-arrow">›</span>
@@ -196,95 +197,118 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed,watch } from "vue"
-import { GAS_URL } from "@/constants/index.js"
-import loadingStore from "@/stores/loadingStore"
-import PieChart from "@/components/PieChart.vue"
+  import { ref, onMounted, computed,watch } from "vue"
+  import { GAS_URL } from "@/constants/index.js"
+  import loadingStore from "@/stores/loadingStore"
+  import PieChart from "@/components/PieChart.vue"
+  import { useRouter } from "vue-router"
 
-const chartColors = ref([])
+  const chartColors = ref([])
 
-const showExpense = ref(false)
-const showBalance = ref(false)
+  const showExpense = ref(false)
+  const showBalance = ref(false)
 
-const monthly = ref({ income: 0, expense: 0 })
-const expenseSummary = ref([])
-const expenseSubSummary = ref([])
-const accounts = ref([])
-const accountSubs = ref([])
-const openLarge = ref(null)
-const openKouza = ref(null)
-
-
-const now = new Date()
-
-const outputYear = ref(now.getFullYear()) // 初期値＝現在の年
-const outputMonth = ref(now.getMonth() + 1)   // 初期値＝当月（今なら7）
-
-//月の開始日を計算する
-function getMonthStart() {
-  return `${outputYear.value}/${String(outputMonth.value)}/1`
-}
-//月の終了日を計算する
-function getMonthEnd() {
-  const last = new Date(outputYear.value, outputMonth.value, 0)
-  return `${last.getFullYear()}/${String(last.getMonth() + 1)}/${String(last.getDate())}`
-}
-
-const list = ref([])
-
-const uncheckedCount = ref(0)
-
-// 今日の支出
-const todayExpenseSummary = ref([])
-const todayExpenseTotal = ref(0)
+  const monthly = ref({ income: 0, expense: 0 })
+  const expenseSummary = ref([])
+  const expenseSubSummary = ref([])
+  const accounts = ref([])
+  const accountSubs = ref([])
+  const openLarge = ref(null)
+  const openKouza = ref(null)
 
 
-async function fetchThisMonth() {
-  const params = new URLSearchParams({
-    list: "homelist",
-    start: getMonthStart(),
-    end: getMonthEnd()
+  const now = new Date()
+
+  const outputYear = ref(now.getFullYear()) // 初期値＝現在の年
+  const outputMonth = ref(now.getMonth() + 1)   // 初期値＝当月（今なら7）
+
+  //月の開始日を計算する
+  function getMonthStart() {
+    return `${outputYear.value}/${String(outputMonth.value)}/1`
+  }
+  //月の終了日を計算する
+  function getMonthEnd() {
+    const last = new Date(outputYear.value, outputMonth.value, 0)
+    return `${last.getFullYear()}/${String(last.getMonth() + 1)}/${String(last.getDate())}`
+  }
+  const router = useRouter()
+
+  // 未確認データの検索画面へ移動
+  function goUnchecked() {
+    router.push({
+      name: "list", // 検索画面の実際のルート名に合わせる
+      query: {
+        start: getMonthStartISO(),
+        end: getMonthEndISO(),
+        unchecked: "true"
+      }
+    })
+  }
+
+  // 検索画面の日付入力に合わせて yyyy-mm-dd に変換
+  function getMonthStartISO() {
+    return `${outputYear.value}-${String(outputMonth.value).padStart(2, "0")}-01`
+  }
+
+  function getMonthEndISO() {
+    const last = new Date(outputYear.value, outputMonth.value, 0)
+    return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`
+  }
+  const list = ref([])
+
+  const uncheckedCount = ref(0)
+
+  // 今日の支出
+  const todayExpenseSummary = ref([])
+  const todayExpenseTotal = ref(0)
+
+
+  async function fetchThisMonth() {
+    const params = new URLSearchParams({
+      list: "homelist",
+      start: getMonthStart(),
+      end: getMonthEnd()
+    })
+
+    const res = await fetch(`${GAS_URL}?${params}`)
+    list.value = await res.json()
+  }
+
+  watch(outputMonth, async () => {
+    await fetchThisMonth()
+    calcMonthly()
+    calcExpenseSummary()
+    calcAccounts()
+    calcUncheckedCount()
+    calcTodayExpense()
   })
 
-  const res = await fetch(`${GAS_URL}?${params}`)
-  list.value = await res.json()
-}
-
-watch(outputMonth, async () => {
-  await fetchThisMonth()
-  calcMonthly()
-  calcExpenseSummary()
-  calcAccounts()
-  calcUncheckedCount()
-  calcTodayExpense()
-})
-
-//年またぎ対応関数
-function goPrevMonth() {
-  if (outputMonth.value === 1) {
-    outputMonth.value = 12
-    outputYear.value--
-  } else {
-    outputMonth.value--
-  }
-}
-
-function goNextMonth() {
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth() + 1
-
-  // 当月より先には進めない
-  if (outputYear.value === currentYear && outputMonth.value === currentMonth) {
-    return
+  //年またぎ対応関数
+  function goPrevMonth() {
+    if (outputMonth.value === 1) {
+      outputMonth.value = 12
+      outputYear.value--
+    } else {
+      outputMonth.value--
+    }
   }
 
-  if (outputMonth.value === 12) {
-    outputMonth.value = 1
-    outputYear.value++
-  } else {
-    outputMonth.value++
+  function goNextMonth() {
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth() + 1
+
+    // 当月より先には進めない
+    if (outputYear.value === currentYear && outputMonth.value === currentMonth) {
+      return
+    }
+
+    if (outputMonth.value === 12) {
+      outputMonth.value = 1
+      outputYear.value++
+    } else {
+      outputMonth.value++
+    }
   }
-}
 
 
   function calcMonthly() {
