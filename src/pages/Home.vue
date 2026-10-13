@@ -648,21 +648,25 @@ function goNextMonth() {
   }
 
   .today-expense-header {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
   }
 
   .today-expense-header h2 {
-    margin: 0 auto;
+    grid-column: 2;
+    margin: 0;
     color: #6b4f3f;
+    text-align: center;
   }
 
   .today-date {
+    grid-column: 3;
+    justify-self: end;
     flex-shrink: 0;
-    padding: 5px 20px 5px 5px;
+    padding: 5px 10px;
     border-radius: 6px;
     background: #efe1d2;
     color: #6b4f3f;
