@@ -149,23 +149,28 @@
         </div>
 
         <div
-          v-for="sub in accountSubs.filter(s => s.large === acc.name)"
-          :key="sub.kamokuCD"
-          class="sub-row"
+          class="sub-wrapper"
+          v-if="openKouza === acc.name"
         >
-          <div class="sub-info">
-            <span class="sub-name">{{ sub.name }}</span>
-            <span class="check-date">
-              {{ sub.checkDate
-                ? `最終照合日：${sub.checkDate.getFullYear()}/${String(sub.checkDate.getMonth() + 1).padStart(2, '0')}/${String(sub.checkDate.getDate()).padStart(2, '0')}`
-                : sub.checkStatus === '確認履歴なし'
-                  ? '確認履歴なし'
-                  : '未照合'
-              }}
-            </span>
-          </div>
+          <div
+            v-for="sub in accountSubs.filter(s => s.large === acc.name)"
+            :key="sub.kamokuCD"
+            class="sub-row"
+          >
+            <div class="sub-info">
+              <span class="sub-name">{{ sub.name }}</span>
+              <span class="check-date">
+                {{ sub.checkDate
+                  ? `最終照合日：${sub.checkDate.getFullYear()}/${String(sub.checkDate.getMonth() + 1).padStart(2, '0')}/${String(sub.checkDate.getDate()).padStart(2, '0')}`
+                  : sub.checkStatus === '確認履歴なし'
+                    ? '確認履歴なし'
+                    : '未照合'
+                }}
+              </span>
+            </div>
 
-          <span class="sub-amount">{{ sub.amount }} 円</span>
+            <span class="sub-amount">{{ sub.amount }} 円</span>
+          </div>
         </div>
 
       </div>
