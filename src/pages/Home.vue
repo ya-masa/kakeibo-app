@@ -571,81 +571,72 @@ function goNextMonth() {
     background: #f5e8d8;
   }
 
-/* =========================
-   未確認データ
-========================= */
+  /* =========================
+    未確認データ
+  ========================= */
 
-.unchecked-card {
-  background: #fffaf4;
-  border: 1px solid #e8cfc4;
-}
+  .unchecked-card h2 {
+    color: #6b4f3f;
+  }
 
-.unchecked-card h2 {
-  color: #6b4f3f;
-}
+  .unchecked-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
-.unchecked-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+  .unchecked-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 
-.unchecked-main {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
+  .unchecked-count {
+    flex-shrink: 0;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #b7473a;
+    margin:20px;
+  }
 
-.unchecked-count {
-  flex-shrink: 0;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: #b7473a;
-  margin:20px;
-}
+  .unchecked-message {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b4f3f;
+  }
 
-.unchecked-message {
-  font-size: 14px;
-  font-weight: 600;
-  color: #6b4f3f;
-}
+  .unchecked-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid #6b4f3f;
+    border-radius: 8px;
+    background: #6b4f3f;
+    color: #fffaf4;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
-.unchecked-action {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 16px;
-  border: 1px solid #6b4f3f;
-  border-radius: 8px;
-  background: #6b4f3f;
-  color: #fffaf4;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-}
+  .unchecked-action:active {
+    background: #523b30;
+  }
 
-.unchecked-action:active {
-  background: #523b30;
-}
-
-.action-arrow {
-  font-size: 22px;
-  line-height: 1;
-}
+  .action-arrow {
+    font-size: 22px;
+    line-height: 1;
+  }
 
 
   /* =========================
     今日の支出
   ========================= */
-
-  .today-expense-card {
-    background: #fffaf4;
-  }
 
   .today-expense-header {
     display: grid;
