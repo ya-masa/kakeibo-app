@@ -423,7 +423,9 @@ function goNextMonth() {
         ["1_資産", "2_負債"].includes(item.group) &&
         Number(item.kamokuCD) >= 100 &&
         Number(item.kamokuCD) <= 299 &&
-        String(item.naiyo ?? "").includes("№00")
+        String(item.naiyo ?? "").includes("№00") &&
+        item.hihyouji !== true &&
+        String(item.hihyouji).toUpperCase() !== "TRUE"
       )
       .forEach(item => {
         const code = String(item.kamokuCD)
@@ -448,7 +450,9 @@ function goNextMonth() {
       .filter(item =>
         ["1_資産", "2_負債"].includes(item.group) &&
         Number(item.kamokuCD) >= 100 &&
-        Number(item.kamokuCD) <= 299
+        Number(item.kamokuCD) <= 299 &&
+        item.hihyouji !== true &&
+        String(item.hihyouji).toUpperCase() !== "TRUE"
       )
       .forEach(item => {
         const code = String(item.kamokuCD)
@@ -479,7 +483,11 @@ function goNextMonth() {
 
     // 口座残高を集計
     list.value
-      .filter(item => ["1_資産", "2_負債"].includes(item.group))
+      .filter(item =>
+        ["1_資産", "2_負債"].includes(item.group) &&
+        item.hihyouji !== true &&
+        String(item.hihyouji).toUpperCase() !== "TRUE"
+      )
       .forEach(item => {
         const amount = Number(item.amount ?? 0)
         const code = String(item.kamokuCD)
