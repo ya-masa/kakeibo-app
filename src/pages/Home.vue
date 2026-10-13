@@ -672,6 +672,7 @@ function goNextMonth() {
     font-weight: normal;
     line-height: 1.4;
     color: #47765a;
+    text-align: left;
   }
 
   /* 小項目の1行 */
