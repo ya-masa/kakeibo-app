@@ -148,16 +148,26 @@
           <span class="amount">{{ acc.amount }} 円</span>
         </div>
 
-        <div class="sub-wrapper" v-if="openKouza === acc.name">
-          <div
-            v-for="sub in accountSubs.filter(s => s.large === acc.name)"
-            :key="sub.name"
-            class="sub-row"
-          >
+        <div
+          v-for="sub in accountSubs.filter(s => s.large === acc.name)"
+          :key="sub.kamokuCD"
+          class="sub-row"
+        >
+          <div class="sub-info">
             <span class="sub-name">{{ sub.name }}</span>
-            <span class="sub-amount">{{ sub.amount }} 円</span>
+            <span class="check-date">
+              {{ sub.checkDate
+                ? `最終照合日：${sub.checkDate.getFullYear()}/${String(sub.checkDate.getMonth() + 1).padStart(2, '0')}/${String(sub.checkDate.getDate()).padStart(2, '0')}`
+                : sub.checkStatus === '確認履歴なし'
+                  ? '確認履歴なし'
+                  : '未照合'
+              }}
+            </span>
           </div>
+
+          <span class="sub-amount">{{ sub.amount }} 円</span>
         </div>
+
       </div>
     </section>
   </div>
@@ -377,39 +387,107 @@ function goNextMonth() {
       .sort((a, b) => a.amount - b.amount)
   }
 
+
   function calcAccounts() {
     const big = {}
     const small = {}
 
+    // 科目コードごとの照合状態を管理
+    const checkInfo = {}
+
+    // まず月初残高（内容の№00）から初期状態を取得
+    list.value
+      .filter(item =>
+        ["1_資産", "2_負債"].includes(item.group) &&
+        Number(item.kamokuCD) >= 100 &&
+        Number(item.kamokuCD) <= 299 &&
+        String(item.naiyo ?? "").includes("№00")
+      )
+      .forEach(item => {
+        const code = String(item.kamokuCD)
+        const result = item.checkResult
+
+        checkInfo[code] = {
+          status: result || "未照合",
+          date: ""
+        }
+
+        // 月初残高の照合結果が日付なら保存
+        if (result && result !== "確認履歴なし") {
+          const d = new Date(result)
+          if (!isNaN(d.getTime())) {
+            checkInfo[code].date = d
+          }
+        }
+      })
+
+    // 同じ科目コードのデータから照合日を更新
+    list.value
+      .filter(item =>
+        ["1_資産", "2_負債"].includes(item.group) &&
+        Number(item.kamokuCD) >= 100 &&
+        Number(item.kamokuCD) <= 299
+      )
+      .forEach(item => {
+        const code = String(item.kamokuCD)
+        const result = item.checkResult
+
+        if (!checkInfo[code]) {
+          checkInfo[code] = {
+            status: result || "未照合",
+            date: ""
+          }
+        }
+
+        // 空欄や「確認履歴なし」では更新しない
+        if (!result || result === "確認履歴なし") return
+
+        const d = new Date(result)
+
+        if (!isNaN(d.getTime())) {
+          if (
+            !checkInfo[code].date ||
+            d > checkInfo[code].date
+          ) {
+            checkInfo[code].date = d
+            checkInfo[code].status = result
+          }
+        }
+      })
+
+    // 口座残高を集計
     list.value
       .filter(item => ["1_資産", "2_負債"].includes(item.group))
       .forEach(item => {
         const amount = Number(item.amount ?? 0)
+        const code = String(item.kamokuCD)
 
-        // ★ large が無いデータはスキップ
         if (!item.large) return
 
-        // 大項目
         if (!big[item.large]) {
-          big[item.large] = { amount: 0, kamokuCD: item.kamokuCD }
-        }
-        big[item.large].amount += amount
-
-        // ★ small が無いデータはスキップ
-        if (!item.small) return
-
-        // 小項目
-        if (!small[item.small]) {
-          small[item.small] = {
+          big[item.large] = {
             amount: 0,
-            large: item.large,
             kamokuCD: item.kamokuCD
           }
         }
-        small[item.small].amount += amount
+
+        big[item.large].amount += amount
+
+        if (!item.small) return
+
+        if (!small[code]) {
+          small[code] = {
+            name: item.small,
+            large: item.large,
+            amount: 0,
+            kamokuCD: item.kamokuCD
+          }
+        }
+
+        small[code].amount += amount
       })
 
-    // 大項目（口座）
+    // 大項目（口座グループ）
     accounts.value = Object.entries(big)
       .map(([name, data]) => ({
         name,
@@ -418,16 +496,26 @@ function goNextMonth() {
       }))
       .sort((a, b) => a.kamokuCD - b.kamokuCD)
 
-    // 小項目（口座の内訳）
+    // 小項目（科目コード単位）
     accountSubs.value = Object.entries(small)
-      .map(([name, data]) => ({
-        name,
-        large: data.large,
-        amount: data.amount,
-        kamokuCD: data.kamokuCD
-      }))
+      .map(([code, data]) => {
+        const info = checkInfo[code] || {
+          status: "未照合",
+          date: ""
+        }
+
+        return {
+          name: data.name,
+          large: data.large,
+          amount: data.amount,
+          kamokuCD: data.kamokuCD,
+          checkStatus: info.status,
+          checkDate: info.date
+        }
+      })
       .sort((a, b) => a.kamokuCD - b.kamokuCD)
   }
+
 
 
   /* ★★★ ここが超重要 ★★★ */
@@ -545,6 +633,28 @@ function goNextMonth() {
   .sub-amount {
     text-align: right;
     margin-right:40px;
+  }
+
+  .sub-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .check-date {
+    margin-left: 20px;
+    font-size: 12px;
+    font-weight: normal;
+    color: #6b4f3f;
+  }
+
+  .sub-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
   }
 
 </style>
