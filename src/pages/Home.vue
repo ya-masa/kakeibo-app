@@ -566,11 +566,6 @@ function goNextMonth() {
 <style scoped>
   /* 仮のCSS 後で base.css にまとめる */
 
-  .home {
-    padding: 16px;
-    background: #f5e8d8;
-  }
-
   /* =========================
     未確認データ
   ========================= */
@@ -671,24 +666,25 @@ function goNextMonth() {
     gap: 0;
   }
 
+  /* 今日の支出：費目と金額を中央にまとめる */
   .today-expense-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 24px;
     padding: 10px 0;
-    color: #4b4038;
+    color: var(--coffee);
     font-size: 14px;
     font-weight: 600;
   }
 
   .today-expense-row .amount {
     flex-shrink: 0;
-    margin-right: 0;
+    margin: 0;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
-
+ 
   .no-expense {
     margin: 8px 0 14px;
     color: #8a7769;
@@ -717,15 +713,20 @@ function goNextMonth() {
     font-variant-numeric: tabular-nums;
   }
 
-
-
-  .row > .amount{
-    margin:4px 30px;
-  }
-  .row{
-    font-weight: bold;
+    /* 一か月の収支：費目と金額を中央にまとめる */
+  .row {
+    display: flex;
+    justify-content: center;
     align-items: center;
+    gap: 24px;
+    padding: 8px 0;
+    font-weight: bold;
   }
+
+  .row > .amount {
+    margin: 0;
+  }
+
   .toggle-header {
     display: flex;
     justify-content: space-between;
