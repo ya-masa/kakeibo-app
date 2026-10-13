@@ -652,6 +652,7 @@ function goNextMonth() {
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
+    margin-left:80px;
   }
 
   .today-expense-header h2 {
