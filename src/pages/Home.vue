@@ -34,22 +34,36 @@
       </div>
     </section>
 
+
     <!-- 未確認データ -->
     <section
       class="card unchecked-card"
       :class="{ warning: uncheckedCount > 0 }"
     >
       <h2>未確認データ</h2>
-      <div class="unchecked-count">
-        {{ uncheckedCount }}件
+
+      <div class="unchecked-content">
+        <div class="unchecked-main">
+          <span class="unchecked-count">
+            {{ uncheckedCount }}件
+          </span>
+
+          <span class="unchecked-message" v-if="uncheckedCount > 0">
+            まだ確認していない明細があります
+          </span>
+
+          <span class="unchecked-message" v-else>
+            今月の未確認明細はありません
+          </span>
+        </div>
+
+        <button
+          class="unchecked-action"
+        >
+          タップして確認
+          <span class="action-arrow">›</span>
+        </button>
       </div>
-      <p v-if="uncheckedCount > 0">
-        今月、まだ確認していない明細があります。
-      </p>
-      <p v-else>
-        今月の未確認明細はありません。
-      </p>
-      <p>タップして確認</p>
     </section>
 
 
