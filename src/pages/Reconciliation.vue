@@ -152,109 +152,220 @@
         GAS側の取込処理と接続した後に有効になります。
       </p>
     </section>
-<section class="reconciliation-candidates">
-  <h2>エポスカード照合候補</h2>
+    /* 照合候補の表示 */
+    <section class="reconciliation-candidates">
+      <h2>エポスカード照合候補</h2>
 
-  <p v-if="!selectedAccountCode">
-    口座・カードを選択してください。
-  </p>
-
-  <template v-else-if="[201, 202].includes(Number(selectedAccountCode))">
-    <div class="candidate-summary">
-      <button type="button" @click="candidateFilter = 'すべて'">
-        すべて {{ eposCandidates.length }}
-      </button>
-
-      <button type="button" @click="candidateFilter = '一致候補'">
-        一致候補 {{ candidateCount('一致候補') }}
-      </button>
-
-      <button type="button" @click="candidateFilter = '要確認'">
-        要確認 {{ candidateCount('要確認') }}
-      </button>
-
-      <button type="button" @click="candidateFilter = '未対応'">
-        未対応 {{ candidateCount('未対応') }}
-      </button>
-
-      <button
-        type="button"
-        @click="loadEposCandidates"
-        :disabled="loadingCandidates"
-      >
-        {{ loadingCandidates ? "更新中…" : "再読み込み" }}
-      </button>
-    </div>
-
-    <p v-if="loadingCandidates">照合候補を読み込んでいます…</p>
-
-    <p v-else-if="filteredEposCandidates.length === 0">
-      表示する照合候補はありません。
-    </p>
-
-    <article
-      v-for="item in filteredEposCandidates"
-      :key="item.statementId"
-      class="candidate-card"
-    >
-      <div class="candidate-heading">
-        <strong>{{ item.place || "利用先不明" }}</strong>
-        <span class="candidate-status">{{ item.status }}</span>
-      </div>
-
-      <p>
-        利用日：{{ item.date }}
+      <p v-if="!selectedAccountCode">
+        口座・カードを選択してください。
       </p>
 
-      <p>
-        利用金額：{{ formatAmount(item.amount) }}
-      </p>
+      <template v-else-if="[201, 202].includes(Number(selectedAccountCode))">
+        <div class="candidate-summary">
+          <button type="button" @click="candidateFilter = 'すべて'">
+            すべて {{ eposCandidates.length }}
+          </button>
 
-      <p>
-        支払金額：{{ formatAmount(item.paymentAmount) }}
-      </p>
+          <button type="button" @click="candidateFilter = '一致候補'">
+            一致候補 {{ candidateCount('一致候補') }}
+          </button>
 
-      <p v-if="item.content">
-        利用内容：{{ item.content }}
-      </p>
+          <button type="button" @click="candidateFilter = '要確認'">
+            要確認 {{ candidateCount('要確認') }}
+          </button>
 
-      <div v-if="item.candidates?.length">
-        <h3>家計簿側の候補</h3>
+          <button type="button" @click="candidateFilter = '未対応'">
+            未対応 {{ candidateCount('未対応') }}
+          </button>
 
-        <div
-          v-for="candidate in item.candidates"
-          :key="`${item.statementId}-${candidate.rowNo}`"
-          class="ledger-candidate"
-        >
-          <p>
-            {{ candidate.date }} ／
-            {{ candidate.shop || candidate.content || "店名なし" }}
-          </p>
-
-          <p>
-            金額：{{ formatAmount(candidate.amount) }}
-          </p>
-
-          <p>
-            日付差：{{ candidate.dateDifference }}日
-          </p>
-
-          <p>
-            家計簿ID：{{ candidate.id }}
-          </p>
+          <button
+            type="button"
+            @click="loadEposCandidates"
+            :disabled="loadingCandidates"
+          >
+            {{ loadingCandidates ? "更新中…" : "再読み込み" }}
+          </button>
         </div>
-      </div>
+
+        <p v-if="loadingCandidates">照合候補を読み込んでいます…</p>
+
+        <p v-else-if="filteredEposCandidates.length === 0">
+          表示する照合候補はありません。
+        </p>
+
+        <article
+          v-for="item in filteredEposCandidates"
+          :key="item.statementId"
+          class="candidate-card"
+        >
+          <div class="candidate-heading">
+            <strong>{{ item.place || "利用先不明" }}</strong>
+            <span class="candidate-status">{{ item.status }}</span>
+          </div>
+
+          <p>
+            利用日：{{ item.date }}
+          </p>
+
+          <p>
+            利用金額：{{ formatAmount(item.amount) }}
+          </p>
+
+          <p>
+            支払金額：{{ formatAmount(item.paymentAmount) }}
+          </p>
+
+          <p v-if="item.content">
+            利用内容：{{ item.content }}
+          </p>
+
+          <div v-if="item.candidates?.length">
+            <h3>家計簿側の候補</h3>
+
+            <div
+              v-for="candidate in item.candidates"
+              :key="`${item.statementId}-${candidate.rowNo}`"
+              class="ledger-candidate"
+            >
+              <p>
+                {{ candidate.date }} ／
+                {{ candidate.shop || candidate.content || "店名なし" }}
+              </p>
+
+              <p>
+                金額：{{ formatAmount(candidate.amount) }}
+              </p>
+
+              <p>
+                日付差：{{ candidate.dateDifference }}日
+              </p>
+
+              <p>
+                家計簿ID：{{ candidate.id }}
+              </p>
+              <button
+                type="button"
+                @click="selectEposCandidate(item, candidate)"
+              >
+                この取引と照合
+              </button>
+            </div>
+          </div>
+
+          <p v-else>
+            対応する家計簿データの候補は見つかりませんでした。
+          </p>
+        </article>
+      </template>
 
       <p v-else>
-        対応する家計簿データの候補は見つかりませんでした。
+        エポスカードを選択すると、CSVとの照合候補が表示されます。
       </p>
-    </article>
-  </template>
+    </section>
 
-  <p v-else>
-    エポスカードを選択すると、CSVとの照合候補が表示されます。
-  </p>
-</section>
+    <!-- 照合確定前の確認画面 -->
+    <section
+      v-if="selectedCandidate"
+      class="reconciliation-confirm"
+    >
+      <h2>照合内容の確認</h2>
+
+      <p>
+        CSV明細と家計簿の取引が正しい組み合わせか確認してください。
+      </p>
+
+      <div class="confirm-comparison">
+        <article class="confirm-card">
+          <h3>CSV明細</h3>
+
+          <p>
+            <strong>利用先：</strong>
+            {{ selectedCandidate.statement.place || "利用先不明" }}
+          </p>
+
+          <p>
+            <strong>利用日：</strong>
+            {{ selectedCandidate.statement.date }}
+          </p>
+
+          <p>
+            <strong>利用金額：</strong>
+            {{ formatAmount(selectedCandidate.statement.amount) }}
+          </p>
+
+          <p>
+            <strong>支払金額：</strong>
+            {{ formatAmount(selectedCandidate.statement.paymentAmount) }}
+          </p>
+
+          <p v-if="selectedCandidate.statement.content">
+            <strong>利用内容：</strong>
+            {{ selectedCandidate.statement.content }}
+          </p>
+
+          <p>
+            <strong>支払区分：</strong>
+            {{ selectedCandidate.statement.paymentType || "未設定" }}
+          </p>
+        </article>
+
+        <article class="confirm-card">
+          <h3>家計簿の取引</h3>
+
+          <p>
+            <strong>店：</strong>
+            {{ selectedCandidate.candidate.shop || "店名なし" }}
+          </p>
+
+          <p>
+            <strong>日付：</strong>
+            {{ selectedCandidate.candidate.date }}
+          </p>
+
+          <p>
+            <strong>金額：</strong>
+            {{ formatAmount(selectedCandidate.candidate.amount) }}
+          </p>
+
+          <p>
+            <strong>家計簿固有ID：</strong>
+            {{ selectedCandidate.candidate.id }}
+          </p>
+
+          <p>
+            <strong>日付差：</strong>
+            {{ selectedCandidate.candidate.dateDifference }}日
+          </p>
+        </article>
+      </div>
+
+      <p class="confirm-warning">
+        確定すると、CSV明細と家計簿の取引が照合済みになります。
+        内容を確認してから確定してください。
+      </p>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          @click="cancelEposReconciliation"
+          :disabled="confirmingReconciliation"
+        >
+          キャンセル
+        </button>
+
+        <button
+          type="button"
+          @click="confirmEposReconciliation"
+          :disabled="confirmingReconciliation"
+        >
+          {{
+            confirmingReconciliation
+              ? "保存中…"
+              : "照合を確定"
+          }}
+        </button>
+      </div>
+    </section>
 
     <!-- 仕訳一覧 -->
     <section class="panel">
@@ -362,6 +473,10 @@ const selectedFile = ref(null);
 const eposCandidates = ref([]);
 const loadingCandidates = ref(false);
 const candidateFilter = ref("すべて");
+
+// 照合確定用
+const selectedCandidate = ref(null);
+const confirmingReconciliation = ref(false);
 
 /**
  * GASからJSONを取得する。
@@ -832,6 +947,112 @@ function candidateCount(status) {
   return eposCandidates.value.filter(
     item => item.status === status
   ).length;
+}
+
+/**
+ * 照合候補を選択し、確定前の確認画面を表示する。
+ */
+function selectEposCandidate(statement, candidate) {
+  if (!statement || !candidate) {
+    errorMessage.value = "照合する明細を選択できませんでした。";
+    return;
+  }
+
+  if (![201, 202].includes(Number(statement.accountCode))) {
+    errorMessage.value = "カードの科目CDが不正です。";
+    return;
+  }
+
+  if (Number(candidate.rowNo) < 2 || !candidate.id) {
+    errorMessage.value = "家計簿側の取引情報が不正です。";
+    return;
+  }
+
+  if (statement.status === "一致候補" || statement.status === "要確認") {
+    selectedCandidate.value = {
+      statement,
+      candidate
+    };
+
+    errorMessage.value = "";
+    successMessage.value = "";
+  }
+}
+
+/**
+ * 確認画面を閉じる。
+ */
+function cancelEposReconciliation() {
+  selectedCandidate.value = null;
+}
+/**
+ * 照合確定リクエストをGASへ送信する。
+ */
+async function confirmEposReconciliation() {
+  if (!selectedCandidate.value) {
+    errorMessage.value = "照合する取引が選択されていません。";
+    return;
+  }
+
+  const { statement, candidate } = selectedCandidate.value;
+
+  if (![201, 202].includes(Number(statement.accountCode))) {
+    errorMessage.value = "カードの科目CDが不正です。";
+    return;
+  }
+
+  confirmingReconciliation.value = true;
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  try {
+    const payload = {
+      accountCode: Number(statement.accountCode),
+      statementId: String(statement.statementId),
+      ledgerId: String(candidate.id)
+    };
+
+    const body = new URLSearchParams({
+      mode: "confirmEposReconciliation",
+      payload: JSON.stringify(payload)
+    });
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body
+    });
+
+    const responseText = await response.text();
+
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
+      );
+    }
+
+    if (!response.ok || result.success !== true) {
+      throw new Error(
+        result.message || result.error || `HTTP ${response.status}`
+      );
+    }
+
+    selectedCandidate.value = null;
+
+    successMessage.value = result.message || "照合を確定しました。";
+
+    // 最新の状態を取得する
+    await loadTargets();
+    await loadEposCandidates();
+
+  } catch (error) {
+    errorMessage.value = `照合の確定に失敗しました：${error.message}`;
+  } finally {
+    confirmingReconciliation.value = false;
+  }
 }
 </script>
 
