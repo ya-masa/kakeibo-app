@@ -1109,4 +1109,68 @@ td small {
     align-items: flex-start;
   }
 }
+
+/* CSV照合結果表示 */
+.reconciliation-candidates {
+  margin-top: 24px;
+}
+
+.candidate-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.candidate-summary button {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.candidate-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.candidate-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.candidate-status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #eee;
+  font-size: 0.9rem;
+}
+
+.ledger-candidate {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f6f6f6;
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .candidate-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .candidate-summary button {
+    width: 100%;
+  }
+
+  .candidate-card {
+    padding: 12px;
+  }
+}
 </style>
