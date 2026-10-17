@@ -28,8 +28,8 @@
       </router-link>
 
       <router-link to="/reconciliation" class="nav-item" :class="{ active: $route.path === '/reconciliation' }">
-        <span class="icon">📊</span>
-        <span>設定</span>
+        <span class="icon">💳</span>
+        <span>照合</span>
       </router-link>
 
       <router-link to="/setting" class="nav-item" :class="{ active: $route.path === '/setting' }">
