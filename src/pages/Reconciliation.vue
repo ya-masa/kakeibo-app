@@ -156,7 +156,8 @@
     <!-- 照合確定前の確認画面 -->
     <section
       v-if="selectedCandidate"
-      class="reconciliation-confirm"
+      ref="confirmSection"
+      class="card reconciliation-confirm"
     >
       <h2>照合内容の確認</h2>
 
@@ -260,7 +261,7 @@
     <!-- 照合候補の表示 -->
     <section
       v-if="!selectedCandidate"
-      class="reconciliation-candidates"
+      class="card reconciliation-candidates"
     >
     <h2>エポスカード照合候補</h2>
 
@@ -452,7 +453,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { GAS_URL } from "@/constants/index.js"
 
 
@@ -477,6 +478,9 @@ const candidateFilter = ref("すべて");
 // 照合確定用
 const selectedCandidate = ref(null);
 const confirmingReconciliation = ref(false);
+
+//表示位置
+const confirmSection = ref(null);
 
 /**
  * GASからJSONを取得する。
@@ -952,30 +956,37 @@ function candidateCount(status) {
 /**
  * 照合候補を選択し、確定前の確認画面を表示する。
  */
-function selectEposCandidate(statement, candidate) {
+async function selectEposCandidate(statement, candidate) {
   if (!statement || !candidate) {
-    errorMessage.value = "照合する明細を選択できませんでした。";
+    errorMessage.value = "照合対象を選択してください。";
     return;
   }
 
   if (![201, 202].includes(Number(statement.accountCode))) {
-    errorMessage.value = "カードの科目CDが不正です。";
+    errorMessage.value = "対象のカードを確認してください。";
     return;
   }
 
   if (Number(candidate.rowNo) < 2 || !candidate.id) {
-    errorMessage.value = "家計簿側の取引情報が不正です。";
+    errorMessage.value = "家計簿の取引情報が正しくありません。";
     return;
   }
 
-  if (statement.status === "一致候補" || statement.status === "要確認") {
-    selectedCandidate.value = {
-      statement,
-      candidate
-    };
-
+  if (
+    statement.status === "一致候補" ||
+    statement.status === "要確認"
+  ) {
+    selectedCandidate.value = { statement, candidate };
     errorMessage.value = "";
     successMessage.value = "";
+
+    // 確認エリアが表示されたあとにスクロール
+    await nextTick();
+
+    confirmSection.value?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
 }
 
@@ -1378,6 +1389,11 @@ td small {
   padding: 10px;
   background: #f6f6f6;
   border-radius: 8px;
+}
+
+/* スクロール位置を調整 */
+.reconciliation-confirm {
+  scroll-margin-top: 20px;
 }
 
 @media (max-width: 600px) {
