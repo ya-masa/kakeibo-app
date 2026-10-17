@@ -27,6 +27,11 @@
         <span>入力</span>
       </router-link>
 
+      <router-link to="/reconciliation" class="nav-item" :class="{ active: $route.path === '/reconciliation' }">
+        <span class="icon">📊</span>
+        <span>設定</span>
+      </router-link>
+
       <router-link to="/setting" class="nav-item" :class="{ active: $route.path === '/setting' }">
         <span class="icon">📊</span>
         <span>設定</span>

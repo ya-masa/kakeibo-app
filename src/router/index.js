@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router"
 import { globalLoading } from '@/stores/loadingStore'
 
+import Reconciliation from "@/pages/Reconciliation.vue"
 import List from "@/pages/List.vue"
 import Add from "@/pages/Add.vue"
 import Edit from "@/pages/Edit.vue"
@@ -11,6 +12,9 @@ import shops from "@/components/SettingShops.vue"
 import monthly from "@/components/SettingMonthly.vue"
 
 const routes = [
+
+  // ★ 検索画面
+  { path: "/Reconciliation", name: "reconciliation", component: Reconciliation },
 
   // ★ 検索画面
   { path: "/list", name: "list", component: List },
