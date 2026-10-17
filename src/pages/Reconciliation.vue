@@ -113,18 +113,36 @@
           ref="csvInput"
           type="file"
           accept=".csv,text/csv"
-          :disabled="!selectedAccountCode"
           @change="onCsvSelected"
         />
 
+        <p v-if="selectedFile">
+          選択ファイル：{{ selectedFile.name }}
+        </p>
+
+        <p v-if="csvEncoding">
+          文字コード：{{ csvEncoding }}
+        </p>
+
         <button
-          class="button button-primary"
-          disabled
-          title="GAS側のCSV取込APIを実装後に有効化します"
+          type="button"
+          :disabled="!selectedFile || uploadingCsv"
+          @click="importCsv"
         >
-          CSV取込（準備中）
+          {{ uploadingCsv ? "取り込み中…" : "CSVを取り込む" }}
         </button>
-      </div>
+
+        <div v-if="csvPreview.length">
+          <p>取り込み予定：{{ csvRows.length }}件（先頭5件を表示）</p>
+
+          <div
+            v-for="(item, index) in csvPreview"
+            :key="index"
+          >
+            {{ item.date }} ／ {{ item.place }} ／
+            {{ formatAmount(item.amount) }}
+          </div>
+        </div>      </div>
 
       <p v-if="selectedFile" class="file-name">
         選択中：{{ selectedFile.name }}
@@ -288,6 +306,7 @@ async function loadAccounts() {
   } catch (error) {
     errorMessage.value =
       `口座・カード一覧の取得に失敗しました：${error.message}`;
+    console.log("data=",data);
   }
 }
 
@@ -395,21 +414,265 @@ function statusClass(status) {
  * CSVファイルの選択状態だけを管理する。
  * 実際の取込処理はGAS API実装後に接続する。
  */
-function onCsvSelected(event) {
-  selectedFile.value = event.target.files?.[0] || null;
-}
-
 watch(selectedAccountCode, () => {
   selectedFile.value = null;
+  csvRows.value = [];
+  csvPreview.value = [];
+  csvEncoding.value = "";
 
   if (csvInput.value) {
     csvInput.value.value = "";
   }
 });
-
 onMounted(async () => {
   await loadAccounts();
 });
+
+const uploadingCsv = ref(false);
+const csvRows = ref([]);
+const csvPreview = ref([]);
+const csvEncoding = ref("");
+
+function parseCsvText(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (quoted) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          quoted = false;
+        }
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"' && field === "") {
+      quoted = true;
+    } else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      if (row.some(v => v.trim() !== "")) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += ch;
+    }
+  }
+
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    if (row.some(v => v.trim() !== "")) rows.push(row);
+  }
+
+  return rows;
+}
+
+function decodeCsv(buffer) {
+  const bytes = new Uint8Array(buffer);
+
+  // UTF-8 BOMがあればUTF-8として読む
+  if (
+    bytes.length >= 3 &&
+    bytes[0] === 0xEF &&
+    bytes[1] === 0xBB &&
+    bytes[2] === 0xBF
+  ) {
+    return {
+      text: new TextDecoder("utf-8").decode(bytes),
+      encoding: "UTF-8"
+    };
+  }
+
+  // まずUTF-8として厳密に判定
+  try {
+    return {
+      text: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+      encoding: "UTF-8"
+    };
+  } catch {
+    return {
+      text: new TextDecoder("shift_jis").decode(bytes),
+      encoding: "Shift_JIS"
+    };
+  }
+}
+
+function parseEposAmount(value) {
+  const normalized = String(value ?? "")
+    .replace(/[,，￥¥\s]/g, "")
+    .trim();
+
+  if (!normalized) return null;
+
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function onCsvSelected(event) {
+  selectedFile.value = event.target.files?.[0] || null;
+  csvRows.value = [];
+  csvPreview.value = [];
+  csvEncoding.value = "";
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  if (selectedFile.value) {
+    successMessage.value = "CSVを選択しました。内容を確認して取り込んでください。";
+  }
+}
+
+function normalizeHeader(value) {
+  return String(value ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/\s/g, "")
+    .trim();
+}
+
+async function prepareEposCsv() {
+  if (!selectedFile.value) {
+    throw new Error("CSVファイルを選択してください。");
+  }
+
+  const buffer = await selectedFile.value.arrayBuffer();
+  const decoded = decodeCsv(buffer);
+  const rows = parseCsvText(decoded.text);
+
+  if (rows.length < 2) {
+    throw new Error("CSVに明細がありません。");
+  }
+
+  const headers = rows[0].map(normalizeHeader);
+
+  const findColumn = name =>
+    headers.findIndex(h => h.includes(name));
+
+  const indexes = {
+    type: findColumn("種別"),
+    date: findColumn("ご利用年月日"),
+    place: findColumn("ご利用場所"),
+    content: findColumn("ご利用内容"),
+    amount: findColumn("ご利用金額"),
+    paymentAmount: findColumn("お支払金額"),
+    paymentType: findColumn("支払区分")
+  };
+
+  for (const [name, index] of Object.entries(indexes)) {
+    if (index < 0) {
+      throw new Error(`CSVに必要な列がありません：${name}`);
+    }
+  }
+
+  const parsed = [];
+
+  for (const row of rows.slice(1)) {
+    const date = String(row[indexes.date] ?? "").trim();
+    const type = String(row[indexes.type] ?? "").trim();
+
+    // 合計行など、利用日がない行は除外
+    if (!date || !/^\d{4}年\d{1,2}月\d{1,2}日$/.test(date)) {
+      continue;
+    }
+
+    const amount = parseEposAmount(row[indexes.amount]);
+    const paymentAmount = parseEposAmount(row[indexes.paymentAmount]);
+
+    if (amount === null || paymentAmount === null) {
+      throw new Error(`金額を読み取れません：${date} ${row[indexes.place] ?? ""}`);
+    }
+
+    parsed.push({
+      type,
+      date,
+      place: String(row[indexes.place] ?? "").trim(),
+      content: String(row[indexes.content] ?? "").trim(),
+      amount,
+      paymentAmount,
+      paymentType: String(row[indexes.paymentType] ?? "").trim()
+    });
+  }
+
+  if (parsed.length === 0) {
+    throw new Error("取り込める利用明細がありません。CSVの形式を確認してください。");
+  }
+
+  csvRows.value = parsed;
+  csvPreview.value = parsed.slice(0, 5);
+  csvEncoding.value = decoded.encoding;
+
+  return parsed;
+}
+
+async function importCsv() {
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  if (![201, 202].includes(Number(selectedAccountCode.value))) {
+    errorMessage.value = "雅エポスカードまたは和くんエポスカードを選択してください。";
+    return;
+  }
+
+  uploadingCsv.value = true;
+
+  try {
+    const rows = await prepareEposCsv();
+
+    const payload = {
+      accountCode: Number(selectedAccountCode.value),
+      fileName: selectedFile.value.name,
+      rows
+    };
+
+    const body = new URLSearchParams({
+      mode: "importEposCsv",
+      payload: JSON.stringify(payload)
+    });
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body
+    });
+
+    const responseText = await response.text();
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        "GASからJSON以外の応答が返りました。doPostの処理とデプロイを確認してください。"
+      );
+    }
+
+    if (!response.ok || result.error || result.success !== true) {
+      throw new Error(result.message || result.error || `HTTP ${response.status}`);
+    }
+
+    successMessage.value = result.message || "CSVを取り込みました。";
+    await loadTargets();
+
+    selectedFile.value = null;
+    csvRows.value = [];
+    csvPreview.value = [];
+
+    if (csvInput.value) {
+      csvInput.value.value = "";
+    }
+  } catch (error) {
+    errorMessage.value = `CSV取り込みに失敗しました：${error.message}`;
+  } finally {
+    uploadingCsv.value = false;
+  }
+}
 </script>
 
 <style scoped>
