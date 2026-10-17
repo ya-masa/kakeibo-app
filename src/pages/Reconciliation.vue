@@ -152,7 +152,7 @@
         GAS側の取込処理と接続した後に有効になります。
       </p>
     </section>
-    /* 照合候補の表示 */
+    <!-- 照合候補の表示 -->
     <section class="reconciliation-candidates">
       <h2>エポスカード照合候補</h2>
 
