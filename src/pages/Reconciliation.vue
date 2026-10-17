@@ -249,112 +249,110 @@
               >
                 この取引と照合
               </button>
-
-              <!-- 照合確定前の確認画面 -->
-              <section
-                v-if="selectedCandidate"
-                class="reconciliation-confirm"
-              >
-                <h2>照合内容の確認</h2>
-
-                <p>
-                  CSV明細と家計簿の取引が正しい組み合わせか確認してください。
-                </p>
-
-                <div class="confirm-comparison">
-                  <article class="confirm-card">
-                    <h3>CSV明細</h3>
-
-                    <p>
-                      <strong>利用先：</strong>
-                      {{ selectedCandidate.statement.place || "利用先不明" }}
-                    </p>
-
-                    <p>
-                      <strong>利用日：</strong>
-                      {{ selectedCandidate.statement.date }}
-                    </p>
-
-                    <p>
-                      <strong>利用金額：</strong>
-                      {{ formatAmount(selectedCandidate.statement.amount) }}
-                    </p>
-
-                    <p>
-                      <strong>支払金額：</strong>
-                      {{ formatAmount(selectedCandidate.statement.paymentAmount) }}
-                    </p>
-
-                    <p v-if="selectedCandidate.statement.content">
-                      <strong>利用内容：</strong>
-                      {{ selectedCandidate.statement.content }}
-                    </p>
-
-                    <p>
-                      <strong>支払区分：</strong>
-                      {{ selectedCandidate.statement.paymentType || "未設定" }}
-                    </p>
-                  </article>
-
-                  <article class="confirm-card">
-                    <h3>家計簿の取引</h3>
-
-                    <p>
-                      <strong>店：</strong>
-                      {{ selectedCandidate.candidate.shop || "店名なし" }}
-                    </p>
-
-                    <p>
-                      <strong>日付：</strong>
-                      {{ selectedCandidate.candidate.date }}
-                    </p>
-
-                    <p>
-                      <strong>金額：</strong>
-                      {{ formatAmount(selectedCandidate.candidate.amount) }}
-                    </p>
-
-                    <p>
-                      <strong>家計簿固有ID：</strong>
-                      {{ selectedCandidate.candidate.id }}
-                    </p>
-
-                    <p>
-                      <strong>日付差：</strong>
-                      {{ selectedCandidate.candidate.dateDifference }}日
-                    </p>
-                  </article>
-                </div>
-
-                <p class="confirm-warning">
-                  確定すると、CSV明細と家計簿の取引が照合済みになります。
-                  内容を確認してから確定してください。
-                </p>
-
-                <div class="confirm-actions">
-                  <button
-                    type="button"
-                    @click="cancelEposReconciliation"
-                    :disabled="confirmingReconciliation"
-                  >
-                    キャンセル
-                  </button>
-
-                  <button
-                    type="button"
-                    @click="confirmEposReconciliation"
-                    :disabled="confirmingReconciliation"
-                  >
-                    {{
-                      confirmingReconciliation
-                        ? "保存中…"
-                        : "照合を確定"
-                    }}
-                  </button>
-                </div>
-              </section>
-
             </div>
+            <!-- 照合確定前の確認画面 -->
+            <section
+              v-if="selectedCandidate"
+              class="reconciliation-confirm"
+            >
+              <h2>照合内容の確認</h2>
+
+              <p>
+                CSV明細と家計簿の取引が正しい組み合わせか確認してください。
+              </p>
+
+              <div class="confirm-comparison">
+                <article class="confirm-card">
+                  <h3>CSV明細</h3>
+
+                  <p>
+                    <strong>利用先：</strong>
+                    {{ selectedCandidate.statement.place || "利用先不明" }}
+                  </p>
+
+                  <p>
+                    <strong>利用日：</strong>
+                    {{ selectedCandidate.statement.date }}
+                  </p>
+
+                  <p>
+                    <strong>利用金額：</strong>
+                    {{ formatAmount(selectedCandidate.statement.amount) }}
+                  </p>
+
+                  <p>
+                    <strong>支払金額：</strong>
+                    {{ formatAmount(selectedCandidate.statement.paymentAmount) }}
+                  </p>
+
+                  <p v-if="selectedCandidate.statement.content">
+                    <strong>利用内容：</strong>
+                    {{ selectedCandidate.statement.content }}
+                  </p>
+
+                  <p>
+                    <strong>支払区分：</strong>
+                    {{ selectedCandidate.statement.paymentType || "未設定" }}
+                  </p>
+                </article>
+
+                <article class="confirm-card">
+                  <h3>家計簿の取引</h3>
+
+                  <p>
+                    <strong>店：</strong>
+                    {{ selectedCandidate.candidate.shop || "店名なし" }}
+                  </p>
+
+                  <p>
+                    <strong>日付：</strong>
+                    {{ selectedCandidate.candidate.date }}
+                  </p>
+
+                  <p>
+                    <strong>金額：</strong>
+                    {{ formatAmount(selectedCandidate.candidate.amount) }}
+                  </p>
+
+                  <p>
+                    <strong>家計簿固有ID：</strong>
+                    {{ selectedCandidate.candidate.id }}
+                  </p>
+
+                  <p>
+                    <strong>日付差：</strong>
+                    {{ selectedCandidate.candidate.dateDifference }}日
+                  </p>
+                </article>
+              </div>
+
+              <p class="confirm-warning">
+                確定すると、CSV明細と家計簿の取引が照合済みになります。
+                内容を確認してから確定してください。
+              </p>
+
+              <div class="confirm-actions">
+                <button
+                  type="button"
+                  @click="cancelEposReconciliation"
+                  :disabled="confirmingReconciliation"
+                >
+                  キャンセル
+                </button>
+
+                <button
+                  type="button"
+                  @click="confirmEposReconciliation"
+                  :disabled="confirmingReconciliation"
+                >
+                  {{
+                    confirmingReconciliation
+                      ? "保存中…"
+                      : "照合を確定"
+                  }}
+                </button>
+              </div>
+            </section>
           </div>
 
           <p v-else>
