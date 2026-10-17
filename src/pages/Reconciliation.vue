@@ -152,6 +152,109 @@
         GAS側の取込処理と接続した後に有効になります。
       </p>
     </section>
+<section class="reconciliation-candidates">
+  <h2>エポスカード照合候補</h2>
+
+  <p v-if="!selectedAccountCode">
+    口座・カードを選択してください。
+  </p>
+
+  <template v-else-if="[201, 202].includes(Number(selectedAccountCode))">
+    <div class="candidate-summary">
+      <button type="button" @click="candidateFilter = 'すべて'">
+        すべて {{ eposCandidates.length }}
+      </button>
+
+      <button type="button" @click="candidateFilter = '一致候補'">
+        一致候補 {{ candidateCount('一致候補') }}
+      </button>
+
+      <button type="button" @click="candidateFilter = '要確認'">
+        要確認 {{ candidateCount('要確認') }}
+      </button>
+
+      <button type="button" @click="candidateFilter = '未対応'">
+        未対応 {{ candidateCount('未対応') }}
+      </button>
+
+      <button
+        type="button"
+        @click="loadEposCandidates"
+        :disabled="loadingCandidates"
+      >
+        {{ loadingCandidates ? "更新中…" : "再読み込み" }}
+      </button>
+    </div>
+
+    <p v-if="loadingCandidates">照合候補を読み込んでいます…</p>
+
+    <p v-else-if="filteredEposCandidates.length === 0">
+      表示する照合候補はありません。
+    </p>
+
+    <article
+      v-for="item in filteredEposCandidates"
+      :key="item.statementId"
+      class="candidate-card"
+    >
+      <div class="candidate-heading">
+        <strong>{{ item.place || "利用先不明" }}</strong>
+        <span class="candidate-status">{{ item.status }}</span>
+      </div>
+
+      <p>
+        利用日：{{ item.date }}
+      </p>
+
+      <p>
+        利用金額：{{ formatAmount(item.amount) }}
+      </p>
+
+      <p>
+        支払金額：{{ formatAmount(item.paymentAmount) }}
+      </p>
+
+      <p v-if="item.content">
+        利用内容：{{ item.content }}
+      </p>
+
+      <div v-if="item.candidates?.length">
+        <h3>家計簿側の候補</h3>
+
+        <div
+          v-for="candidate in item.candidates"
+          :key="`${item.statementId}-${candidate.rowNo}`"
+          class="ledger-candidate"
+        >
+          <p>
+            {{ candidate.date }} ／
+            {{ candidate.shop || candidate.content || "店名なし" }}
+          </p>
+
+          <p>
+            金額：{{ formatAmount(candidate.amount) }}
+          </p>
+
+          <p>
+            日付差：{{ candidate.dateDifference }}日
+          </p>
+
+          <p>
+            家計簿ID：{{ candidate.id }}
+          </p>
+        </div>
+      </div>
+
+      <p v-else>
+        対応する家計簿データの候補は見つかりませんでした。
+      </p>
+    </article>
+  </template>
+
+  <p v-else>
+    エポスカードを選択すると、CSVとの照合候補が表示されます。
+  </p>
+</section>
 
     <!-- 仕訳一覧 -->
     <section class="panel">
@@ -255,6 +358,10 @@ const successMessage = ref("");
 
 const csvInput = ref(null);
 const selectedFile = ref(null);
+
+const eposCandidates = ref([]);
+const loadingCandidates = ref(false);
+const candidateFilter = ref("すべて");
 
 /**
  * GASからJSONを取得する。
@@ -414,16 +521,23 @@ function statusClass(status) {
  * CSVファイルの選択状態だけを管理する。
  * 実際の取込処理はGAS API実装後に接続する。
  */
-watch(selectedAccountCode, () => {
+watch(selectedAccountCode, async () => {
   selectedFile.value = null;
   csvRows.value = [];
   csvPreview.value = [];
   csvEncoding.value = "";
+  eposCandidates.value = [];
 
   if (csvInput.value) {
     csvInput.value.value = "";
   }
+
+  if ([201, 202].includes(Number(selectedAccountCode.value))) {
+    await loadEposCandidates();
+  }
 });
+
+
 onMounted(async () => {
   await loadAccounts();
 });
@@ -625,6 +739,7 @@ async function importCsv() {
 
   try {
     const rows = await prepareEposCsv();
+    await loadEposCandidates();
 
     const payload = {
       accountCode: Number(selectedAccountCode.value),
@@ -672,6 +787,51 @@ async function importCsv() {
   } finally {
     uploadingCsv.value = false;
   }
+}
+
+async function loadEposCandidates() {
+  if (![201, 202].includes(Number(selectedAccountCode.value))) {
+    eposCandidates.value = [];
+    return;
+  }
+
+  loadingCandidates.value = true;
+  errorMessage.value = "";
+
+  try {
+    const data = await fetchGas({
+      list: "eposCandidates",
+      accountCode: selectedAccountCode.value
+    });
+
+    if (!Array.isArray(data)) {
+      throw new Error("照合候補のデータ形式が正しくありません。");
+    }
+
+    eposCandidates.value = data;
+  } catch (error) {
+    errorMessage.value =
+      `照合候補の取得に失敗しました：${error.message}`;
+    eposCandidates.value = [];
+  } finally {
+    loadingCandidates.value = false;
+  }
+}
+
+const filteredEposCandidates = computed(() => {
+  if (candidateFilter.value === "すべて") {
+    return eposCandidates.value;
+  }
+
+  return eposCandidates.value.filter(
+    item => item.status === candidateFilter.value
+  );
+});
+
+function candidateCount(status) {
+  return eposCandidates.value.filter(
+    item => item.status === status
+  ).length;
 }
 </script>
 
