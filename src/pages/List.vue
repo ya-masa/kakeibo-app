@@ -209,6 +209,12 @@ function formatMD(dateStr) {
 
       // 条件をセットして自動検索
       await fetchList()
+      console.log("検索条件", {
+        start: periodStart.value,
+        end: periodEnd.value,
+        unchecked: uncheckedOnly.value
+      })
+
     }
 
     requestAnimationFrame(() => {
