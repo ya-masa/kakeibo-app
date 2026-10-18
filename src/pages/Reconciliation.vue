@@ -528,8 +528,9 @@ const goToAddFromStatement = (item) => {
   sessionStorage.setItem(
     "reconciliationData",
     JSON.stringify({
+      mode:"csvadd",
       statementId: item.statementId,
-      accountCode: item.accountCode,
+      kamoku1: item.accountCode,
       date: item.date,
       place: item.place,
       content: item.content,
