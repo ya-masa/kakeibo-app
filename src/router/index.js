@@ -14,7 +14,7 @@ import monthly from "@/components/SettingMonthly.vue"
 const routes = [
 
   // ★ 検索画面
-  { path: "/Reconciliation", name: "reconciliation", component: Reconciliation },
+  { path: "/reconciliation", name: "reconciliation", component: Reconciliation },
 
   // ★ 検索画面
   { path: "/list", name: "list", component: List },
