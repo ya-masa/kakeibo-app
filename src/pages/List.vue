@@ -116,16 +116,16 @@ import loadingStore from "@/stores/loadingStore"
 import { fetchCategories } from "@/services/categories.js"
 import LoadingIcon from "@/components/LoadingIcon.vue"
 import AppLinks from '@/components/AppLinks.vue'
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 const route = useRoute()
+const router = useRouter()
 
 // 未確認データだけを検索するか
 const uncheckedOnly = ref(false)
 
   //修正画面に移動する
   const goEdit = (id) => {
-    console.log("id="+id)
     router.push({
       name: "edit",     // ルート名（後で説明）
       query: { id }  // 修正したいid
