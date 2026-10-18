@@ -49,7 +49,10 @@
 
         <label>
           照合状態
-          <select v-model="selectedStatus">
+          <select
+            v-model="selectedStatus"
+            :class="statusFilterClass(selectedStatus)"
+          >
             <option value="すべて">すべて</option>
             <option value="未照合">未照合</option>
             <option value="照合済み">照合済み</option>
@@ -73,8 +76,8 @@
     <!-- 進捗カード -->
     <section class="summary-grid">
       <article class="summary-card">
-        <span>表示対象</span>
-        <strong>{{ filteredTargets.length }}</strong>
+        <span>全仕訳</span>
+        <strong>{{ targets.length }}</strong>
         <small>件</small>
       </article>
 
@@ -90,12 +93,19 @@
         <small>件</small>
       </article>
 
-      <article class="summary-card">
+      <article class="summary-card summary-card-done">
         <span>照合済み</span>
         <strong>{{ countByStatus("照合済み") }}</strong>
         <small>件</small>
       </article>
+
+      <article class="summary-card">
+        <span>対象外</span>
+        <strong>{{ countByStatus("対象外") }}</strong>
+        <small>件</small>
+      </article>
     </section>
+
 
     <!-- CSV取込 -->
     <section class="panel">
@@ -419,6 +429,7 @@
             <tr
               v-for="item in filteredTargets"
               :key="`${item.id}-${item.rowNo}`"
+              :class="ledgerRowClass(item.status)"
             >
               <td>{{ item.date }}</td>
 
@@ -645,15 +656,36 @@ function amountClass(amount) {
   return "";
 }
 
-function statusClass(status) {
-  return {
-    "status-unchecked": status === "未照合",
-    "status-done": status === "照合済み",
-    "status-review": status === "要確認",
-    "status-mismatch": status === "不一致",
-    "status-excluded": status === "対象外"
-  };
-}
+    function statusClass(status) {
+      return {
+        "status-unchecked": status === "未照合",
+        "status-done": status === "照合済み",
+        "status-review": status === "要確認",
+        "status-mismatch": status === "不一致",
+        "status-excluded": status === "対象外"
+      };
+    }
+
+    /**
+     * 現在選択されている照合状態を示すクラス。
+     */
+    function statusFilterClass(status) {
+      return {
+        "filter-selected": selectedStatus.value === status
+      };
+    }
+
+  /**
+   * 仕訳行の状態に応じたクラスを返す。
+   */
+  function ledgerRowClass(status) {
+    return {
+      "ledger-row-done": status === "照合済み",
+      "ledger-row-review": status === "要確認",
+      "ledger-row-excluded": status === "対象外"
+    };
+  }
+
 
 /**
  * CSVファイルの選択状態だけを管理する。
@@ -1492,6 +1524,57 @@ td small {
 
   .candidate-card {
     padding: 12px;
+  }
+}
+
+/* 状態表示のCSS */
+/* 件数カード */
+.summary-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+/* 選択中の照合状態フィルター */
+.filter-selected {
+  border-color: #4978d1;
+  background-color: #f0f5ff;
+  font-weight: 600;
+}
+.summary-card-done {
+  border-color: #a7dfbd;
+  background: #f0fbf4;
+}
+
+.summary-card-done strong {
+  color: #087443;
+}
+
+/* 照合状態に応じた仕訳行 */
+tbody tr.ledger-row-done {
+  background: #f0fbf4;
+}
+
+tbody tr.ledger-row-done:hover {
+  background: #e2f6e9;
+}
+
+tbody tr.ledger-row-review {
+  background: #fffaf0;
+}
+
+tbody tr.ledger-row-excluded {
+  color: #777;
+  background: #f5f5f5;
+}
+
+/* 画面幅に応じて件数カードを調整 */
+@media (max-width: 1000px) {
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>
