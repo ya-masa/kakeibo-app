@@ -9,7 +9,6 @@
       <button
         class="button button-secondary"
         :disabled="loading"
-        @click="loadTargets"
       >
         {{ loading ? "読込中..." : "再読み込み" }}
       </button>
@@ -519,6 +518,10 @@ const cancellingReconciliation = ref(false);
 //表示位置
 const confirmSection = ref(null);
 
+// 非同期リクエストの競合防止用
+let targetsRequestId = 0;
+let candidatesRequestId = 0;
+
 const router = useRouter()
 
 const goToAddFromStatement = (item) => {
@@ -585,9 +588,6 @@ async function loadAccounts() {
 
     accounts.value = data;
   } catch (error) {
-    errorMessage.value =
-      `口座・カード一覧の取得に失敗しました：${error.message}`;
-    console.log("data=",data);
   }
 }
 
@@ -595,11 +595,17 @@ async function loadAccounts() {
  * 選択した科目CDの照合対象を取得する。
  */
 async function loadTargets() {
-  if (!selectedAccountCode.value) {
+  const requestId = ++targetsRequestId;
+  const accountCode = String(selectedAccountCode.value || "");
+
+  if (!accountCode) {
     targets.value = [];
+    loading.value = false;
     return;
   }
 
+  // 前の口座のデータを残さない
+  targets.value = [];
   loading.value = true;
   errorMessage.value = "";
   successMessage.value = "";
@@ -607,8 +613,16 @@ async function loadTargets() {
   try {
     const data = await fetchGas({
       list: "reconciliationTargets",
-      accountCode: selectedAccountCode.value
+      accountCode
     });
+
+    // 後から返ってきた古い応答は反映しない
+    if (
+      requestId !== targetsRequestId ||
+      accountCode !== String(selectedAccountCode.value || "")
+    ) {
+      return;
+    }
 
     if (!Array.isArray(data)) {
       throw new Error("照合対象のデータ形式が正しくありません。");
@@ -616,11 +630,21 @@ async function loadTargets() {
 
     targets.value = data;
   } catch (error) {
+    if (
+      requestId !== targetsRequestId ||
+      accountCode !== String(selectedAccountCode.value || "")
+    ) {
+      return;
+    }
+
     targets.value = [];
     errorMessage.value =
       `照合対象の取得に失敗しました：${error.message}`;
   } finally {
-    loading.value = false;
+    // 最新のリクエストだけがローディングを解除する
+    if (requestId === targetsRequestId) {
+      loading.value = false;
+    }
   }
 }
 
@@ -717,16 +741,32 @@ function amountClass(amount) {
  * 実際の取込処理はGAS API実装後に接続する。
  */
 watch(selectedAccountCode, async () => {
+  // 口座変更前の処理が残っていても、古い応答を無効化する
+  ++targetsRequestId;
+  ++candidatesRequestId;
+
+  targets.value = [];
+  eposCandidates.value = [];
+  selectedCandidate.value = null;
+
   selectedFile.value = null;
   csvRows.value = [];
   csvPreview.value = [];
   csvEncoding.value = "";
-  eposCandidates.value = [];
+
+  candidateFilter.value = "すべて";
+
+  errorMessage.value = "";
+  successMessage.value = "";
 
   if (csvInput.value) {
     csvInput.value.value = "";
   }
 
+  // 仕訳一覧を取得
+  await loadTargets();
+
+  // エポスカードの場合だけ照合候補を取得
   if ([201, 202].includes(Number(selectedAccountCode.value))) {
     await loadEposCandidates();
   }
@@ -921,6 +961,7 @@ async function prepareEposCsv() {
   return parsed;
 }
 
+
 async function importCsv() {
   errorMessage.value = "";
   successMessage.value = "";
@@ -965,10 +1006,13 @@ async function importCsv() {
 
     if (!response.ok || result.error || result.success !== true) {
       throw new Error(result.message || result.error || `HTTP ${response.status}`);
+      
     }
 
     successMessage.value = result.message || "CSVを取り込みました。";
+
     await loadTargets();
+    await loadEposCandidates();
 
     selectedFile.value = null;
     csvRows.value = [];
