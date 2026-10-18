@@ -369,14 +369,14 @@
                 この取引と照合
               </button>
             </div>
-            <button
-              v-if="item.status === '未対応'"
-              type="button"
-              @click="goToAddFromStatement(item)"
-            >
-              家計簿に入力
-            </button>
           </div>
+          <button
+            v-if="item.status === '未対応'"
+            type="button"
+            @click="goToAddFromStatement(item)"
+          >
+            家計簿に入力
+          </button>
           <p v-else>
             対応する家計簿データの候補は見つかりませんでした。
           </p>
