@@ -261,7 +261,7 @@
     <!-- 照合候補の表示 -->
     <section
       v-if="!selectedCandidate"
-      class="card reconciliation-candidates"
+      class="reconciliation-candidates"
     >
     <h2>エポスカード照合候補</h2>
 
@@ -410,8 +410,10 @@
               <th>照合結果</th>
               <th>確認日時</th>
               <th>固有ID</th>
+              <th>操作</th>
             </tr>
           </thead>
+
 
           <tbody>
             <tr
@@ -444,6 +446,20 @@
               <td>{{ item.checkedAt || "—" }}</td>
 
               <td class="id-cell">{{ item.id }}</td>
+              <td>
+                <button
+                  v-if="item.status === '照合済み'"
+                  type="button"
+                  :disabled="cancellingReconciliation"
+                  @click="cancelConfirmedReconciliation(item)"
+                >
+                  {{
+                    cancellingReconciliation
+                      ? "解除中…"
+                      : "照合解除"
+                  }}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -478,6 +494,9 @@ const candidateFilter = ref("すべて");
 // 照合確定用
 const selectedCandidate = ref(null);
 const confirmingReconciliation = ref(false);
+
+//照合取消用
+const cancellingReconciliation = ref(false);
 
 //表示位置
 const confirmSection = ref(null);
@@ -1063,6 +1082,71 @@ async function confirmEposReconciliation() {
     errorMessage.value = `照合の確定に失敗しました：${error.message}`;
   } finally {
     confirmingReconciliation.value = false;
+  }
+}
+async function cancelConfirmedReconciliation(item) {
+  if (cancellingReconciliation.value) return;
+
+  if (!item?.id || ![201, 202].includes(Number(selectedAccountCode.value))) {
+    errorMessage.value = "解除対象の情報が正しくありません。";
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `この取引の照合を解除しますか？\n\n` +
+    `日付：${item.date}\n` +
+    `店：${item.shop || "店名なし"}\n` +
+    `金額：${formatAmount(item.amount)}\n\n` +
+    `解除後は、再度照合が必要になります。`
+  );
+
+  if (!confirmed) return;
+
+  cancellingReconciliation.value = true;
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  try {
+    // GAS側で家計簿IDに対応するCSV明細を特定する
+    const payload = {
+      accountCode: Number(selectedAccountCode.value),
+      ledgerId: String(item.id)
+    };
+
+    const body = new URLSearchParams({
+      mode: "cancelEposReconciliation",
+      payload: JSON.stringify(payload)
+    });
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body
+    });
+
+    const responseText = await response.text();
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error("GASから正しいJSON応答が返りませんでした。");
+    }
+
+    if (!response.ok || result.success !== true) {
+      throw new Error(
+        result.message || result.error || `HTTP ${response.status}`
+      );
+    }
+
+    successMessage.value = result.message || "照合を解除しました。";
+
+    await loadTargets();
+    await loadEposCandidates();
+
+  } catch (error) {
+    errorMessage.value = `照合解除に失敗しました：${error.message}`;
+  } finally {
+    cancellingReconciliation.value = false;
   }
 }
 </script>
