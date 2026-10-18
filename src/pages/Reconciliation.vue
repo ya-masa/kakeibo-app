@@ -530,7 +530,7 @@ const goToAddFromStatement = (item) => {
     JSON.stringify({
       mode:"csvadd",
       statementId: item.statementId,
-      kamoku1: item.accountCode,
+      accountCode: item.accountCode,
       date: item.date,
       place: item.place,
       content: item.content,
