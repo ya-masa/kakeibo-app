@@ -369,6 +369,13 @@
                 この取引と照合
               </button>
             </div>
+            <button
+              v-if="item.status === '未対応'"
+              type="button"
+              @click="goToAddFromStatement(item)"
+            >
+              家計簿に入力
+            </button>
           </div>
           <p v-else>
             対応する家計簿データの候補は見つかりませんでした。
@@ -482,7 +489,7 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { GAS_URL } from "@/constants/index.js"
-
+import { useRouter } from "vue-router"
 
 const accounts = ref([]);
 const targets = ref([]);
@@ -511,6 +518,24 @@ const cancellingReconciliation = ref(false);
 
 //表示位置
 const confirmSection = ref(null);
+
+const router = useRouter()
+
+const goToAddFromStatement = (item) => {
+  sessionStorage.setItem(
+    "reconciliationData",
+    JSON.stringify({
+      statementId: item.statementId,
+      accountCode: item.accountCode,
+      date: item.date,
+      place: item.place,
+      content: item.content,
+      amount: item.amount
+    })
+  )
+
+  router.push("/add")
+}
 
 /**
  * GASからJSONを取得する。

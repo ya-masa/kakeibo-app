@@ -8,7 +8,7 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目1</label>
+      <label class="form-lavel">科目1(増えるもの)</label>
       <select v-model="localForm.kamoku1" class="select-field">
         <option 
           v-for="item in props.listKouza"
@@ -27,7 +27,7 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目2</label>
+      <label class="form-lavel">科目2(減るもの)</label>
       <select v-model="localForm.kamoku2" class="select-field">
         <option 
           v-for="item in props.listKouza"

@@ -70,7 +70,13 @@ const props = defineProps({
   mode: { type: String, default: "add" },
   form: { type: Object, default: null },
   groupTab: { type: String, default: "expense" },
-  type: { type: String, default: "" }
+  type: { type: String, default: "" },
+
+  // 照合明細からの新規登録用
+  reconciliationData: {
+    type: Object,
+    default: null
+  }
 })
 
 /* emit */
@@ -185,6 +191,48 @@ watch(
   { immediate: true }
 )
 
+/* CSVからのデータを追加するときの処理 */
+
+/* 照合明細からの新規登録 */
+watch(
+  () => props.reconciliationData,
+  (data) => {
+    if (!data) return
+
+    const amount = Number(data.amount) || 0
+
+    // 金額によって初期表示するタブを決める
+    let tab = "transfer"
+
+    if (amount < 0) {
+      tab = "expense"
+    } else if (amount > 0) {
+      tab = "income"
+    }
+
+    currentTab.value = tab
+
+    localForm.value = {
+      rowNo: "",
+      id: "",
+      type: tab,
+      date: data.date || today(),
+      kamoku1: "",
+      kamoku2: "",
+      kingaku1: Math.abs(amount),
+      kingaku2: "",
+      naiyo: data.content || "",
+      aite: data.place || "",
+      kakunin: false,
+
+      // 照合明細との関連付け
+      statementId: data.statementId || "",
+      accountCode: String(data.accountCode || "")
+    }
+  },
+  { immediate: true }
+)
+
 /* タブ切り替え（編集時は不可） */
 const changeTab = (tab) => {
   if (props.mode === "edit") return
@@ -201,6 +249,7 @@ const emitDelete = (rowNo) => {
   console.log("削除:", rowNo)
   emit("delete", rowNo)
 }
+
 </script>
 
 
