@@ -469,14 +469,38 @@
             確認日時：{{ item.checkedAt }}
           </p>
 
-          <!-- 確認操作は次の段階で登録処理につなぐ -->
+          <!-- 一致確認 -->
           <label class="manual-check-label">
             <input
               type="checkbox"
-              :disabled="!!item.pairError"
+              :checked="
+                pendingManualChecks[String(item.id)]
+                ?? (item.status === '照合済み')
+              "
+              :disabled="
+                !!item.pairError || confirmingManualReconciliation
+              "
+              @change="onManualCheckChange($event, item)"
             />
             一致確認
           </label>
+
+          <button
+            :disabled="
+              !!item.pairError ||
+              confirmingManualReconciliation ||
+              pendingManualChecks[String(item.id)] === undefined
+            "
+            @click="confirmManualReconciliation(item)"
+          >
+            {{
+              confirmingManualReconciliation
+                ? "登録中…"
+                : pendingManualChecks[String(item.id)]
+                  ? "一致確認を登録"
+                  : "照合解除"
+            }}
+          </button>
         </article>
       </div>
     </section>
@@ -620,6 +644,12 @@ const confirmSection = ref(null);
 
 //照合モード切替
 const reconciliationMode = ref("csv");
+
+//登録状態保存用
+const confirmingManualReconciliation = ref(false);
+
+// チェック状態を変更したが、まだ登録していない仕訳
+const pendingManualChecks = ref({});
 
 // 非同期リクエストの競合防止用
 let targetsRequestId = 0;
@@ -1396,6 +1426,97 @@ async function cancelConfirmedReconciliation(item) {
     errorMessage.value = `照合解除に失敗しました：${error.message}`;
   } finally {
     cancellingReconciliation.value = false;
+  }
+}
+
+function onManualCheckChange(event, item) {
+  if (confirmingManualReconciliation.value) return;
+
+  const id = String(item.id);
+  const checked = event.target.checked;
+  const currentChecked = item.status === "照合済み";
+
+  const next = { ...pendingManualChecks.value };
+
+  // 元の状態に戻したら、未登録の変更を取り消す
+  if (checked === currentChecked) {
+    delete next[id];
+  } else {
+    next[id] = checked;
+  }
+
+  pendingManualChecks.value = next;
+}
+
+async function confirmManualReconciliation(item) {
+  if (confirmingManualReconciliation.value) return;
+
+  const id = String(item.id);
+  const checked = pendingManualChecks.value[id];
+
+  // 未変更の仕訳は送信しない
+  if (checked === undefined) return;
+
+  if (item.pairError) {
+    errorMessage.value = item.pairError;
+    return;
+  }
+
+  confirmingManualReconciliation.value = true;
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  try {
+    const payload = {
+      id,
+      checked
+    };
+
+    const body = new URLSearchParams({
+      mode: "confirmManualReconciliation",
+      payload: JSON.stringify(payload)
+    });
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body
+    });
+
+    const responseText = await response.text();
+
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
+      );
+    }
+
+    if (!response.ok || result.success !== true) {
+      throw new Error(
+        result.message || result.error || `HTTP ${response.status}`
+      );
+    }
+
+    // 最新状態を取得
+    await loadTargets();
+
+    // 成功した仕訳の未登録変更をクリア
+    const next = { ...pendingManualChecks.value };
+    delete next[id];
+    pendingManualChecks.value = next;
+
+    successMessage.value =
+      result.message ||
+      (checked ? "一致確認を登録しました。" : "照合を解除しました。");
+
+  } catch (error) {
+    errorMessage.value =
+      `照合の更新に失敗しました：${error.message}`;
+  } finally {
+    confirmingManualReconciliation.value = false;
   }
 }
 </script>
