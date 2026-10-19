@@ -645,18 +645,17 @@ const goToAddFromStatement = (item) => {
 
 
 const goToEditFromManual = (item) => {
-  sessionStorage.setItem(
-    "reconciliationData",
-    JSON.stringify({
-      mode: "manualedit",
-      id: item.id,
-      pairId: item.pairId,
-      accountCode: item.accountCode,
-      rowNo: item.rowNo
-    })
-  )
+  console.log("手照合カードのデータ:", item)
+  console.log("rowNo:", item.rowNo)
+  console.log("id:", item.id)
 
-  router.push("/edit")
+  router.push({
+    path: "/edit",
+    query: {
+      rowNo: item.rowNo,
+      id: item.id
+    }
+  })
 }
 
 /**
