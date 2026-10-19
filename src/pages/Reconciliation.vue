@@ -22,17 +22,38 @@
     <p v-if="successMessage" class="message success">
       {{ successMessage }}
     </p>
+    <!-- 照合モード切り替え -->
+    <section class="panel">
+      <h2>照合方法</h2>
 
+      <div class="mode-switch">
+        <button
+          type="button"
+          :class="{ 'mode-active': reconciliationMode === 'csv' }"
+          @click="reconciliationMode = 'csv'"
+        >
+          CSV照合
+        </button>
+
+        <button
+          type="button"
+          :class="{ 'mode-active': reconciliationMode === 'manual' }"
+          @click="reconciliationMode = 'manual'"
+        >
+          手照合
+        </button>
+      </div>
+    </section>
     <!-- 口座・カード選択 -->
     <section class="panel">
       <h2>照合する口座・カード</h2>
-
       <div class="filter-row">
+
         <label>
           口座・カード
+
           <select
             v-model="selectedAccountCode"
-            @change="loadTargets"
           >
             <option value="">選択してください</option>
 
@@ -107,7 +128,10 @@
 
 
     <!-- CSV取込 -->
-    <section class="panel">
+    <section
+      v-if="reconciliationMode === 'csv'"
+      class="panel"
+    >
       <div class="section-header">
         <div>
           <h2>明細CSVの取込</h2>
@@ -518,6 +542,9 @@ const cancellingReconciliation = ref(false);
 //表示位置
 const confirmSection = ref(null);
 
+//照合モード切替
+const reconciliationMode = ref("csv");
+
 // 非同期リクエストの競合防止用
 let targetsRequestId = 0;
 let candidatesRequestId = 0;
@@ -592,6 +619,29 @@ async function loadAccounts() {
   }
 }
 
+watch(reconciliationMode, async () => {
+  // 前のモードのデータを無効化
+  ++targetsRequestId;
+  ++candidatesRequestId;
+
+  targets.value = [];
+  eposCandidates.value = [];
+  selectedCandidate.value = null;
+
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  await loadTargets();
+
+  // CSV照合モードで、エポスカードを選択中なら候補を再取得
+  if (
+    reconciliationMode.value === "csv" &&
+    [201, 202].includes(Number(selectedAccountCode.value))
+  ) {
+    await loadEposCandidates();
+  }
+});
+
 /**
  * 選択した科目CDの照合対象を取得する。
  */
@@ -613,7 +663,9 @@ async function loadTargets() {
 
   try {
     const data = await fetchGas({
-      list: "reconciliationTargets",
+      list: reconciliationMode.value === "manual"
+        ? "manualReconciliationTargets"
+        : "reconciliationTargets",
       accountCode
     });
 
@@ -768,7 +820,10 @@ watch(selectedAccountCode, async () => {
   await loadTargets();
 
   // エポスカードの場合だけ照合候補を取得
-  if ([201, 202].includes(Number(selectedAccountCode.value))) {
+  if (
+    reconciliationMode.value === "csv" &&
+    [201, 202].includes(Number(selectedAccountCode.value))
+  ) {
     await loadEposCandidates();
   }
 });
@@ -1582,58 +1637,85 @@ td small {
   scroll-margin-top: 20px;
 }
 
-@media (max-width: 600px) {
-  .candidate-summary {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (max-width: 600px) {
+    .candidate-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .candidate-summary button {
+      width: 100%;
+    }
+
+    .candidate-card {
+      padding: 12px;
+    }
   }
 
-  .candidate-summary button {
-    width: 100%;
+  /* 状態表示のCSS */
+  /* 件数カード */
+  .summary-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  /* 選択中の照合状態フィルター */
+  .filter-selected {
+    border-color: #4978d1;
+    background-color: #f0f5ff;
+    font-weight: 600;
+  }
+  .summary-card-done {
+    border-color: #a7dfbd;
+    background: #f0fbf4;
   }
 
-  .candidate-card {
-    padding: 12px;
+  .summary-card-done strong {
+    color: #087443;
   }
-}
 
-/* 状態表示のCSS */
-/* 件数カード */
-.summary-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-/* 選択中の照合状態フィルター */
-.filter-selected {
-  border-color: #4978d1;
-  background-color: #f0f5ff;
-  font-weight: 600;
-}
-.summary-card-done {
-  border-color: #a7dfbd;
-  background: #f0fbf4;
-}
+  /* 照合状態に応じた仕訳行 */
+  tbody tr.ledger-row-done {
+    background: #f0fbf4;
+  }
 
-.summary-card-done strong {
-  color: #087443;
-}
+  tbody tr.ledger-row-done:hover {
+    background: #e2f6e9;
+  }
 
-/* 照合状態に応じた仕訳行 */
-tbody tr.ledger-row-done {
-  background: #f0fbf4;
-}
+  tbody tr.ledger-row-review {
+    background: #fffaf0;
+  }
 
-tbody tr.ledger-row-done:hover {
-  background: #e2f6e9;
-}
+  tbody tr.ledger-row-excluded {
+    color: #777;
+    background: #f5f5f5;
+  }
 
-tbody tr.ledger-row-review {
-  background: #fffaf0;
-}
+  /* CSV　手照合　切り替えスイッチ */
+  .mode-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
 
-tbody tr.ledger-row-excluded {
-  color: #777;
-  background: #f5f5f5;
-}
+  .mode-switch button {
+    min-width: 140px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border: 1px solid #cbd4df;
+    border-radius: 8px;
+    background: #fff;
+    color: #243044;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mode-switch button.mode-active {
+    border-color: #2463eb;
+    background: #edf3ff;
+    color: #1749a2;
+  }
 
 /* 画面幅に応じて件数カードを調整 */
 @media (max-width: 1000px) {
