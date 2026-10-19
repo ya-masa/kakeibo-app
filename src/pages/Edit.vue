@@ -124,9 +124,10 @@ const updateItem = async (formData) => {
     )
 
   } catch (e) {
-    alert("修正に失敗しました"+e.message)
+    alert("修正に失敗しました" + e.message)
+  } finally {
+    loadingStore.globalLoading.value = false
   }
-  loadingStore.globalLoading.value=false
 }
 
 // ---------------------------
@@ -159,9 +160,9 @@ const deleteItem = async () => {
 
   } catch (e) {
     alert("削除に失敗しました"+e.message)
-  }
-
+  } finally {
     loadingStore.globalLoading.value = false
+  }
 }
 </script>
 
