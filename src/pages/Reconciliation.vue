@@ -408,6 +408,101 @@
     </section>
 
 
+    <!-- 手照合用の確認カード -->
+    <section
+      v-if="reconciliationMode === 'manual'"
+      class="panel manual-reconciliation"
+    >
+      <div class="section-header">
+        <div>
+          <h2>手照合</h2>
+          <p>
+            レシートと家計簿の仕訳を見比べて確認します。
+          </p>
+        </div>
+      </div>
+
+      <p v-if="!selectedAccountCode" class="empty-state">
+        口座・カードを選択してください。
+      </p>
+
+      <p
+        v-else-if="loading"
+        class="empty-state"
+      >
+        データを読み込んでいます……
+      </p>
+
+      <p
+        v-else-if="filteredTargets.length === 0"
+        class="empty-state"
+      >
+        確認する仕訳がありません。
+      </p>
+
+      <div v-else class="manual-card-list">
+        <article
+          v-for="item in filteredTargets"
+          :key="`manual-${item.id}-${item.rowNo}`"
+          class="candidate-card"
+        >
+          <div class="candidate-heading">
+            <strong>{{ item.shop || item.content || "店名なし" }}</strong>
+            <span
+              class="candidate-status"
+            >
+              {{ item.status }}
+            </span>
+          </div>
+
+          <p>日付：{{ item.date }}</p>
+
+          <p>
+            金額：
+            <strong>{{ formatAmount(item.amount) }}</strong>
+          </p>
+
+          <div class="confirm-comparison">
+            <article class="confirm-card">
+              <h3>口座側の仕訳</h3>
+              <p>{{ item.large || "大項目なし" }}</p>
+              <p>{{ item.small || "小項目なし" }}</p>
+            </article>
+
+            <article class="confirm-card">
+              <h3>ペア側の仕訳</h3>
+
+              <template v-if="item.counterpart">
+                <p>
+                  {{ item.counterpart.large || "大項目なし" }}
+                </p>
+                <p>
+                  {{ item.counterpart.small || "小項目なし" }}
+                </p>
+              </template>
+
+              <p v-else>
+                ペア側の仕訳を取得できません。
+              </p>
+            </article>
+          </div>
+
+          <p v-if="item.content">
+            内容：{{ item.content }}
+          </p>
+
+          <p v-if="item.pairError" class="confirm-warning">
+            {{ item.pairError }}
+          </p>
+
+          <p v-if="item.checkedAt">
+            確認日時：{{ item.checkedAt }}
+          </p>
+        </article>
+      </div>
+    </section>
+
+
     <!-- 仕訳一覧 -->
     <section class="panel">
       <div class="section-header">
