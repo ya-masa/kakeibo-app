@@ -588,6 +588,7 @@
 import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { GAS_URL } from "@/constants/index.js"
 import { useRouter } from "vue-router"
+import loadingStore from "@/stores/loadingStore"
 
 const accounts = ref([]);
 const targets = ref([]);
@@ -704,6 +705,9 @@ async function loadAccounts() {
 
     accounts.value = data;
   } catch (error) {
+  }
+  finally{
+    loadingStore.globalLoading.value = false
   }
 }
 
