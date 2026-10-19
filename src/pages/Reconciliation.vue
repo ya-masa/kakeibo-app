@@ -1784,6 +1784,41 @@ td small {
     color: #1749a2;
   }
 
+
+  .manual-check-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .manual-counterpart-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .manual-check-details {
+    padding-left: 12px;
+  }
+
+  .manual-check-details p {
+    margin: 4px 0;
+  }
+
+  .manual-check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    cursor: pointer;
+  }
+
+  .manual-check-label input {
+    width: 18px;
+    height: 18px;
+  }
+
+
 /* 画面幅に応じて件数カードを調整 */
 @media (max-width: 1000px) {
   .summary-grid {
