@@ -636,7 +636,8 @@ const goToAddFromStatement = (item) => {
       date: item.date,
       place: item.place,
       content: item.content,
-      amount: item.amount
+      amount: item.amount,
+      jump: "reconciliation"
     })
   )
 
@@ -645,15 +646,12 @@ const goToAddFromStatement = (item) => {
 
 
 const goToEditFromManual = (item) => {
-  console.log("手照合カードのデータ:", item)
-  console.log("rowNo:", item.rowNo)
-  console.log("id:", item.id)
-
   router.push({
     path: "/edit",
     query: {
       rowNo: item.rowNo,
-      id: item.id
+      id: item.id,
+      jump: "reconciliation"
     }
   })
 }

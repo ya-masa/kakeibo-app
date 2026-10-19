@@ -23,6 +23,7 @@ const route = useRoute()
 
 const rowNo = route.query.rowNo
 const id = route.query.id
+const jump = route.query.jump
 
 console.log("rowNo:"+rowNo)
 console.log("id:"+id)
@@ -116,7 +117,11 @@ const updateItem = async (formData) => {
 
     alert(result.message)
     console.log(result.message)
-    router.push('/list')
+    router.push(
+      jump === "reconciliation"
+        ? "/reconciliation"
+        : "/list"
+    )
 
   } catch (e) {
     alert("修正に失敗しました"+e.message)
@@ -145,7 +150,11 @@ const deleteItem = async () => {
     const result = await res.json()
 
     alert(result.message)
-    router.push('/list')
+    router.push(
+      jump === "reconciliation"
+        ? "/reconciliation"
+        : "/list"
+    )
 
 
   } catch (e) {

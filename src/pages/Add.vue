@@ -94,13 +94,16 @@ const addItem = async (formData) => {
 
     alert(result.message || "登録しました")
 
-    // 登録成功後に照合データを消す
-    if (formData.statementId) {
-      sessionStorage.removeItem("reconciliationData")
-      router.push("/reconciliation")
-    } else {
-      router.push("/list")
-    }
+    // 登録成功後の戻り先
+    const jump = reconciliationData.value?.jump
+
+    sessionStorage.removeItem("reconciliationData")
+
+    router.push(
+      jump === "reconciliation"
+        ? "/reconciliation"
+        : "/list"
+    )
 
   } catch (e) {
     alert("追加に失敗しました: " + e.message)
