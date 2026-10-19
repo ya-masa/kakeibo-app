@@ -439,13 +439,21 @@
           class="candidate-card manual-check-card"
         >
           <!-- ペア側の仕訳を左上に太字で表示 -->
-          <strong class="manual-counterpart-title">
-            {{ item.counterpart
-              ? `${item.counterpart.large || '大項目なし'}‗${item.counterpart.small || '小項目なし'}`
-              : 'ペア側の仕訳なし'
-            }}
-          </strong>
+          <div class="manual-card-heading">
+            <strong class="manual-counterpart-title">
+              {{ item.counterpart
+                ? `${item.counterpart.large || '大項目なし'}‗${item.counterpart.small || '小項目なし'}`
+                : 'ペア側の仕訳なし'
+              }}
+            </strong>
 
+            <button
+              type="button"
+              @click="goToEditFromManual(item)"
+            >
+              修正
+            </button>
+          </div>
           <div class="manual-check-details">
             <p>日付：{{ item.date }}</p>
             <p>金額：{{ formatAmount(item.amount) }}</p>
@@ -633,6 +641,22 @@ const goToAddFromStatement = (item) => {
   )
 
   router.push("/add")
+}
+
+
+const goToEditFromManual = (item) => {
+  sessionStorage.setItem(
+    "reconciliationData",
+    JSON.stringify({
+      mode: "manualedit",
+      id: item.id,
+      pairId: item.pairId,
+      accountCode: item.accountCode,
+      rowNo: item.rowNo
+    })
+  )
+
+  router.push("/edit")
 }
 
 /**
@@ -1817,7 +1841,17 @@ td small {
     width: 18px;
     height: 18px;
   }
+  .manual-card-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
 
+  .manual-counterpart-title {
+    font-weight: 700;
+    text-align: left;
+  }
 
 /* 画面幅に応じて件数カードを調整 */
 @media (max-width: 1000px) {
