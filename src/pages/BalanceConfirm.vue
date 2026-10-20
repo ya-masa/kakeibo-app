@@ -384,7 +384,7 @@ async function postGas(mode, payload) {
   }
 
   const body = new URLSearchParams({
-    mode,
+    mode: mode,
     payload: JSON.stringify(payload)
   });
 
