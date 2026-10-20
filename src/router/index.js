@@ -60,6 +60,6 @@ router.beforeEach((to, from) => {
 })
 
 router.afterEach(() => {
- //ここでは何もしない
+  globalLoading.value = false
 })
 export default router
