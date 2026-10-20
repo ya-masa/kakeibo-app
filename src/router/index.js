@@ -10,6 +10,7 @@ import Home from "@/pages/Home.vue"
 import Kamoku from "@/components/SettingsUnifiedTabs.vue"
 import shops from "@/components/SettingShops.vue"
 import monthly from "@/components/SettingMonthly.vue"
+import BalanceConfirm from "@/pages/BalanceConfirm.vue"
 
 const routes = [
 
@@ -39,6 +40,9 @@ const routes = [
   
   // ★ ホーム画面
   { path: "/home", name: "home", component: Home },
+
+  // 残高確定画面
+  { path: "/balance-confirm", name: "balanceConfirm", component: BalanceConfirm },
   
   // ★ 初期ページ
   { path: "/", name: "homeadd", component: Add }

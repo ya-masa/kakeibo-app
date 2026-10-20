@@ -193,6 +193,16 @@
 
       </div>
     </section>
+    <!-- 残高確定画面へのボタン -->
+    <div class="balance-confirm-action">
+      <button
+        class="balance-confirm-btn"
+        @click="goBalanceConfirm"
+      >
+        <span>確定残高を入力する</span>
+        <span class="action-arrow">›</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -590,6 +600,14 @@
       loadingStore.globalLoading.value = false
     }, 500)
   })
+
+
+  // 残高確定画面へ移動
+  function goBalanceConfirm() {
+    router.push({
+      name: "balanceConfirm"
+    })
+  }
 </script>
 
 
@@ -910,5 +928,35 @@
     color: #4b4038;
   }
 
+  /*　残高確定ボタン　*/
+  .balance-confirm-action {
+    margin: 12px 0 24px;
+  }
+
+  .balance-confirm-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #d0d7de;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  .balance-confirm-btn:active {
+    background-color: #f3f4f6;
+  }
+
+  .balance-confirm-btn .action-arrow {
+    font-size: 24px;
+    line-height: 1;
+    color: #666;
+  }
 
 </style>
