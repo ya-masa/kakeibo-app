@@ -480,7 +480,7 @@
 
       <div v-else class="manual-card-list">
         <article
-          v-for="item in filteredTargets"
+          v-for="item in filteredManualTargets"
           :key="`manual-${item.id}-${item.rowNo}`"
           class="candidate-card manual-check-card"
         >
@@ -2074,6 +2074,62 @@ td small {
   .manual-counterpart-title {
     font-weight: 700;
     text-align: left;
+  }
+
+  /* 手照合の絞り込みタブ */
+  .manual-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .manual-filter-tabs button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .manual-filter-tabs button:hover {
+    background: #f3f4f6;
+  }
+
+  .manual-filter-tabs button.manual-tab-active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+  }
+
+  .manual-filter-tabs button span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 11px;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 12px;
+  }
+
+  .manual-filter-tabs button.manual-tab-active span {
+    background: #fff;
+    color: #2563eb;
   }
 
 /* 画面幅に応じて件数カードを調整 */
