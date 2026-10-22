@@ -456,6 +456,14 @@
           重複登録
           <span>{{ manualFilterCounts.duplicates }}</span>
         </button>
+        <button
+          type="button"
+          :class="{ 'filter-selected': manualStatusFilter === '要確認' }"
+          @click="manualStatusFilter = '要確認'"
+        >
+          要確認
+          <span>{{ manualFilterCounts.review }}</span>
+        </button>
       </div>
 
       <p v-if="!selectedAccountCode" class="empty-state">
@@ -1706,47 +1714,92 @@ const manualEligibleTargets = computed(() => {
     return duplicateIds;
   });
 
-  // 手照合用の表示データ
-  const filteredManualTargets = computed(() => {
-    const items = manualEligibleTargets.value;
+// 同じ日付・グループ・費目で金額が異なる仕訳を検出
+const manualReviewIds = computed(() => {
+  const groups = new Map();
 
-    switch (manualStatusFilter.value) {
-      case "未照合":
-        return items.filter(item => item.status === "未照合");
+  for (const item of manualEligibleTargets.value) {
+    const date = normalizeManualDate(item.date);
+    const amount = manualAmountKey(item);
 
-      case "照合済":
-        return items.filter(item => item.status === "照合済み");
+    if (!date || amount === null) continue;
 
-      case "重複登録":
-        return items.filter(
-          item => manualDuplicateIds.value.has(String(item.id))
-        );
+    const key = [
+      date,
+      String(item.group ?? "").trim(),
+      manualExpenseKey(item)
+    ].join("||");
 
-      default:
-        return items;
+    if (!groups.has(key)) {
+      groups.set(key, []);
     }
-  });
 
-  // タブに表示する件数
-  const manualFilterCounts = computed(() => {
-    const items = manualEligibleTargets.value;
+    groups.get(key).push(item);
+  }
 
-    return {
-      all: items.length,
+  const ids = new Set();
 
-      unmatched: items.filter(
-        item => item.status === "未照合"
-      ).length,
+  for (const group of groups.values()) {
+    const amounts = new Set(group.map(manualAmountKey));
 
-      matched: items.filter(
-        item => item.status === "照合済み"
-      ).length,
+    if (group.length > 1 && amounts.size > 1) {
+      group.forEach(item => ids.add(String(item.id)));
+    }
+  }
 
-      duplicates: items.filter(
+  return ids;
+});
+
+// 手照合用の表示データ
+const filteredManualTargets = computed(() => {
+  const items = manualEligibleTargets.value;
+
+  switch (manualStatusFilter.value) {
+    case "未照合":
+      return items.filter(item => item.status === "未照合");
+
+    case "照合済":
+      return items.filter(item => item.status === "照合済み");
+
+    case "重複登録":
+      return items.filter(
         item => manualDuplicateIds.value.has(String(item.id))
-      ).length
-    };
-  });
+      );
+
+    case "要確認":
+      return items.filter(
+        item => manualReviewIds.value.has(String(item.id))
+      );
+
+    default:
+      return items;
+  }
+});
+
+// タブの件数
+const manualFilterCounts = computed(() => {
+  const items = manualEligibleTargets.value;
+
+  return {
+    all: items.length,
+
+    unmatched: items.filter(
+      item => item.status === "未照合"
+    ).length,
+
+    matched: items.filter(
+      item => item.status === "照合済み"
+    ).length,
+
+    duplicates: items.filter(
+      item => manualDuplicateIds.value.has(String(item.id))
+    ).length,
+
+    review: items.filter(
+      item => manualReviewIds.value.has(String(item.id))
+    ).length
+  };
+});
 </script>
 
 <style scoped>
