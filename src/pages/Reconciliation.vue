@@ -1642,114 +1642,6 @@ const manualEligibleTargets = computed(() => {
     return Number.isFinite(amount) ? amount : null;
   }
 
-
-  // 重複登録の候補を検出する
-  const manualDuplicateIds = computed(() => {
-    const items = manualEligibleTargets.value;
-    const duplicateIds = new Set();
-
-    // 日付・金額・費目が同じ仕訳をまとめる
-    const exactGroups = new Map();
-
-    // 日付・口座・費目が同じ仕訳をまとめる
-    const accountExpenseGroups = new Map();
-
-    for (const item of items) {
-      const date = normalizeManualDate(item.date);
-      const amount = manualAmountKey(item);
-      const expense = manualExpenseKey(item);
-      const account = normalizeSubjectCode(item);
-
-      // 日付・金額・費目が一致する候補
-      if (date && amount !== null) {
-        const exactKey = [
-          date,
-          amount,
-          expense
-        ].join("||");
-
-        if (!exactGroups.has(exactKey)) {
-          exactGroups.set(exactKey, []);
-        }
-
-        exactGroups.get(exactKey).push(item);
-      }
-
-      // 同じ日付・口座・費目で金額を比較する候補
-      if (date && account) {
-        const accountExpenseKey = [
-          date,
-          account,
-          expense
-        ].join("||");
-
-        if (!accountExpenseGroups.has(accountExpenseKey)) {
-          accountExpenseGroups.set(accountExpenseKey, []);
-        }
-
-        accountExpenseGroups.get(accountExpenseKey).push(item);
-      }
-    }
-
-    // 条件A：同じ日付・金額・費目が複数ある
-    for (const group of exactGroups.values()) {
-      if (group.length > 1) {
-        group.forEach(item => duplicateIds.add(String(item.id)));
-      }
-    }
-
-    // 条件B：同じ日付・口座・費目で金額が異なる
-    for (const group of accountExpenseGroups.values()) {
-      const amounts = new Set(
-        group
-          .map(manualAmountKey)
-          .filter(amount => amount !== null)
-      );
-
-      if (group.length > 1 && amounts.size > 1) {
-        group.forEach(item => duplicateIds.add(String(item.id)));
-      }
-    }
-
-    return duplicateIds;
-  });
-
-// 同じ日付・グループ・費目で金額が異なる仕訳を検出
-const manualReviewIds = computed(() => {
-  const groups = new Map();
-
-  for (const item of manualEligibleTargets.value) {
-    const date = normalizeManualDate(item.date);
-    const amount = manualAmountKey(item);
-
-    if (!date || amount === null) continue;
-
-    const key = [
-      date,
-      String(item.group ?? "").trim(),
-      manualExpenseKey(item)
-    ].join("||");
-
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-
-    groups.get(key).push(item);
-  }
-
-  const ids = new Set();
-
-  for (const group of groups.values()) {
-    const amounts = new Set(group.map(manualAmountKey));
-
-    if (group.length > 1 && amounts.size > 1) {
-      group.forEach(item => ids.add(String(item.id)));
-    }
-  }
-
-  return ids;
-});
-
 // 手照合用の表示データ
 const filteredManualTargets = computed(() => {
   const items = manualEligibleTargets.value;
@@ -1799,6 +1691,82 @@ const manualFilterCounts = computed(() => {
       item => manualReviewIds.value.has(String(item.id))
     ).length
   };
+});
+// 自分とペア相手の科目CDを、順序に依存しない比較キーにする
+function manualSubjectPairKey(item) {
+  const ownCode = String(item.accountCode ?? "").trim();
+  const counterpartCode = String(
+    item.counterpart?.accountCode ?? ""
+  ).trim();
+
+  // ペア相手が特定できない仕訳は判定対象外
+  if (!ownCode || !counterpartCode) return "";
+
+  return [ownCode, counterpartCode].sort().join("|");
+}
+
+// 重複登録：日付・金額・自分とペア相手の科目CDが同じ
+const manualDuplicateIds = computed(() => {
+  const groups = new Map();
+
+  for (const item of manualEligibleTargets.value) {
+    const date = normalizeManualDate(item.date);
+    const subjectPair = manualSubjectPairKey(item);
+    const amount = manualAmountKey(item);
+
+    if (!date || !subjectPair || amount === null) continue;
+
+    const key = [date, subjectPair, amount].join("||");
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push(item);
+  }
+
+  const ids = new Set();
+
+  for (const group of groups.values()) {
+    if (group.length > 1) {
+      group.forEach(item => ids.add(String(item.id)));
+    }
+  }
+
+  return ids;
+});
+
+// 要確認：日付・自分とペア相手の科目CDが同じで、金額が異なる
+const manualReviewIds = computed(() => {
+  const groups = new Map();
+
+  for (const item of manualEligibleTargets.value) {
+    const date = normalizeManualDate(item.date);
+    const subjectPair = manualSubjectPairKey(item);
+    const amount = manualAmountKey(item);
+
+    if (!date || !subjectPair || amount === null) continue;
+
+    const key = [date, subjectPair].join("||");
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push(item);
+  }
+
+  const ids = new Set();
+
+  for (const group of groups.values()) {
+    const amounts = new Set(group.map(manualAmountKey));
+
+    if (group.length > 1 && amounts.size > 1) {
+      group.forEach(item => ids.add(String(item.id)));
+    }
+  }
+
+  return ids;
 });
 </script>
 
