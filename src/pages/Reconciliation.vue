@@ -1560,12 +1560,42 @@
 
 
   // 手照合専用の絞り込み状態
-  const manualStatusFilter = ref("すべて");
+const manualStatusFilter = ref("すべて");
 
-  // 科目CDを文字列に統一
-  function normalizeSubjectCode(item) {
-    return String(item.accountCode ?? "").trim();
-  }
+// 科目CDを文字列に統一
+function normalizeSubjectCode(item) {
+  return String(item?.accountCode ?? "").trim();
+}
+
+// 固有IDの9・10文字目が「00」か判定
+function isInitialBalance(item) {
+  const id = String(item?.id ?? "").trim();
+
+  return id.length >= 10 && id.slice(8, 10) === "00";
+}
+
+// 手照合に表示できる仕訳
+// ① ペア側の科目CDが499・599のものを除外
+// ② 初期残高（固有IDの9・10文字目が00）を除外
+const manualEligibleTargets = computed(() => {
+  return targets.value.filter(item => {
+    const counterpartCode = normalizeSubjectCode(
+      item.counterpart
+    );
+
+    // ペア側が存在し、科目CDが499または599なら除外
+    if (["499", "599"].includes(counterpartCode)) {
+      return false;
+    }
+
+    // 初期残高は除外
+    if (isInitialBalance(item)) {
+      return false;
+    }
+
+    return true;
+  });
+});
 
   // 日付を比較用に統一
   function normalizeManualDate(value) {
@@ -1604,15 +1634,6 @@
     return Number.isFinite(amount) ? amount : null;
   }
 
-  // 手照合の対象データ。
-  // 科目CD499・599は手照合の一覧から除外する。
-  const manualEligibleTargets = computed(() => {
-    return targets.value.filter(item => {
-      const code = normalizeSubjectCode(item);
-
-      return code !== "499" && code !== "599";
-    });
-  });
 
   // 重複登録の候補を検出する
   const manualDuplicateIds = computed(() => {
