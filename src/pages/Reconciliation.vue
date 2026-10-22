@@ -1605,43 +1605,6 @@ const manualEligibleTargets = computed(() => {
   });
 });
 
-  // 日付を比較用に統一
-  function normalizeManualDate(value) {
-    if (!value) return "";
-
-    const text = String(value).trim();
-
-    // yyyy/MM/dd、yyyy-MM-dd、yyyy年M月d日などに対応
-    const match = text.match(
-      /^(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})日?$/
-    );
-
-    if (match) {
-      return [
-        match[1],
-        String(match[2]).padStart(2, "0"),
-        String(match[3]).padStart(2, "0")
-      ].join("-");
-    }
-
-    return text;
-  }
-
-  // 費目を比較するためのキー
-  function manualExpenseKey(item) {
-    return [
-      String(item.large ?? "").trim(),
-      String(item.small ?? "").trim()
-    ].join("|");
-  }
-
-  // 金額を比較するためのキー
-  function manualAmountKey(item) {
-    const amount = Number(item.amount);
-
-    return Number.isFinite(amount) ? amount : null;
-  }
-
 // 手照合用の表示データ
 const filteredManualTargets = computed(() => {
   const items = manualEligibleTargets.value;
@@ -1705,18 +1668,58 @@ function manualSubjectPairKey(item) {
   return [ownCode, counterpartCode].sort().join("|");
 }
 
-// 重複登録：日付・金額・自分とペア相手の科目CDが同じ
+// 金額を数値に統一
+function manualAmountKey(item) {
+  const amount = Number(item.amount);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+// 日付を比較用の YYYY-MM-DD 形式に正規化
+function normalizeManualDate(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+
+  // YYYY-MM-DD、YYYY/MM/DD、YYYY年M月D日、日時付きISO文字列に対応
+  const match = text.match(
+    /^(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})(?:日)?/
+  );
+
+  if (match) {
+    const year = match[1];
+    const month = match[2].padStart(2, "0");
+    const day = match[3].padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  return text;
+}
+
+// 店名を比較用に正規化
+function normalizeManualShop(value) {
+  return String(value ?? "").trim();
+}
+
+// 重複登録：日付・金額・科目CDの組み合わせ・店名が一致
 const manualDuplicateIds = computed(() => {
   const groups = new Map();
 
   for (const item of manualEligibleTargets.value) {
     const date = normalizeManualDate(item.date);
     const subjectPair = manualSubjectPairKey(item);
+    const shop = normalizeManualShop(item.shop);
     const amount = manualAmountKey(item);
 
-    if (!date || !subjectPair || amount === null) continue;
+    // 必須項目が不足している仕訳は対象外
+    if (!date || !subjectPair || !shop || amount === null) {
+      continue;
+    }
 
-    const key = [date, subjectPair, amount].join("||");
+    const key = [
+      date,
+      subjectPair,
+      shop,
+      amount
+    ].join("||");
 
     if (!groups.has(key)) {
       groups.set(key, []);
@@ -1729,25 +1732,35 @@ const manualDuplicateIds = computed(() => {
 
   for (const group of groups.values()) {
     if (group.length > 1) {
-      group.forEach(item => ids.add(String(item.id)));
+      group.forEach(item => {
+        ids.add(String(item.id));
+      });
     }
   }
 
   return ids;
 });
 
-// 要確認：日付・自分とペア相手の科目CDが同じで、金額が異なる
+// 要確認：日付・科目CDの組み合わせ・店名が一致し、金額が異なる
 const manualReviewIds = computed(() => {
   const groups = new Map();
 
   for (const item of manualEligibleTargets.value) {
     const date = normalizeManualDate(item.date);
     const subjectPair = manualSubjectPairKey(item);
+    const shop = normalizeManualShop(item.shop);
     const amount = manualAmountKey(item);
 
-    if (!date || !subjectPair || amount === null) continue;
+    // 必須項目が不足している仕訳は対象外
+    if (!date || !subjectPair || !shop || amount === null) {
+      continue;
+    }
 
-    const key = [date, subjectPair].join("||");
+    const key = [
+      date,
+      subjectPair,
+      shop
+    ].join("||");
 
     if (!groups.has(key)) {
       groups.set(key, []);
@@ -1759,10 +1772,14 @@ const manualReviewIds = computed(() => {
   const ids = new Set();
 
   for (const group of groups.values()) {
-    const amounts = new Set(group.map(manualAmountKey));
+    const amounts = new Set(
+      group.map(item => manualAmountKey(item))
+    );
 
     if (group.length > 1 && amounts.size > 1) {
-      group.forEach(item => ids.add(String(item.id)));
+      group.forEach(item => {
+        ids.add(String(item.id));
+      });
     }
   }
 
