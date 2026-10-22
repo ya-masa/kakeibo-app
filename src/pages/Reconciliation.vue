@@ -419,6 +419,52 @@
           <p>レシートと家計簿の仕訳を見比べて確認します。</p>
         </div>
       </div>
+      <!-- 手照合の絞り込みタブ -->
+      <div class="manual-filter-tabs" role="tablist" aria-label="手照合の絞り込み">
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="manualStatusFilter === 'すべて'"
+          :class="{ 'manual-tab-active': manualStatusFilter === 'すべて' }"
+          @click="manualStatusFilter = 'すべて'"
+        >
+          すべて
+          <span>{{ manualFilterCounts.all }}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="manualStatusFilter === '未照合'"
+          :class="{ 'manual-tab-active': manualStatusFilter === '未照合' }"
+          @click="manualStatusFilter = '未照合'"
+        >
+          未照合
+          <span>{{ manualFilterCounts.unmatched }}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="manualStatusFilter === '照合済'"
+          :class="{ 'manual-tab-active': manualStatusFilter === '照合済' }"
+          @click="manualStatusFilter = '照合済'"
+        >
+          照合済
+          <span>{{ manualFilterCounts.matched }}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="manualStatusFilter === '重複登録'"
+          :class="{ 'manual-tab-active': manualStatusFilter === '重複登録' }"
+          @click="manualStatusFilter = '重複登録'"
+        >
+          重複登録
+          <span>{{ manualFilterCounts.duplicates }}</span>
+        </button>
+      </div>
 
       <p v-if="!selectedAccountCode" class="empty-state">
         口座・カードを選択してください。
@@ -556,7 +602,7 @@
 
           <tbody>
             <tr
-              v-for="item in filteredTargets"
+              v-for="item in filteredManualTargets"
               :key="`${item.id}-${item.rowNo}`"
               :class="ledgerRowClass(item.status)"
             >
@@ -609,916 +655,971 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from "vue";
-import { GAS_URL } from "@/constants/index.js"
-import { useRouter } from "vue-router"
-import loadingStore from "@/stores/loadingStore"
+  import { ref, computed, onMounted, watch, nextTick } from "vue";
+  import { GAS_URL } from "@/constants/index.js"
+  import { useRouter } from "vue-router"
+  import loadingStore from "@/stores/loadingStore"
 
-const accounts = ref([]);
-const targets = ref([]);
+  const accounts = ref([]);
+  const targets = ref([]);
 
-const selectedAccountCode = ref("");
-const selectedStatus = ref("すべて");
-const keyword = ref("");
+  const selectedAccountCode = ref("");
+  const selectedStatus = ref("すべて");
+  const keyword = ref("");
 
-const loading = ref(false);
-const errorMessage = ref("");
-const successMessage = ref("");
+  const loading = ref(false);
+  const errorMessage = ref("");
+  const successMessage = ref("");
 
-const csvInput = ref(null);
-const selectedFile = ref(null);
+  const csvInput = ref(null);
+  const selectedFile = ref(null);
 
-const eposCandidates = ref([]);
-const loadingCandidates = ref(false);
-const candidateFilter = ref("すべて");
+  const eposCandidates = ref([]);
+  const loadingCandidates = ref(false);
+  const candidateFilter = ref("すべて");
 
-// 照合確定用
-const selectedCandidate = ref(null);
-const confirmingReconciliation = ref(false);
+  // 照合確定用
+  const selectedCandidate = ref(null);
+  const confirmingReconciliation = ref(false);
 
-//照合取消用
-const cancellingReconciliation = ref(false);
+  //照合取消用
+  const cancellingReconciliation = ref(false);
 
-//表示位置
-const confirmSection = ref(null);
+  //表示位置
+  const confirmSection = ref(null);
 
-//照合モード切替
-const reconciliationMode = ref("csv");
+  //照合モード切替
+  const reconciliationMode = ref("csv");
 
-//登録状態保存用
-const confirmingManualReconciliation = ref(false);
+  //登録状態保存用
+  const confirmingManualReconciliation = ref(false);
 
-// チェック状態を変更したが、まだ登録していない仕訳
-const pendingManualChecks = ref({});
+  // チェック状態を変更したが、まだ登録していない仕訳
+  const pendingManualChecks = ref({});
 
-// 非同期リクエストの競合防止用
-let targetsRequestId = 0;
-let candidatesRequestId = 0;
+  // 非同期リクエストの競合防止用
+  let targetsRequestId = 0;
+  let candidatesRequestId = 0;
 
-const router = useRouter()
+  const router = useRouter()
 
-const goToAddFromStatement = (item) => {
-  sessionStorage.setItem(
-    "reconciliationData",
-    JSON.stringify({
-      mode:"csvadd",
-      statementId: item.statementId,
-      accountCode: item.accountCode,
-      date: item.date,
-      place: item.place,
-      content: item.content,
-      amount: item.amount,
-      jump: "reconciliation"
+  const goToAddFromStatement = (item) => {
+    sessionStorage.setItem(
+      "reconciliationData",
+      JSON.stringify({
+        mode:"csvadd",
+        statementId: item.statementId,
+        accountCode: item.accountCode,
+        date: item.date,
+        place: item.place,
+        content: item.content,
+        amount: item.amount,
+        jump: "reconciliation"
+      })
+    )
+
+    router.push("/add")
+  }
+
+
+  const goToEditFromManual = (item) => {
+    router.push({
+      path: "/edit",
+      query: {
+        rowNo: item.rowNo,
+        id: item.id,
+        jump: "reconciliation"
+      }
     })
-  )
-
-  router.push("/add")
-}
-
-
-const goToEditFromManual = (item) => {
-  router.push({
-    path: "/edit",
-    query: {
-      rowNo: item.rowNo,
-      id: item.id,
-      jump: "reconciliation"
-    }
-  })
-}
-
-/**
- * GASからJSONを取得する。
- */
-async function fetchGas(params) {
-  if (!GAS_URL || GAS_URL === "YOUR_GAS_WEB_APP_URL") {
-    throw new Error("GAS_URLを設定してください。");
   }
-
-  const url = new URL(GAS_URL);
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      url.searchParams.set(key, value);
-    }
-  });
-
-  const response = await fetch(url.toString());
-
-  if (!response.ok) {
-    throw new Error(`GASへの接続に失敗しました（HTTP ${response.status}）。`);
-  }
-
-  const data = await response.json();
-
-  if (data?.error) {
-    throw new Error(data.details || data.error);
-  }
-
-  return data;
-}
-
-/**
- * 口座・カード一覧を取得する。
- */
-async function loadAccounts() {
-  errorMessage.value = "";
-
-  try {
-    const data = await fetchGas({
-      list: "reconciliationAccounts"
-    });
-
-    if (!Array.isArray(data)) {
-      throw new Error("口座・カード一覧の形式が正しくありません。");
-    }
-
-    accounts.value = data;
-  } catch (error) {
-  }
-  finally{
-    loadingStore.globalLoading.value = false
-  }
-}
-
-watch(reconciliationMode, async () => {
-  // 前のモードのデータを無効化
-  ++targetsRequestId;
-  ++candidatesRequestId;
-
-  targets.value = [];
-  eposCandidates.value = [];
-  selectedCandidate.value = null;
-
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  await loadTargets();
-
-  // CSV照合モードで、エポスカードを選択中なら候補を再取得
-  if (
-    reconciliationMode.value === "csv" &&
-    [201, 202].includes(Number(selectedAccountCode.value))
-  ) {
-    await loadEposCandidates();
-  }
-});
-
-/**
- * 選択した科目CDの照合対象を取得する。
- */
-async function loadTargets() {
-  const requestId = ++targetsRequestId;
-  const accountCode = String(selectedAccountCode.value || "");
-
-  if (!accountCode) {
-    targets.value = [];
-    loading.value = false;
-    return;
-  }
-
-  // 前の口座のデータを残さない
-  targets.value = [];
-  loading.value = true;
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  try {
-    const data = await fetchGas({
-      list: reconciliationMode.value === "manual"
-        ? "manualReconciliationTargets"
-        : "reconciliationTargets",
-      accountCode
-    });
-
-    // 後から返ってきた古い応答は反映しない
-    if (
-      requestId !== targetsRequestId ||
-      accountCode !== String(selectedAccountCode.value || "")
-    ) {
-      return;
-    }
-
-    if (!Array.isArray(data)) {
-      throw new Error("照合対象のデータ形式が正しくありません。");
-    }
-
-    targets.value = data;
-  } catch (error) {
-    if (
-      requestId !== targetsRequestId ||
-      accountCode !== String(selectedAccountCode.value || "")
-    ) {
-      return;
-    }
-
-    targets.value = [];
-    errorMessage.value =
-      `照合対象の取得に失敗しました：${error.message}`;
-  } finally {
-    // 最新のリクエストだけがローディングを解除する
-    if (requestId === targetsRequestId) {
-      loading.value = false;
-    }
-  }
-}
-
-/**
- * 表示用の絞り込み。
- * 状態の絞り込みはVue側で行う。
- */
-const filteredTargets = computed(() => {
-  const search = keyword.value.toLowerCase();
-
-  return targets.value.filter((item) => {
-    if (
-      selectedStatus.value !== "すべて" &&
-      item.status !== selectedStatus.value
-    ) {
-      return false;
-    }
-
-    if (!search) {
-      return true;
-    }
-
-    const text = [
-      item.shop,
-      item.content,
-      item.id,
-      item.large,
-      item.small
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    return text.includes(search);
-  });
-});
-
-/**
- * 状態別の件数。
- */
-function countByStatus(status) {
-  return targets.value.filter((item) => item.status === status).length;
-}
-
-/**
- * 金額は符号を変えずに表示。
- */
-function formatAmount(amount) {
-  return new Intl.NumberFormat("ja-JP", {
-    style: "currency",
-    currency: "JPY",
-    maximumFractionDigits: 0
-  }).format(Number(amount) || 0);
-}
-
-function amountClass(amount) {
-  if (amount > 0) return "amount-positive";
-  if (amount < 0) return "amount-negative";
-  return "";
-}
-
-    function statusClass(status) {
-      return {
-        "status-unchecked": status === "未照合",
-        "status-done": status === "照合済み",
-        "status-review": status === "要確認",
-        "status-mismatch": status === "不一致",
-        "status-excluded": status === "対象外"
-      };
-    }
-
-    /**
-     * 現在選択されている照合状態を示すクラス。
-     */
-    function statusFilterClass(status) {
-      return {
-        "filter-selected": selectedStatus.value === status
-      };
-    }
 
   /**
-   * 仕訳行の状態に応じたクラスを返す。
+   * GASからJSONを取得する。
    */
-  function ledgerRowClass(status) {
-    return {
-      "ledger-row-done": status === "照合済み",
-      "ledger-row-review": status === "要確認",
-      "ledger-row-excluded": status === "対象外"
-    };
-  }
+  async function fetchGas(params) {
+    if (!GAS_URL || GAS_URL === "YOUR_GAS_WEB_APP_URL") {
+      throw new Error("GAS_URLを設定してください。");
+    }
 
+    const url = new URL(GAS_URL);
 
-/**
- * CSVファイルの選択状態だけを管理する。
- * 実際の取込処理はGAS API実装後に接続する。
- */
-watch(selectedAccountCode, async () => {
-  // 口座変更前の処理が残っていても、古い応答を無効化する
-  ++targetsRequestId;
-  ++candidatesRequestId;
-
-  targets.value = [];
-  eposCandidates.value = [];
-  selectedCandidate.value = null;
-
-  selectedFile.value = null;
-  csvRows.value = [];
-  csvPreview.value = [];
-  csvEncoding.value = "";
-
-  candidateFilter.value = "すべて";
-
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  if (csvInput.value) {
-    csvInput.value.value = "";
-  }
-
-  // 仕訳一覧を取得
-  await loadTargets();
-
-  // エポスカードの場合だけ照合候補を取得
-  if (
-    reconciliationMode.value === "csv" &&
-    [201, 202].includes(Number(selectedAccountCode.value))
-  ) {
-    await loadEposCandidates();
-  }
-});
-
-
-onMounted(async () => {
-  await loadAccounts();
-});
-
-const uploadingCsv = ref(false);
-const csvRows = ref([]);
-const csvPreview = ref([]);
-const csvEncoding = ref("");
-
-function parseCsvText(text) {
-  const rows = [];
-  let row = [];
-  let field = "";
-  let quoted = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-
-    if (quoted) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          quoted = false;
-        }
-      } else {
-        field += ch;
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        url.searchParams.set(key, value);
       }
-    } else if (ch === '"' && field === "") {
-      quoted = true;
-    } else if (ch === ",") {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && text[i + 1] === "\n") i++;
-      row.push(field);
-      if (row.some(v => v.trim() !== "")) rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += ch;
-    }
-  }
-
-  if (field !== "" || row.length > 0) {
-    row.push(field);
-    if (row.some(v => v.trim() !== "")) rows.push(row);
-  }
-
-  return rows;
-}
-
-function decodeCsv(buffer) {
-  const bytes = new Uint8Array(buffer);
-
-  // UTF-8 BOMがあればUTF-8として読む
-  if (
-    bytes.length >= 3 &&
-    bytes[0] === 0xEF &&
-    bytes[1] === 0xBB &&
-    bytes[2] === 0xBF
-  ) {
-    return {
-      text: new TextDecoder("utf-8").decode(bytes),
-      encoding: "UTF-8"
-    };
-  }
-
-  // まずUTF-8として厳密に判定
-  try {
-    return {
-      text: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
-      encoding: "UTF-8"
-    };
-  } catch {
-    return {
-      text: new TextDecoder("shift_jis").decode(bytes),
-      encoding: "Shift_JIS"
-    };
-  }
-}
-
-function parseEposAmount(value) {
-  const normalized = String(value ?? "")
-    .replace(/[,，￥¥\s]/g, "")
-    .trim();
-
-  if (!normalized) return null;
-
-  const amount = Number(normalized);
-  return Number.isFinite(amount) ? amount : null;
-}
-
-function onCsvSelected(event) {
-  selectedFile.value = event.target.files?.[0] || null;
-  csvRows.value = [];
-  csvPreview.value = [];
-  csvEncoding.value = "";
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  if (selectedFile.value) {
-    successMessage.value = "CSVを選択しました。内容を確認して取り込んでください。";
-  }
-}
-
-function normalizeHeader(value) {
-  return String(value ?? "")
-    .replace(/^\uFEFF/, "")
-    .replace(/\s/g, "")
-    .trim();
-}
-
-async function prepareEposCsv() {
-  if (!selectedFile.value) {
-    throw new Error("CSVファイルを選択してください。");
-  }
-
-  const buffer = await selectedFile.value.arrayBuffer();
-  const decoded = decodeCsv(buffer);
-  const rows = parseCsvText(decoded.text);
-
-  if (rows.length < 2) {
-    throw new Error("CSVに明細がありません。");
-  }
-
-  const headers = rows[0].map(normalizeHeader);
-
-  const findColumn = name =>
-    headers.findIndex(h => h.includes(name));
-
-  const indexes = {
-    type: findColumn("種別"),
-    date: findColumn("ご利用年月日"),
-    place: findColumn("ご利用場所"),
-    content: findColumn("ご利用内容"),
-    amount: findColumn("ご利用金額"),
-    paymentAmount: findColumn("お支払金額"),
-    paymentType: findColumn("支払区分")
-  };
-
-  for (const [name, index] of Object.entries(indexes)) {
-    if (index < 0) {
-      throw new Error(`CSVに必要な列がありません：${name}`);
-    }
-  }
-
-  const parsed = [];
-
-  for (const row of rows.slice(1)) {
-    const date = String(row[indexes.date] ?? "").trim();
-    const type = String(row[indexes.type] ?? "").trim();
-
-    // 合計行など、利用日がない行は除外
-    if (!date || !/^\d{4}年\d{1,2}月\d{1,2}日$/.test(date)) {
-      continue;
-    }
-
-    const amount = parseEposAmount(row[indexes.amount]);
-    const paymentAmount = parseEposAmount(row[indexes.paymentAmount]);
-
-    if (amount === null || paymentAmount === null) {
-      throw new Error(`金額を読み取れません：${date} ${row[indexes.place] ?? ""}`);
-    }
-
-    parsed.push({
-      type,
-      date,
-      place: String(row[indexes.place] ?? "").trim(),
-      content: String(row[indexes.content] ?? "").trim(),
-      amount,
-      paymentAmount,
-      paymentType: String(row[indexes.paymentType] ?? "").trim()
-    });
-  }
-
-  if (parsed.length === 0) {
-    throw new Error("取り込める利用明細がありません。CSVの形式を確認してください。");
-  }
-
-  csvRows.value = parsed;
-  csvPreview.value = parsed.slice(0, 5);
-  csvEncoding.value = decoded.encoding;
-
-  return parsed;
-}
-
-
-async function importCsv() {
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  if (![201, 202].includes(Number(selectedAccountCode.value))) {
-    errorMessage.value = "雅エポスカードまたは和くんエポスカードを選択してください。";
-    return;
-  }
-
-  uploadingCsv.value = true;
-
-  try {
-    const rows = await prepareEposCsv();
-    await loadEposCandidates();
-
-    const payload = {
-      accountCode: Number(selectedAccountCode.value),
-      fileName: selectedFile.value.name,
-      rows
-    };
-
-    const body = new URLSearchParams({
-      mode: "importEposCsv",
-      payload: JSON.stringify(payload)
     });
 
-    const response = await fetch(GAS_URL, {
-      method: "POST",
-      body
-    });
+    const response = await fetch(url.toString());
 
-    const responseText = await response.text();
-    let result;
+    if (!response.ok) {
+      throw new Error(`GASへの接続に失敗しました（HTTP ${response.status}）。`);
+    }
+
+    const data = await response.json();
+
+    if (data?.error) {
+      throw new Error(data.details || data.error);
+    }
+
+    return data;
+  }
+
+  /**
+   * 口座・カード一覧を取得する。
+   */
+  async function loadAccounts() {
+    errorMessage.value = "";
 
     try {
-      result = JSON.parse(responseText);
-    } catch {
-      throw new Error(
-        "GASからJSON以外の応答が返りました。doPostの処理とデプロイを確認してください。"
-      );
-    }
+      const data = await fetchGas({
+        list: "reconciliationAccounts"
+      });
 
-    if (!response.ok || result.error || result.success !== true) {
-      throw new Error(result.message || result.error || `HTTP ${response.status}`);
-      
-    }
+      if (!Array.isArray(data)) {
+        throw new Error("口座・カード一覧の形式が正しくありません。");
+      }
 
-    successMessage.value = result.message || "CSVを取り込みました。";
+      accounts.value = data;
+    } catch (error) {
+    }
+    finally{
+      loadingStore.globalLoading.value = false
+    }
+  }
+
+  watch(reconciliationMode, async () => {
+    // 前のモードのデータを無効化
+    ++targetsRequestId;
+    ++candidatesRequestId;
+
+    targets.value = [];
+    eposCandidates.value = [];
+    selectedCandidate.value = null;
+
+    errorMessage.value = "";
+    successMessage.value = "";
 
     await loadTargets();
-    await loadEposCandidates();
+
+    // CSV照合モードで、エポスカードを選択中なら候補を再取得
+    if (
+      reconciliationMode.value === "csv" &&
+      [201, 202].includes(Number(selectedAccountCode.value))
+    ) {
+      await loadEposCandidates();
+    }
+  });
+
+  /**
+   * 選択した科目CDの照合対象を取得する。
+   */
+  async function loadTargets() {
+    const requestId = ++targetsRequestId;
+    const accountCode = String(selectedAccountCode.value || "");
+
+    if (!accountCode) {
+      targets.value = [];
+      loading.value = false;
+      return;
+    }
+
+    // 前の口座のデータを残さない
+    targets.value = [];
+    loading.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    try {
+      const data = await fetchGas({
+        list: reconciliationMode.value === "manual"
+          ? "manualReconciliationTargets"
+          : "reconciliationTargets",
+        accountCode
+      });
+
+      // 後から返ってきた古い応答は反映しない
+      if (
+        requestId !== targetsRequestId ||
+        accountCode !== String(selectedAccountCode.value || "")
+      ) {
+        return;
+      }
+
+      if (!Array.isArray(data)) {
+        throw new Error("照合対象のデータ形式が正しくありません。");
+      }
+
+      targets.value = data;
+    } catch (error) {
+      if (
+        requestId !== targetsRequestId ||
+        accountCode !== String(selectedAccountCode.value || "")
+      ) {
+        return;
+      }
+
+      targets.value = [];
+      errorMessage.value =
+        `照合対象の取得に失敗しました：${error.message}`;
+    } finally {
+      // 最新のリクエストだけがローディングを解除する
+      if (requestId === targetsRequestId) {
+        loading.value = false;
+      }
+    }
+  }
+
+  /**
+   * 表示用の絞り込み。
+   * 状態の絞り込みはVue側で行う。
+   */
+  const filteredTargets = computed(() => {
+    const search = keyword.value.toLowerCase();
+
+    return targets.value.filter((item) => {
+      if (
+        selectedStatus.value !== "すべて" &&
+        item.status !== selectedStatus.value
+      ) {
+        return false;
+      }
+
+      if (!search) {
+        return true;
+      }
+
+      const text = [
+        item.shop,
+        item.content,
+        item.id,
+        item.large,
+        item.small
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+    });
+  });
+
+  /**
+   * 状態別の件数。
+   */
+  function countByStatus(status) {
+    return targets.value.filter((item) => item.status === status).length;
+  }
+
+  /**
+   * 金額は符号を変えずに表示。
+   */
+  function formatAmount(amount) {
+    return new Intl.NumberFormat("ja-JP", {
+      style: "currency",
+      currency: "JPY",
+      maximumFractionDigits: 0
+    }).format(Number(amount) || 0);
+  }
+
+  function amountClass(amount) {
+    if (amount > 0) return "amount-positive";
+    if (amount < 0) return "amount-negative";
+    return "";
+  }
+
+      function statusClass(status) {
+        return {
+          "status-unchecked": status === "未照合",
+          "status-done": status === "照合済み",
+          "status-review": status === "要確認",
+          "status-mismatch": status === "不一致",
+          "status-excluded": status === "対象外"
+        };
+      }
+
+      /**
+       * 現在選択されている照合状態を示すクラス。
+       */
+      function statusFilterClass(status) {
+        return {
+          "filter-selected": selectedStatus.value === status
+        };
+      }
+
+    /**
+     * 仕訳行の状態に応じたクラスを返す。
+     */
+    function ledgerRowClass(status) {
+      return {
+        "ledger-row-done": status === "照合済み",
+        "ledger-row-review": status === "要確認",
+        "ledger-row-excluded": status === "対象外"
+      };
+    }
+
+
+  /**
+   * CSVファイルの選択状態だけを管理する。
+   * 実際の取込処理はGAS API実装後に接続する。
+   */
+  watch(selectedAccountCode, async () => {
+    // 口座変更前の処理が残っていても、古い応答を無効化する
+    ++targetsRequestId;
+    ++candidatesRequestId;
+
+    targets.value = [];
+    eposCandidates.value = [];
+    selectedCandidate.value = null;
 
     selectedFile.value = null;
     csvRows.value = [];
     csvPreview.value = [];
+    csvEncoding.value = "";
+
+    candidateFilter.value = "すべて";
+
+    errorMessage.value = "";
+    successMessage.value = "";
 
     if (csvInput.value) {
       csvInput.value.value = "";
     }
-  } catch (error) {
-    errorMessage.value = `CSV取り込みに失敗しました：${error.message}`;
-  } finally {
-    uploadingCsv.value = false;
-  }
-}
 
-async function loadEposCandidates() {
-  if (![201, 202].includes(Number(selectedAccountCode.value))) {
-    eposCandidates.value = [];
-    return;
-  }
+    // 仕訳一覧を取得
+    await loadTargets();
 
-  loadingCandidates.value = true;
-  errorMessage.value = "";
+    // エポスカードの場合だけ照合候補を取得
+    if (
+      reconciliationMode.value === "csv" &&
+      [201, 202].includes(Number(selectedAccountCode.value))
+    ) {
+      await loadEposCandidates();
+    }
+  });
 
-  try {
-    const data = await fetchGas({
-      list: "eposCandidates",
-      accountCode: selectedAccountCode.value
-    });
 
-    if (!Array.isArray(data)) {
-      throw new Error("照合候補のデータ形式が正しくありません。");
+  onMounted(async () => {
+    await loadAccounts();
+  });
+
+  const uploadingCsv = ref(false);
+  const csvRows = ref([]);
+  const csvPreview = ref([]);
+  const csvEncoding = ref("");
+
+  function parseCsvText(text) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let quoted = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+
+      if (quoted) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            field += '"';
+            i++;
+          } else {
+            quoted = false;
+          }
+        } else {
+          field += ch;
+        }
+      } else if (ch === '"' && field === "") {
+        quoted = true;
+      } else if (ch === ",") {
+        row.push(field);
+        field = "";
+      } else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(field);
+        if (row.some(v => v.trim() !== "")) rows.push(row);
+        row = [];
+        field = "";
+      } else {
+        field += ch;
+      }
     }
 
-    eposCandidates.value = data;
-  } catch (error) {
-    errorMessage.value =
-      `照合候補の取得に失敗しました：${error.message}`;
-    eposCandidates.value = [];
-  } finally {
-    loadingCandidates.value = false;
-  }
-}
+    if (field !== "" || row.length > 0) {
+      row.push(field);
+      if (row.some(v => v.trim() !== "")) rows.push(row);
+    }
 
-const filteredEposCandidates = computed(() => {
-  if (candidateFilter.value === "すべて") {
-    return eposCandidates.value;
+    return rows;
   }
 
-  return eposCandidates.value.filter(
-    item => item.status === candidateFilter.value
-  );
-});
+  function decodeCsv(buffer) {
+    const bytes = new Uint8Array(buffer);
 
-function candidateCount(status) {
-  return eposCandidates.value.filter(
-    item => item.status === status
-  ).length;
-}
+    // UTF-8 BOMがあればUTF-8として読む
+    if (
+      bytes.length >= 3 &&
+      bytes[0] === 0xEF &&
+      bytes[1] === 0xBB &&
+      bytes[2] === 0xBF
+    ) {
+      return {
+        text: new TextDecoder("utf-8").decode(bytes),
+        encoding: "UTF-8"
+      };
+    }
 
-/**
- * 照合候補を選択し、確定前の確認画面を表示する。
- */
-async function selectEposCandidate(statement, candidate) {
-  if (!statement || !candidate) {
-    errorMessage.value = "照合対象を選択してください。";
-    return;
+    // まずUTF-8として厳密に判定
+    try {
+      return {
+        text: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+        encoding: "UTF-8"
+      };
+    } catch {
+      return {
+        text: new TextDecoder("shift_jis").decode(bytes),
+        encoding: "Shift_JIS"
+      };
+    }
   }
 
-  if (![201, 202].includes(Number(statement.accountCode))) {
-    errorMessage.value = "対象のカードを確認してください。";
-    return;
+  function parseEposAmount(value) {
+    const normalized = String(value ?? "")
+      .replace(/[,，￥¥\s]/g, "")
+      .trim();
+
+    if (!normalized) return null;
+
+    const amount = Number(normalized);
+    return Number.isFinite(amount) ? amount : null;
   }
 
-  if (Number(candidate.rowNo) < 2 || !candidate.id) {
-    errorMessage.value = "家計簿の取引情報が正しくありません。";
-    return;
-  }
-
-  if (
-    statement.status === "一致候補" ||
-    statement.status === "要確認"
-  ) {
-    selectedCandidate.value = { statement, candidate };
+  function onCsvSelected(event) {
+    selectedFile.value = event.target.files?.[0] || null;
+    csvRows.value = [];
+    csvPreview.value = [];
+    csvEncoding.value = "";
     errorMessage.value = "";
     successMessage.value = "";
 
-    // 確認エリアが表示されたあとにスクロール
-    await nextTick();
-
-    confirmSection.value?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }
-}
-
-/**
- * 確認画面を閉じる。
- */
-function cancelEposReconciliation() {
-  selectedCandidate.value = null;
-}
-/**
- * 照合確定リクエストをGASへ送信する。
- */
-async function confirmEposReconciliation() {
-  if (!selectedCandidate.value) {
-    errorMessage.value = "照合する取引が選択されていません。";
-    return;
+    if (selectedFile.value) {
+      successMessage.value = "CSVを選択しました。内容を確認して取り込んでください。";
+    }
   }
 
-  const { statement, candidate } = selectedCandidate.value;
-
-  if (![201, 202].includes(Number(statement.accountCode))) {
-    errorMessage.value = "カードの科目CDが不正です。";
-    return;
+  function normalizeHeader(value) {
+    return String(value ?? "")
+      .replace(/^\uFEFF/, "")
+      .replace(/\s/g, "")
+      .trim();
   }
 
-  confirmingReconciliation.value = true;
-  errorMessage.value = "";
-  successMessage.value = "";
+  async function prepareEposCsv() {
+    if (!selectedFile.value) {
+      throw new Error("CSVファイルを選択してください。");
+    }
 
-  try {
-    const payload = {
-      accountCode: Number(statement.accountCode),
-      statementId: String(statement.statementId),
-      ledgerId: String(candidate.id)
+    const buffer = await selectedFile.value.arrayBuffer();
+    const decoded = decodeCsv(buffer);
+    const rows = parseCsvText(decoded.text);
+
+    if (rows.length < 2) {
+      throw new Error("CSVに明細がありません。");
+    }
+
+    const headers = rows[0].map(normalizeHeader);
+
+    const findColumn = name =>
+      headers.findIndex(h => h.includes(name));
+
+    const indexes = {
+      type: findColumn("種別"),
+      date: findColumn("ご利用年月日"),
+      place: findColumn("ご利用場所"),
+      content: findColumn("ご利用内容"),
+      amount: findColumn("ご利用金額"),
+      paymentAmount: findColumn("お支払金額"),
+      paymentType: findColumn("支払区分")
     };
 
-    const body = new URLSearchParams({
-      mode: "confirmEposReconciliation",
-      payload: JSON.stringify(payload)
-    });
+    for (const [name, index] of Object.entries(indexes)) {
+      if (index < 0) {
+        throw new Error(`CSVに必要な列がありません：${name}`);
+      }
+    }
 
-    const response = await fetch(GAS_URL, {
-      method: "POST",
-      body
-    });
+    const parsed = [];
 
-    const responseText = await response.text();
+    for (const row of rows.slice(1)) {
+      const date = String(row[indexes.date] ?? "").trim();
+      const type = String(row[indexes.type] ?? "").trim();
 
-    let result;
+      // 合計行など、利用日がない行は除外
+      if (!date || !/^\d{4}年\d{1,2}月\d{1,2}日$/.test(date)) {
+        continue;
+      }
+
+      const amount = parseEposAmount(row[indexes.amount]);
+      const paymentAmount = parseEposAmount(row[indexes.paymentAmount]);
+
+      if (amount === null || paymentAmount === null) {
+        throw new Error(`金額を読み取れません：${date} ${row[indexes.place] ?? ""}`);
+      }
+
+      parsed.push({
+        type,
+        date,
+        place: String(row[indexes.place] ?? "").trim(),
+        content: String(row[indexes.content] ?? "").trim(),
+        amount,
+        paymentAmount,
+        paymentType: String(row[indexes.paymentType] ?? "").trim()
+      });
+    }
+
+    if (parsed.length === 0) {
+      throw new Error("取り込める利用明細がありません。CSVの形式を確認してください。");
+    }
+
+    csvRows.value = parsed;
+    csvPreview.value = parsed.slice(0, 5);
+    csvEncoding.value = decoded.encoding;
+
+    return parsed;
+  }
+
+
+  async function importCsv() {
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    if (![201, 202].includes(Number(selectedAccountCode.value))) {
+      errorMessage.value = "雅エポスカードまたは和くんエポスカードを選択してください。";
+      return;
+    }
+
+    uploadingCsv.value = true;
 
     try {
-      result = JSON.parse(responseText);
-    } catch {
-      throw new Error(
-        "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
-      );
+      const rows = await prepareEposCsv();
+      await loadEposCandidates();
+
+      const payload = {
+        accountCode: Number(selectedAccountCode.value),
+        fileName: selectedFile.value.name,
+        rows
+      };
+
+      const body = new URLSearchParams({
+        mode: "importEposCsv",
+        payload: JSON.stringify(payload)
+      });
+
+      const response = await fetch(GAS_URL, {
+        method: "POST",
+        body
+      });
+
+      const responseText = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "GASからJSON以外の応答が返りました。doPostの処理とデプロイを確認してください。"
+        );
+      }
+
+      if (!response.ok || result.error || result.success !== true) {
+        throw new Error(result.message || result.error || `HTTP ${response.status}`);
+        
+      }
+
+      successMessage.value = result.message || "CSVを取り込みました。";
+
+      await loadTargets();
+      await loadEposCandidates();
+
+      selectedFile.value = null;
+      csvRows.value = [];
+      csvPreview.value = [];
+
+      if (csvInput.value) {
+        csvInput.value.value = "";
+      }
+    } catch (error) {
+      errorMessage.value = `CSV取り込みに失敗しました：${error.message}`;
+    } finally {
+      uploadingCsv.value = false;
+    }
+  }
+
+  async function loadEposCandidates() {
+    if (![201, 202].includes(Number(selectedAccountCode.value))) {
+      eposCandidates.value = [];
+      return;
     }
 
-    if (!response.ok || result.success !== true) {
-      throw new Error(
-        result.message || result.error || `HTTP ${response.status}`
-      );
+    loadingCandidates.value = true;
+    errorMessage.value = "";
+
+    try {
+      const data = await fetchGas({
+        list: "eposCandidates",
+        accountCode: selectedAccountCode.value
+      });
+
+      if (!Array.isArray(data)) {
+        throw new Error("照合候補のデータ形式が正しくありません。");
+      }
+
+      eposCandidates.value = data;
+    } catch (error) {
+      errorMessage.value =
+        `照合候補の取得に失敗しました：${error.message}`;
+      eposCandidates.value = [];
+    } finally {
+      loadingCandidates.value = false;
+    }
+  }
+
+  const filteredEposCandidates = computed(() => {
+    if (candidateFilter.value === "すべて") {
+      return eposCandidates.value;
     }
 
+    return eposCandidates.value.filter(
+      item => item.status === candidateFilter.value
+    );
+  });
+
+  function candidateCount(status) {
+    return eposCandidates.value.filter(
+      item => item.status === status
+    ).length;
+  }
+
+  /**
+   * 照合候補を選択し、確定前の確認画面を表示する。
+   */
+  async function selectEposCandidate(statement, candidate) {
+    if (!statement || !candidate) {
+      errorMessage.value = "照合対象を選択してください。";
+      return;
+    }
+
+    if (![201, 202].includes(Number(statement.accountCode))) {
+      errorMessage.value = "対象のカードを確認してください。";
+      return;
+    }
+
+    if (Number(candidate.rowNo) < 2 || !candidate.id) {
+      errorMessage.value = "家計簿の取引情報が正しくありません。";
+      return;
+    }
+
+    if (
+      statement.status === "一致候補" ||
+      statement.status === "要確認"
+    ) {
+      selectedCandidate.value = { statement, candidate };
+      errorMessage.value = "";
+      successMessage.value = "";
+
+      // 確認エリアが表示されたあとにスクロール
+      await nextTick();
+
+      confirmSection.value?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  } 
+
+  /**
+   * 確認画面を閉じる。
+   */
+  function cancelEposReconciliation() {
     selectedCandidate.value = null;
-
-    successMessage.value = result.message || "照合を確定しました。";
-
-    // 最新の状態を取得する
-    await loadTargets();
-    await loadEposCandidates();
-
-  } catch (error) {
-    errorMessage.value = `照合の確定に失敗しました：${error.message}`;
-  } finally {
-    confirmingReconciliation.value = false;
   }
-}
-async function cancelConfirmedReconciliation(item) {
-  if (cancellingReconciliation.value) return;
+  /**
+   * 照合確定リクエストをGASへ送信する。
+   */
+  async function confirmEposReconciliation() {
+    if (!selectedCandidate.value) {
+      errorMessage.value = "照合する取引が選択されていません。";
+      return;
+    }
 
-  if (!item?.id || ![201, 202].includes(Number(selectedAccountCode.value))) {
-    errorMessage.value = "解除対象の情報が正しくありません。";
-    return;
-  }
+    const { statement, candidate } = selectedCandidate.value;
 
-  const confirmed = window.confirm(
-    `この取引の照合を解除しますか？\n\n` +
-    `日付：${item.date}\n` +
-    `店：${item.shop || "店名なし"}\n` +
-    `金額：${formatAmount(item.amount)}\n\n` +
-    `解除後は、再度照合が必要になります。`
-  );
+    if (![201, 202].includes(Number(statement.accountCode))) {
+      errorMessage.value = "カードの科目CDが不正です。";
+      return;
+    }
 
-  if (!confirmed) return;
-
-  cancellingReconciliation.value = true;
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  try {
-    // GAS側で家計簿IDに対応するCSV明細を特定する
-    const payload = {
-      accountCode: Number(selectedAccountCode.value),
-      ledgerId: String(item.id)
-    };
-
-    const body = new URLSearchParams({
-      mode: "cancelEposReconciliation",
-      payload: JSON.stringify(payload)
-    });
-
-    const response = await fetch(GAS_URL, {
-      method: "POST",
-      body
-    });
-
-    const responseText = await response.text();
-    let result;
+    confirmingReconciliation.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
 
     try {
-      result = JSON.parse(responseText);
-    } catch {
-      throw new Error("GASから正しいJSON応答が返りませんでした。");
+      const payload = {
+        accountCode: Number(statement.accountCode),
+        statementId: String(statement.statementId),
+        ledgerId: String(candidate.id)
+      };
+
+      const body = new URLSearchParams({
+        mode: "confirmEposReconciliation",
+        payload: JSON.stringify(payload)
+      });
+
+      const response = await fetch(GAS_URL, {
+        method: "POST",
+        body
+      });
+
+      const responseText = await response.text();
+
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
+        );
+      }
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(
+          result.message || result.error || `HTTP ${response.status}`
+        );
+      }
+
+      selectedCandidate.value = null;
+
+      successMessage.value = result.message || "照合を確定しました。";
+
+      // 最新の状態を取得する
+      await loadTargets();
+      await loadEposCandidates();
+
+    } catch (error) {
+      errorMessage.value = `照合の確定に失敗しました：${error.message}`;
+    } finally {
+      confirmingReconciliation.value = false;
+    }
+  }
+  async function cancelConfirmedReconciliation(item) {
+    if (cancellingReconciliation.value) return;
+
+    if (!item?.id || ![201, 202].includes(Number(selectedAccountCode.value))) {
+      errorMessage.value = "解除対象の情報が正しくありません。";
+      return;
     }
 
-    if (!response.ok || result.success !== true) {
-      throw new Error(
-        result.message || result.error || `HTTP ${response.status}`
-      );
-    }
+    const confirmed = window.confirm(
+      `この取引の照合を解除しますか？\n\n` +
+      `日付：${item.date}\n` +
+      `店：${item.shop || "店名なし"}\n` +
+      `金額：${formatAmount(item.amount)}\n\n` +
+      `解除後は、再度照合が必要になります。`
+    );
 
-    successMessage.value = result.message || "照合を解除しました。";
+    if (!confirmed) return;
 
-    await loadTargets();
-    await loadEposCandidates();
-
-  } catch (error) {
-    errorMessage.value = `照合解除に失敗しました：${error.message}`;
-  } finally {
-    cancellingReconciliation.value = false;
-  }
-}
-
-function onManualCheckChange(event, item) {
-  if (confirmingManualReconciliation.value) return;
-
-  const id = String(item.id);
-  const checked = event.target.checked;
-  const currentChecked = item.status === "照合済み";
-
-  const next = { ...pendingManualChecks.value };
-
-  // 元の状態に戻したら、未登録の変更を取り消す
-  if (checked === currentChecked) {
-    delete next[id];
-  } else {
-    next[id] = checked;
-  }
-
-  pendingManualChecks.value = next;
-}
-
-async function confirmManualReconciliation(item) {
-  if (confirmingManualReconciliation.value) return;
-
-  const id = String(item.id);
-  const checked = pendingManualChecks.value[id];
-
-  // 未変更の仕訳は送信しない
-  if (checked === undefined) return;
-
-  if (item.pairError) {
-    errorMessage.value = item.pairError;
-    return;
-  }
-
-  confirmingManualReconciliation.value = true;
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  try {
-    const payload = {
-      id,
-      checked
-    };
-
-    const body = new URLSearchParams({
-      mode: "confirmManualReconciliation",
-      payload: JSON.stringify(payload)
-    });
-
-    const response = await fetch(GAS_URL, {
-      method: "POST",
-      body
-    });
-
-    const responseText = await response.text();
-
-    let result;
+    cancellingReconciliation.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
 
     try {
-      result = JSON.parse(responseText);
-    } catch {
-      throw new Error(
-        "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
-      );
+      // GAS側で家計簿IDに対応するCSV明細を特定する
+      const payload = {
+        accountCode: Number(selectedAccountCode.value),
+        ledgerId: String(item.id)
+      };
+
+      const body = new URLSearchParams({
+        mode: "cancelEposReconciliation",
+        payload: JSON.stringify(payload)
+      });
+
+      const response = await fetch(GAS_URL, {
+        method: "POST",
+        body
+      });
+
+      const responseText = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error("GASから正しいJSON応答が返りませんでした。");
+      }
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(
+          result.message || result.error || `HTTP ${response.status}`
+        );
+      }
+
+      successMessage.value = result.message || "照合を解除しました。";
+
+      await loadTargets();
+      await loadEposCandidates();
+
+    } catch (error) {
+      errorMessage.value = `照合解除に失敗しました：${error.message}`;
+    } finally {
+      cancellingReconciliation.value = false;
     }
+  }
 
-    if (!response.ok || result.success !== true) {
-      throw new Error(
-        result.message || result.error || `HTTP ${response.status}`
-      );
-    }
+  function onManualCheckChange(event, item) {
+    if (confirmingManualReconciliation.value) return;
 
-    // 最新状態を取得
-    await loadTargets();
+    const id = String(item.id);
+    const checked = event.target.checked;
+    const currentChecked = item.status === "照合済み";
 
-    // 成功した仕訳の未登録変更をクリア
     const next = { ...pendingManualChecks.value };
-    delete next[id];
+
+    // 元の状態に戻したら、未登録の変更を取り消す
+    if (checked === currentChecked) {
+      delete next[id];
+    } else {
+      next[id] = checked;
+    }
+
     pendingManualChecks.value = next;
-
-    successMessage.value =
-      result.message ||
-      (checked ? "一致確認を登録しました。" : "照合を解除しました。");
-
-  } catch (error) {
-    errorMessage.value =
-      `照合の更新に失敗しました：${error.message}`;
-  } finally {
-    confirmingManualReconciliation.value = false;
   }
-}
+
+  async function confirmManualReconciliation(item) {
+    if (confirmingManualReconciliation.value) return;
+
+    const id = String(item.id);
+    const checked = pendingManualChecks.value[id];
+
+    // 未変更の仕訳は送信しない
+    if (checked === undefined) return;
+
+    if (item.pairError) {
+      errorMessage.value = item.pairError;
+      return;
+    }
+
+    confirmingManualReconciliation.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    try {
+      const payload = {
+        id,
+        checked
+      };
+
+      const body = new URLSearchParams({
+        mode: "confirmManualReconciliation",
+        payload: JSON.stringify(payload)
+      });
+
+      const response = await fetch(GAS_URL, {
+        method: "POST",
+        body
+      });
+
+      const responseText = await response.text();
+
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "GASからJSON以外の応答が返りました。デプロイ先とdoPostを確認してください。"
+        );
+      }
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(
+          result.message || result.error || `HTTP ${response.status}`
+        );
+      }
+
+      // 最新状態を取得
+      await loadTargets();
+
+      // 成功した仕訳の未登録変更をクリア
+      const next = { ...pendingManualChecks.value };
+      delete next[id];
+      pendingManualChecks.value = next;
+
+      successMessage.value =
+        result.message ||
+        (checked ? "一致確認を登録しました。" : "照合を解除しました。");
+
+    } catch (error) {
+      errorMessage.value =
+        `照合の更新に失敗しました：${error.message}`;
+    } finally {
+      confirmingManualReconciliation.value = false;
+    }
+  }
+
+  // 手照合専用の絞り込み状態
+  const manualStatusFilter = ref("すべて");
+
+  // 手照合用の表示データ
+  const filteredManualTargets = computed(() => {
+    const targets = filteredTargets.value;
+
+    switch (manualStatusFilter.value) {
+      case "未照合":
+        return targets.filter(
+          item => item.status === "未照合"
+        );
+
+      case "照合済":
+        return targets.filter(
+          item => item.status === "照合済み"
+        );
+
+      case "重複登録":
+        return targets.filter(
+          item =>
+            item.status === "重複登録" ||
+            item.isDuplicate === true ||
+            item.duplicate === true
+        );
+
+      default:
+        return targets;
+    }
+  });
+
+  // タブに表示する件数
+  const manualFilterCounts = computed(() => {
+    const targets = filteredTargets.value;
+
+    return {
+      all: targets.length,
+
+      unmatched: targets.filter(
+        item => item.status === "未照合"
+      ).length,
+
+      matched: targets.filter(
+        item => item.status === "照合済み"
+      ).length,
+
+      duplicates: targets.filter(
+        item =>
+          item.status === "重複登録" ||
+          item.isDuplicate === true ||
+          item.duplicate === true
+      ).length,
+    };
+  });
 </script>
 
 <style scoped>
