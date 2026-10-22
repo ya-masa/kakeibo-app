@@ -420,12 +420,10 @@
         </div>
       </div>
       <!-- 手照合の絞り込みタブ -->
-      <div class="manual-filter-tabs" role="tablist" aria-label="手照合の絞り込み">
+      <div class="manual-filter-tabs">
         <button
           type="button"
-          role="tab"
-          :aria-selected="manualStatusFilter === 'すべて'"
-          :class="{ 'manual-tab-active': manualStatusFilter === 'すべて' }"
+          :class="{ 'filter-selected': manualStatusFilter === 'すべて' }"
           @click="manualStatusFilter = 'すべて'"
         >
           すべて
@@ -434,9 +432,7 @@
 
         <button
           type="button"
-          role="tab"
-          :aria-selected="manualStatusFilter === '未照合'"
-          :class="{ 'manual-tab-active': manualStatusFilter === '未照合' }"
+          :class="{ 'filter-selected': manualStatusFilter === '未照合' }"
           @click="manualStatusFilter = '未照合'"
         >
           未照合
@@ -445,9 +441,7 @@
 
         <button
           type="button"
-          role="tab"
-          :aria-selected="manualStatusFilter === '照合済'"
-          :class="{ 'manual-tab-active': manualStatusFilter === '照合済' }"
+          :class="{ 'filter-selected': manualStatusFilter === '照合済' }"
           @click="manualStatusFilter = '照合済'"
         >
           照合済
@@ -456,9 +450,7 @@
 
         <button
           type="button"
-          role="tab"
-          :aria-selected="manualStatusFilter === '重複登録'"
-          :class="{ 'manual-tab-active': manualStatusFilter === '重複登録' }"
+          :class="{ 'filter-selected': manualStatusFilter === '重複登録' }"
           @click="manualStatusFilter = '重複登録'"
         >
           重複登録
@@ -474,8 +466,8 @@
         データを読み込んでいます……
       </p>
 
-      <p v-else-if="filteredTargets.length === 0" class="empty-state">
-        確認する仕訳がありません。
+      <p v-else-if="filteredManualTargets.length === 0" class="empty-state">
+        このタブに表示する仕訳がありません。
       </p>
 
       <div v-else class="manual-card-list">
@@ -602,7 +594,7 @@
 
           <tbody>
             <tr
-              v-for="item in filteredManualTargets"
+              v-for="item in filteredTargets"
               :key="`${item.id}-${item.rowNo}`"
               :class="ledgerRowClass(item.status)"
             >
@@ -1566,58 +1558,172 @@
     }
   }
 
+
   // 手照合専用の絞り込み状態
   const manualStatusFilter = ref("すべて");
 
+  // 科目CDを文字列に統一
+  function normalizeSubjectCode(item) {
+    return String(item.accountCode ?? "").trim();
+  }
+
+  // 日付を比較用に統一
+  function normalizeManualDate(value) {
+    if (!value) return "";
+
+    const text = String(value).trim();
+
+    // yyyy/MM/dd、yyyy-MM-dd、yyyy年M月d日などに対応
+    const match = text.match(
+      /^(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})日?$/
+    );
+
+    if (match) {
+      return [
+        match[1],
+        String(match[2]).padStart(2, "0"),
+        String(match[3]).padStart(2, "0")
+      ].join("-");
+    }
+
+    return text;
+  }
+
+  // 費目を比較するためのキー
+  function manualExpenseKey(item) {
+    return [
+      String(item.large ?? "").trim(),
+      String(item.small ?? "").trim()
+    ].join("|");
+  }
+
+  // 金額を比較するためのキー
+  function manualAmountKey(item) {
+    const amount = Number(item.amount);
+
+    return Number.isFinite(amount) ? amount : null;
+  }
+
+  // 手照合の対象データ。
+  // 科目CD499・599は手照合の一覧から除外する。
+  const manualEligibleTargets = computed(() => {
+    return targets.value.filter(item => {
+      const code = normalizeSubjectCode(item);
+
+      return code !== "499" && code !== "599";
+    });
+  });
+
+  // 重複登録の候補を検出する
+  const manualDuplicateIds = computed(() => {
+    const items = manualEligibleTargets.value;
+    const duplicateIds = new Set();
+
+    // 日付・金額・費目が同じ仕訳をまとめる
+    const exactGroups = new Map();
+
+    // 日付・口座・費目が同じ仕訳をまとめる
+    const accountExpenseGroups = new Map();
+
+    for (const item of items) {
+      const date = normalizeManualDate(item.date);
+      const amount = manualAmountKey(item);
+      const expense = manualExpenseKey(item);
+      const account = normalizeSubjectCode(item);
+
+      // 日付・金額・費目が一致する候補
+      if (date && amount !== null) {
+        const exactKey = [
+          date,
+          amount,
+          expense
+        ].join("||");
+
+        if (!exactGroups.has(exactKey)) {
+          exactGroups.set(exactKey, []);
+        }
+
+        exactGroups.get(exactKey).push(item);
+      }
+
+      // 同じ日付・口座・費目で金額を比較する候補
+      if (date && account) {
+        const accountExpenseKey = [
+          date,
+          account,
+          expense
+        ].join("||");
+
+        if (!accountExpenseGroups.has(accountExpenseKey)) {
+          accountExpenseGroups.set(accountExpenseKey, []);
+        }
+
+        accountExpenseGroups.get(accountExpenseKey).push(item);
+      }
+    }
+
+    // 条件A：同じ日付・金額・費目が複数ある
+    for (const group of exactGroups.values()) {
+      if (group.length > 1) {
+        group.forEach(item => duplicateIds.add(String(item.id)));
+      }
+    }
+
+    // 条件B：同じ日付・口座・費目で金額が異なる
+    for (const group of accountExpenseGroups.values()) {
+      const amounts = new Set(
+        group
+          .map(manualAmountKey)
+          .filter(amount => amount !== null)
+      );
+
+      if (group.length > 1 && amounts.size > 1) {
+        group.forEach(item => duplicateIds.add(String(item.id)));
+      }
+    }
+
+    return duplicateIds;
+  });
+
   // 手照合用の表示データ
   const filteredManualTargets = computed(() => {
-    const targets = filteredTargets.value;
+    const items = manualEligibleTargets.value;
 
     switch (manualStatusFilter.value) {
       case "未照合":
-        return targets.filter(
-          item => item.status === "未照合"
-        );
+        return items.filter(item => item.status === "未照合");
 
       case "照合済":
-        return targets.filter(
-          item => item.status === "照合済み"
-        );
+        return items.filter(item => item.status === "照合済み");
 
       case "重複登録":
-        return targets.filter(
-          item =>
-            item.status === "重複登録" ||
-            item.isDuplicate === true ||
-            item.duplicate === true
+        return items.filter(
+          item => manualDuplicateIds.value.has(String(item.id))
         );
 
       default:
-        return targets;
+        return items;
     }
   });
 
   // タブに表示する件数
   const manualFilterCounts = computed(() => {
-    const targets = filteredTargets.value;
+    const items = manualEligibleTargets.value;
 
     return {
-      all: targets.length,
+      all: items.length,
 
-      unmatched: targets.filter(
+      unmatched: items.filter(
         item => item.status === "未照合"
       ).length,
 
-      matched: targets.filter(
+      matched: items.filter(
         item => item.status === "照合済み"
       ).length,
 
-      duplicates: targets.filter(
-        item =>
-          item.status === "重複登録" ||
-          item.isDuplicate === true ||
-          item.duplicate === true
-      ).length,
+      duplicates: items.filter(
+        item => manualDuplicateIds.value.has(String(item.id))
+      ).length
     };
   });
 </script>
@@ -2081,37 +2187,25 @@ td small {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin: 20px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
+    margin: 16px 0;
   }
 
   .manual-filter-tabs button {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 8px 14px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     background: #fff;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease;
   }
 
-  .manual-filter-tabs button:hover {
-    background: #f3f4f6;
-  }
-
-  .manual-filter-tabs button.manual-tab-active {
-    background: #2563eb;
+  .manual-filter-tabs button.filter-selected {
     border-color: #2563eb;
-    color: #fff;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 600;
   }
 
   .manual-filter-tabs button span {
@@ -2121,15 +2215,9 @@ td small {
     min-width: 22px;
     height: 22px;
     padding: 0 5px;
-    border-radius: 11px;
+    border-radius: 999px;
     background: #e5e7eb;
-    color: #374151;
     font-size: 12px;
-  }
-
-  .manual-filter-tabs button.manual-tab-active span {
-    background: #fff;
-    color: #2563eb;
   }
 
 /* 画面幅に応じて件数カードを調整 */
