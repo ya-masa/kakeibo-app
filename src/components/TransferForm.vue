@@ -185,56 +185,66 @@ const submitForm = async () => {
 }
 </script>
 
-<style>
-
-form{
-  width:90%;
+<style scoped>
+form {
+  width: 100%;
+  max-width: 560px;
+  margin: 16px auto;
 }
 
 .row {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
-/*ラジオボタンの設定 */
-/* デフォルトのラジオボタンを消す */
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ラジオボタン */
 input[type="radio"] {
   appearance: none;
   -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 20px;   /* 好きなサイズに変更 */
-  height: 20px;  /* 好きなサイズに変更 */
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  margin: 0;
   border: 2px solid var(--dark-brown);
   border-radius: 50%;
-  display: inline-block;
-  position: relative;
+  display: inline-grid;
+  place-content: center;
   cursor: pointer;
 }
 
-/* チェックされたときの中の丸 */
-input[type="radio"]:checked::before {
+input[type="radio"]::before {
   content: "";
-  width: 12px;   /* 内側の丸のサイズ */
-  height: 12px;
-  background: var(--dark-brown);
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-.radio-group {
-  display: flex;
-  gap: 16px;
-  align-items: center;
+  background: var(--dark-brown);
+  transform: scale(0);
+  transition: transform 120ms ease-in-out;
 }
 
-@media (max-width: 375px) {
+input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 3px;
+}
+
+@media (max-width: 400px) {
   .row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
   }
 }
 </style>

@@ -1,338 +1,429 @@
-/* ============================
-   色（あなたのアプリ専用パレット）
-   ============================ */
+/* =========================================================
+   家計簿アプリ 共通スタイル
+   色・余白・共通部品の基準をここに集約します。
+   各 Vue コンポーネントには画面固有のレイアウトだけを残してください。
+   ========================================================= */
+
+/* ---------- デザイントークン ---------- */
 :root {
-  /* ベースカラー */
-  --rightist:#f9f1e7;
-  --beige-light: #f5e8d8;
-  --beige: #C8A27E;
-  --coffee: #6b4f3f;
+  color-scheme: light;
 
-  /* アクセントカラー（赤） */
-  --red: #f47270;        /* ボタンなど */
-  --red-dark: #d85a58;   /* 押下時 */
-  --red-text: #8b2e2d;   /* 文字用の濃い赤 */
+  --color-background: #f9f1e7;
+  --color-surface: #f5e8d8;
+  --color-surface-strong: #efe1d2;
+  --color-beige: #c8a27e;
+  --color-coffee: #6b4f3f;
+  --color-brown-dark: #3a2f2a;
+  --color-text: #333333;
+  --color-muted: #8a7769;
+  --color-border: #c8a27e;
 
-  /* 読みやすい黒系 */
-  --black: #333333;      /* 柔らかい黒 */
-  --dark-brown: #3a2f2a; /* 読みやすい濃茶（おすすめ） */
+  --color-accent: #f47270;
+  --color-accent-hover: #d85a58;
+  --color-accent-text: #8b2e2d;
+
+  --color-white: #ffffff;
+  --color-success: #47765a;
+  --color-warning: #8b5a00;
+  --color-danger: #b7473a;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+
+  --content-width: 600px;
+  --footer-height: 70px;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP",
+    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  color: var(--color-coffee);
+  background: var(--color-background);
 }
 
+/* ---------- リセット・全体 ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-/* ============================
-   全体の基本設定
-   ============================ */
+html {
+  min-width: 0;
+  min-height: 100%;
+  background: var(--color-background);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--rightist);
-  color: var(--coffee);
-  font-family: sans-serif;
-  margin: 0 10px;
-  padding: 10px;
-  text-align: center;
-  
-  padding-bottom: 90px;
+  min-width: 0;
+  min-height: 100vh;
+  margin: 0;
+  padding: 10px 10px calc(var(--footer-height) + 30px + env(safe-area-inset-bottom));
+  background: var(--color-background);
+  color: var(--color-coffee);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
-/* ============================
-   カード（全画面で使う）
-   ============================ */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+#app,
+.app {
+  width: 100%;
+  min-width: 0;
+}
+
+h1,
+h2,
+h3,
+p {
+  overflow-wrap: anywhere;
+}
+
+h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-coffee);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+a {
+  color: var(--color-coffee);
+}
+
+/* ---------- 共通コンテナ ---------- */
 .card {
-  max-width:600px;
-  min-width: 370px;
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  border-radius: 8px;
-  padding: 12px 10px;
-  margin:0 auto 16px;
-  color: var(--coffee);
-  flex:0 0 auto;
+  width: 100%;
+  max-width: var(--content-width);
+  min-width: 0;
+  margin: 0 auto var(--space-4);
+  padding: var(--space-3);
+  flex: 0 1 auto;
+  background: var(--color-surface);
+  color: var(--color-coffee);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
-/* ============================
-   行（左右に並べる）
-   ============================ */
 .row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
   padding: 6px 0;
 }
 
+.row > * {
+  min-width: 0;
+}
+
 .row.sub {
-  padding-left: 12px;
-  opacity: 0.85;
+  padding-left: var(--space-3);
+  opacity: 0.88;
 }
 
-/* ============================
-   タイトル
-   ============================ */
-h2 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  color: var(--coffee);
-}
-
-
-/* ============================
-   ＋／－ の開閉ボタン
-   ============================ */
-.toggle-btn {
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  color: var(--coffee);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 18px;
-}
-
-/* ============================
-   テーブル（検索表示画面）
-   ============================ */
-.table {
-  max-width:600px;
-  border-collapse: collapse;
-  background: var(--rightist);
-  color: var(--dark-brown);
-  padding: 12px 16px;
-  margin:0 auto 16px;
-}
-
-.table th {
-  background: var(--rightist);
-  color: var(--coffee);
-  border-bottom: 1px solid var(--beige);
-  padding: 8px;
-}
-
-.table tr {
-  border-bottom: 1px solid var(--beige);
-}
-.table td {
-  padding: 0 0 6px 10px;
-}
-
-/* ============================
-   フォーム（入力欄）
-   ============================ */
-
+/* ---------- フォーム ---------- */
 .input-field,
 .select-field,
 .textarea-field {
+  display: block;
   width: 100%;
+  min-width: 0;
+  margin: 0 0 6px;
   padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-brown-dark);
   font-size: 16px;
-  border: 1px solid var(--coffee);
-  border-radius: 6px;
-  background: white;
-  color: var(--dark-brown);
-  box-sizing: border-box;
-  margin-bottom: 6px;
 }
 
-/* 数字は右寄せ */
 .input-number {
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
-/* フォーカス時（丁寧な強調） */
 .input-field:focus,
 .select-field:focus,
 .textarea-field:focus {
-  outline: none;
-  border-color: var(--red);
-  box-shadow: 0 0 0 2px rgba(244, 114, 112, 0.3);
+  outline: 2px solid rgb(244 114 112 / 35%);
+  outline-offset: 1px;
+  border-color: var(--color-accent);
 }
 
-/* ラベル */
 .form-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
+  color: var(--color-brown-dark);
   font-size: 14px;
-  color: var(--dark-brown);
+  font-weight: 600;
 }
 
-/* ============================
-   赤ボタン（アクセント）
-   ============================ */
+/* ---------- 共通ボタン ---------- */
+.btn,
+.btn-red,
+.toggle-btn {
+  min-height: 40px;
+  border: 1px solid var(--color-coffee);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn,
 .btn-red {
-  background: var(--red);
-  color: white;
-  border: 1px solid var(--red-text);
-  padding: 10px 16px;
+  width: 100%;
   margin-bottom: 10px;
-  border-radius: 6px;
-  font-size: 16px;
-  width:100%;
+  padding: 10px 16px;
 }
 
-.btn-red:active {
-  background: var(--red-dark);
-}
-
-.btn-red:hover{
-  background: var(--red-dark);
-}
-
-/* ============================
- 通常ボタン（ベージュ）
-   ============================ */
 .btn {
-  background: var(--beige);
-  color: var(--coffee);
-  border: 1px solid var(--coffee);
-  padding: 10px 16px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  font-size: 16px;
-  width:100%;
+  background: var(--color-beige);
+  color: var(--color-brown-dark);
 }
-  btn:hover {
-    background: var(--coffee);
-    color: var(--rightist);
-    border-color: var(--beige);
-  }
 
+.btn:hover {
+  background: var(--color-coffee);
+  color: var(--color-background);
+}
 
-/* ============================
-   タブ（入力画面・検索画面など共通）
-   ============================ */
+.btn-red {
+  border-color: var(--color-accent-text);
+  background: var(--color-accent);
+  color: var(--color-white);
+}
 
+.btn-red:hover,
+.btn-red:active {
+  background: var(--color-accent-hover);
+}
+
+.toggle-btn {
+  padding: 4px 10px;
+  background: var(--color-surface);
+  color: var(--color-coffee);
+  font-size: 18px;
+}
+
+/* ---------- 共通タブ ---------- */
 .tabs {
   display: flex;
   gap: 6px;
+  min-width: 0;
 }
 
-.tab-btn , .tabs button{
-  flex: 1;
-  padding: 12px 0;
-  border-right: 1px solid var(--rightist);
-  border-left: 1px solid var(--rightist);
-  border-top: 1px solid var(--rightist);
-  border-bottom: 1px solid var(--coffee);
-  background: var(--rightist);
-  color: var(--coffee);
-  border-radius: 6px 6px 0 0;
-  cursor: pointer;
+.tab-btn,
+.tabs button {
+  min-width: 0;
+  flex: 1 1 0;
+  padding: 10px 6px;
+  border: 1px solid var(--color-border);
+  border-bottom-color: var(--color-coffee);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--color-background);
+  color: var(--color-coffee);
   font-size: 16px;
+  overflow-wrap: anywhere;
 }
 
-.tab-btn:hover ,.tabs button:hover{
-  background: var(--beige-light);
+.tab-btn:hover,
+.tabs button:hover {
+  background: var(--color-surface-strong);
 }
 
-.tabs button.active{
-  background: var(--beige-light);
-  color: var(--dark-brown);
-  border: 1px solid var(--coffee);
-  font-weight: bold;
-  text-decoration: underline;
+.tab-btn.active,
+.tabs button.active {
+  border-color: var(--color-coffee);
+  border-bottom: 3px solid var(--color-surface);
+  background: var(--color-surface);
+  color: var(--color-brown-dark);
+  font-weight: 700;
 }
 
-.tab-btn.active {
-  background: var(--beige-light);
-  color: var(--dark-brown);
-  border: 1px solid var(--coffee);
-  border-bottom: 3px solid var(--beige-light);
-  font-weight: bold;
-  text-decoration: underline;
-}
-/* ============================
-   フッター固定ナビ（下固定バー）
-   ============================ */
-
-.footer-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+/* ---------- 共通テーブル ---------- */
+.table {
   width: 100%;
-  height: 70px;
-  background: var(--beige);
-  border-top: 1px solid var(--coffee);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 1000;
+  max-width: var(--content-width);
+  margin: 0 auto var(--space-4);
+  border-collapse: collapse;
+  background: var(--color-background);
+  color: var(--color-brown-dark);
 }
 
-/* 各ボタン */
-.footer-nav .nav-item {
-  flex: 1;
-  text-align: center;
-  color: var(--coffee);
-  text-decoration: none;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.table th {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-coffee);
 }
 
-/* アイコン部分（絵文字 or SVG） */
-.footer-nav .nav-item .icon {
-  font-size: 22px;
-  margin-bottom: 4px;
+.table tr {
+  border-bottom: 1px solid var(--color-border);
 }
 
-/* 選択中のタブ */
-.footer-nav .nav-item.active {
-  color: var(--dark-brown);
-  font-weight: bold;
+.table td {
+  padding: 6px 8px;
 }
 
-/* コンテンツが隠れないように余白を確保 */
-.has-footer {
-  padding-bottom: 90px;
-}
+/* ---------- 月切り替え ---------- */
 .month-switch {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  max-width: 600px;
-  margin: 0 auto 20px;
-  padding: 8px 12px;
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  border-radius: 8px;
-}
-
-.month-switch {
-  display: flex;
-  align-items: center;
-  justify-content: center; /* ← ここを space-between から center に変更 */
-  position: relative;      /* ← 左右ボタンを絶対配置するために必要 */
-  max-width: 600px;
-  margin: 0 auto 20px;
-  padding: 8px 12px;
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  border-radius: 8px;
-}
-
-/* 左端の前月ボタン */
-.nav-btn.prev {
-  color: var(--dark-brown);
-  position: absolute;
-  left: 12px;
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  border-radius: 8px;
-  font-size: 12pt;
-}
-
-/* 右端の翌月ボタン */
-.nav-btn.next {
-  color: var(--dark-brown);
-  position: absolute;
-  right: 12px;
-  background: var(--beige-light);
-  border: 1px solid var(--coffee);
-  border-radius: 8px;
-  font-size: 12pt;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--content-width);
+  min-height: 44px;
+  margin: 0 auto var(--space-5);
+  padding: 8px 48px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
 }
 
 .month-label {
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--coffee);
-  text-align: center;
+  min-width: 0;
   flex: 1;
+  color: var(--color-coffee);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.nav-btn {
+  color: var(--color-brown-dark);
+}
+
+.nav-btn.prev,
+.nav-btn.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 14px;
+}
+
+.nav-btn.prev { left: 8px; }
+.nav-btn.next { right: 8px; }
+
+/* ---------- 固定フッターナビ ---------- */
+.footer-nav {
+  position: fixed;
+  z-index: 1000;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  min-height: var(--footer-height);
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-coffee);
+  background: var(--color-beige);
+}
+
+.footer-nav .nav-item {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--color-coffee);
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+
+.footer-nav .nav-item .icon {
+  margin-bottom: 2px;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.footer-nav .nav-item.active {
+  color: var(--color-brown-dark);
+  font-weight: 700;
+}
+
+.has-footer {
+  padding-bottom: calc(var(--footer-height) + 20px + env(safe-area-inset-bottom));
+}
+
+/* ---------- 小さい画面 ---------- */
+@media (max-width: 420px) {
+  body {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .tabs {
+    gap: 4px;
+  }
+
+  .tab-btn,
+  .tabs button {
+    padding: 9px 4px;
+    font-size: 14px;
+  }
+
+  .month-switch {
+    padding-right: 42px;
+    padding-left: 42px;
+  }
+
+  .month-label {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
