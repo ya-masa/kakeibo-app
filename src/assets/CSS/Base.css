@@ -5,59 +5,56 @@
    ========================================================= */
 
    /* ---------- デザイントークン ---------- */
-:root {
-  color-scheme: light;
+  :root {
+    color-scheme: light;
 
-  /* 背景・カード */
-  --color-background: #FAFAF7;
-  --color-surface: #FFFFFF;
-  --color-surface-strong: #F5F1E7;
-  --color-greige-light: #F0EDE5;
+    /* 背景・カード */
+    --color-background: #FAFAF7;
+    --color-surface: #FFFFFF;
+    --color-surface-strong: #F5F1E7;
+    --color-greige-light: #F0EDE5;
 
-  /* メインカラー：山吹色・マスタード */
-  --color-beige: #D6A43B;
-  --color-coffee: #514637;
-  --color-brown-dark: #39352E;
+    /* メインカラー：山吹色 */
+    --color-beige: #D6A43B;
+    --color-coffee: #514637;
+    --color-brown-dark: #39352E;
 
-  /* 文字・境界線 */
-  --color-text: #39352E;
-  --color-muted: #89847A;
-  --color-border: #E9E5DC;
+    /* 文字・境界線 */
+    --color-text: #39352E;
+    --color-muted: #89847A;
+    --color-border: #E9E5DC;
 
-  /* アクセント：注意・削除など */
-  --color-accent: #D97770;
-  --color-accent-hover: #C45F58;
-  --color-accent-text: #873E38;
+    /* 注意・削除などのアクセント */
+    --color-accent: #D97770;
+    --color-accent-hover: #C45F58;
+    --color-accent-text: #873E38;
 
-  /* 基本色 */
-  --color-white: #FFFFFF;
-  --color-success: #47765A;
-  --color-warning: #8B6500;
-  --color-danger: #B7473A;
+    /* 基本色 */
+    --color-white: #FFFFFF;
+    --color-success: #47765A;
+    --color-warning: #8B6500;
+    --color-danger: #B7473A;
 
-  /* 角丸 */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+    /* 以下は既存の値を維持 */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
 
-  /* 余白 */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
 
-  /* レイアウト */
-  --content-width: 600px;
-  --footer-height: 70px;
+    --content-width: 600px;
+    --footer-height: 70px;
 
-  /* フォント */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP",
-    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP",
+      "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
 
-  color: var(--color-coffee);
-  background: var(--color-background);
-}
+    color: var(--color-coffee);
+    background: var(--color-background);
+  }
 
 /* ---------- リセット・全体 ---------- */
 *,
