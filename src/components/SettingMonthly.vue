@@ -292,104 +292,216 @@ const update = async (item) => {
 
 <style scoped>
 .settings-wrapper {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  box-sizing: border-box;
+  color: var(--color-brown-dark, #4b382d);
 }
 
-
-.dirty {
-  background-color: #ffe5e5; /* 薄い赤 */
-  padding: 2px 4px;
-  border-radius: 4px;
+.card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--color-border, #e3d7cb);
+  border-radius: 14px;
+  background: var(--color-surface, #fffdf9);
+  box-shadow: 0 2px 8px rgb(75 56 45 / 5%);
 }
 
-/* 小項目行 */
 .item-area {
   display: flex;
   flex-direction: column;
-  width:90%;
+  width: 100%;
   gap: 10px;
 }
 
-.item-row ,.shop-row{
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  margin-bottom: 10px;
-  width:100%;
-}
-
-.item-list,.shop-area{
+.item-list {
   display: flex;
   flex-direction: column;
-  align-items: right;
   gap: 10px;
+  min-width: 0;
 }
 
-.shop-row input{
-  width: 80%;
-  margin-left:40px;
-}
-/* 削除ボタン */
-.delete {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: #ffdddd;
-}
-
-/* 追加ボタン */
-.add-btn {
-  margin-top: 10px;
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #e0f0ff;
+  min-height: 48px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border, #e3d7cb);
+  border-radius: 10px;
+  background: var(--color-background, #faf6f0);
 }
 
-.add-btn:disabled {
-  background: #ccc;
-}
-
-/*固定ヘッダー */
-.header-save {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  padding: 12px;
-  z-index: 100;
-  border-bottom: 1px solid #ddd;
-}
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: #66aaff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-.item-code {
-  width: 60px;
-  display: inline-block;
+.item-No {
+  flex: 0 0 32px;
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 13px;
   text-align: center;
-  color: #555;
+}
+
+.item-day {
+  flex: 0 0 auto;
+  min-width: 42px;
+  color: var(--color-coffee, #6b4f3f);
   font-size: 14px;
+  white-space: nowrap;
 }
-.item-input{
-  width: 80%;
-  display: inline-block;
-  text-align: left;
-  color: #555;
+
+.item-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.toggle-btn {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border, #d9c8b8);
+  border-radius: 50%;
+  background: var(--color-beige, #eee2d4);
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.form-label {
+  display: block;
+  margin: 14px 0 6px;
+  color: var(--color-brown-dark, #4b382d);
   font-size: 14px;
+  font-weight: 600;
 }
 
-.dirty {
-  color: red;
+.input-field,
+.select-field,
+.textarea-field {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border, #d9c8b8);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-brown-dark, #4b382d);
+  font: inherit;
 }
 
+.input-field:focus,
+.select-field:focus,
+.textarea-field:focus {
+  outline: 2px solid var(--color-beige, #d9c3ac);
+  outline-offset: 1px;
+  border-color: var(--color-coffee, #6b4f3f);
+}
 
+.input-number {
+  text-align: right;
+}
+
+.month-check {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 8px;
+  margin: 8px 0 18px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--color-background, #faf6f0);
+}
+
+.month-check label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.month-check input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--color-coffee, #6b4f3f);
+}
+
+.btn,
+.btn-red {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 11px 16px;
+  border: 1px solid var(--color-coffee, #6b4f3f);
+  border-radius: 9px;
+  background: var(--color-coffee, #6b4f3f);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-red {
+  background: var(--color-beige, #eee2d4);
+  color: var(--color-brown-dark, #4b382d);
+  border-color: var(--color-border, #d9c8b8);
+}
+
+.btn:active,
+.btn-red:active,
+.toggle-btn:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 480px) {
+  .settings-wrapper {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .item-row {
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .item-No {
+    flex-basis: 24px;
+  }
+
+  .item-day {
+    min-width: 36px;
+    font-size: 13px;
+  }
+
+  .item-name {
+    font-size: 14px;
+  }
+
+  .month-check {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 6px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 340px) {
+  .month-check {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 </style>
