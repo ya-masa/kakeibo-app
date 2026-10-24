@@ -173,6 +173,10 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+
+
+
+
 .input-field:focus,
 .select-field:focus,
 .textarea-field:focus {
@@ -426,4 +430,20 @@ a {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* 数値入力欄の上下ボタンを全画面で非表示 */
+
+/* Chrome・Edge・Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

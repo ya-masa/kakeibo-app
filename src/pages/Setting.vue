@@ -53,17 +53,33 @@ export default {
 
 <style scoped>
 .settings-page {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
   padding: 16px;
+  box-sizing: border-box;
 }
 
-.nav-btn {
+.settings-page h1 {
+  margin: 0 0 20px;
+  color: var(--color-brown-dark);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* 共通 .btn の配色・形状を利用し、設定メニュー内の間隔だけ調整 */
+.settings-page .btn {
   display: block;
-  margin: 12px 0;
-  padding: 12px;
-  width: 100%;
-  border-radius: 8px;
-  border: none;
-  background: #e0f0ff;
-  font-size: 16px;
+  min-height: 48px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 400px) {
+  .settings-page {
+    padding: 12px;
+  }
 }
 </style>
