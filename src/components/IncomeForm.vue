@@ -240,7 +240,7 @@ input[type="radio"] {
   height: 24px;
   flex: 0 0 24px;
   margin: 0;
-  border: 2px solid var(--color-text);
+  border: 1px solid var(--color-text);
   border-radius: 50%;
   background-color: white;
   display: inline-grid;
@@ -269,7 +269,7 @@ input[type="radio"]:focus-visible {
 }
 
 input[type="radio"]:checked {
-  border: 5px solid var(--color-border);
+  border: 5px solid var(--color-text);
   background: transparent;
 }
 

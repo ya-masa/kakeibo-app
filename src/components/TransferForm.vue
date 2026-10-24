@@ -216,7 +216,7 @@ input[type="radio"] {
   height: 24px;
   flex: 0 0 24px;
   margin: 0;
-  border: 2px solid var(--dark-brown);
+  border: 1px solid var(--color-text);
   border-radius: 50%;
   background-color: white;
   display: inline-grid;
@@ -241,7 +241,7 @@ input[type="radio"]:checked::before {
 
 input[type="radio"]:focus-visible {
   outline: 2px solid var(--color-text);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
 
 input[type="radio"]:checked {
@@ -251,7 +251,7 @@ input[type="radio"]:checked {
 
 input[type="radio"]:focus-visible {
   outline: 2px solid var(--color-text);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
 
 @media (max-width: 400px) {
