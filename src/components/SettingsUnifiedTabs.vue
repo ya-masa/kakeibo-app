@@ -252,97 +252,199 @@ try {
 
 <style scoped>
 .settings-wrapper {
-  padding: 16px;
+  width: 100%;
+  max-width: var(--content-width, 600px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 8px 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-/* タブUI */
+/* 固定保存エリア */
+.header-save {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 10px 12px 4px;
+  background: var(--color-background, #f9f1e7);
+  border-bottom: 1px solid var(--color-border, #c8a27e);
+}
+
+.header-save .btn {
+  width: 100%;
+  margin: 0;
+  min-height: 44px;
+  border: 1px solid var(--color-coffee, #6b4f3f);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-beige, #c8a27e);
+  color: var(--color-brown-dark, #3a2f2a);
+  font-weight: 600;
+}
+
+/* 資産・負債・収入・支出のタブ */
 .tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  margin-bottom: 16px;
+  margin: 0 0 4px;
 }
 
-/* 大項目ヘッダー */
+.tabs button {
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 4px;
+  border: 1px solid var(--color-border, #c8a27e);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface, #f5e8d8);
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tabs button.active {
+  background: var(--color-coffee, #6b4f3f);
+  color: var(--color-white, #fff);
+  border-color: var(--color-coffee, #6b4f3f);
+}
+
+/* 大項目カード */
+.card {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--color-border, #c8a27e);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface, #f5e8d8);
+  color: var(--color-coffee, #6b4f3f);
+  box-shadow: 0 1px 3px rgb(58 47 42 / 7%);
+}
+
 .card-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border, #c8a27e);
+}
+
+.card-header h3 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--color-brown-dark, #3a2f2a);
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .lock {
-  opacity: 0.6;
-}
-
-/* 小項目行 */
-.item-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.item-input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.item-input.disabled {
-  background: #f0f0f0;
-  color: #999;
-}
-
-/* 削除ボタン */
-.delete {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: #ffdddd;
-}
-
-/* 追加ボタン */
-.add-btn {
-  margin-top: 10px;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #e0f0ff;
-}
-
-.add-btn:disabled {
-  background: #ccc;
-}
-
-/*固定ヘッダー */
-.header-save {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  padding: 12px;
-  z-index: 100;
-  border-bottom: 1px solid #ddd;
-}
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: #66aaff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-.item-code {
-  width: 60px;
-  display: inline-block;
-  text-align: center;
-  color: #555;
+  flex: 0 0 auto;
+  opacity: 0.65;
   font-size: 14px;
 }
 
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+
+.item-row input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-coffee, #6b4f3f);
+}
+
+.item-code {
+  flex: 0 0 42px;
+  display: inline-block;
+  text-align: center;
+  color: var(--color-muted, #8a7769);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-input {
+  flex: 1 1 auto;
+  width: 0;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border, #c8a27e);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--color-white, #fff);
+  color: var(--color-brown-dark, #3a2f2a);
+  font-size: 16px;
+}
+
+.item-input:focus {
+  outline: 2px solid rgb(244 114 112 / 35%);
+  outline-offset: 1px;
+  border-color: var(--color-accent, #f47270);
+}
+
+.item-input.disabled {
+  background: var(--color-surface-strong, #efe1d2);
+  color: var(--color-muted, #8a7769);
+}
+
+/* 小項目追加ボタン */
+.card > .btn {
+  width: 100%;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--color-coffee, #6b4f3f);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-beige, #c8a27e);
+  color: var(--color-brown-dark, #3a2f2a);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card > .btn:disabled {
+  opacity: 0.5;
+}
+
+@media (max-width: 360px) {
+  .settings-wrapper {
+    gap: 12px;
+  }
+
+  .card {
+    padding: 11px;
+  }
+
+  .tabs {
+    gap: 4px;
+  }
+
+  .tabs button {
+    font-size: 13px;
+    padding-inline: 2px;
+  }
+
+  .item-row {
+    gap: 6px;
+  }
+
+  .item-code {
+    flex-basis: 36px;
+    font-size: 12px;
+  }
+}
 </style>
