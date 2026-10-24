@@ -8,7 +8,7 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目1(増えるもの)</label>
+      <label class="form-lavel">科目(増える)</label>
       <select v-model="localForm.kamoku1" class="select-field">
         <option 
           v-for="item in props.listKouza"
@@ -21,13 +21,13 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">金額1</label>
+      <label class="form-lavel">金額プラス</label>
       <input type="number" v-model="localForm.kingaku1" class="input-field input-number"
 />
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目2(減るもの)</label>
+      <label class="form-lavel">科目(減る)</label>
       <select v-model="localForm.kamoku2" class="select-field">
         <option 
           v-for="item in props.listKouza"
@@ -40,7 +40,7 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">金額2</label>
+      <label class="form-lavel">金額マイナス</label>
       <input type="number" v-model="localForm.kingaku2" class="input-field input-number"
  />
     </div>
@@ -88,7 +88,7 @@
       class="btn-red"
       v-if="props.mode === 'edit'"  
       type="button":disabled="isLoading"
-      @click="localForm?.value?.id && emit('delete', localForm.value.id)"
+      @click="emit('delete', localForm.value.id)"
     >
       削除
     </button>
@@ -183,6 +183,8 @@ const submitForm = async () => {
   } finally {
   }
 }
+
+
 </script>
 
 <style scoped>
