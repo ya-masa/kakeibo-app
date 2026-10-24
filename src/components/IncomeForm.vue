@@ -240,7 +240,7 @@ input[type="radio"] {
   height: 28px;
   flex: 0 0 28px;
   margin: 0;
-  border: 2px solid var(--dark-brown);
+  border: 2px solid var(--color-coffee);
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
@@ -248,12 +248,12 @@ input[type="radio"] {
 }
 
 input[type="radio"]:checked {
-  border: 5px solid var(--dark-brown);
+  border: 5px solid var(--color-coffee);
   background: transparent;
 }
 
 input[type="radio"]:focus-visible {
-  outline: 2px solid var(--beige);
+  outline: 2px solid var(--color-beige);
   outline-offset: 3px;
 }
 
