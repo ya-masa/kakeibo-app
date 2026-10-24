@@ -786,7 +786,7 @@ onMounted(async () => {
   padding: 20px;
   border: 1px solid var(--color-border, #e3d8cc);
   border-radius: 14px;
-  background: var(--color-greige-light, #eee2d4);
+  background: #F7F4EF;
   box-shadow: 0 2px 7px rgb(75 54 39 / 5%);
 }
 
@@ -818,6 +818,16 @@ onMounted(async () => {
   font: inherit;
   box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control[type="date"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding-right: 8px;
+  font-size: clamp(13px, 3.6vw, 16px);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-control:focus {
@@ -1049,6 +1059,12 @@ onMounted(async () => {
   .card {
     padding: 16px;
     border-radius: 12px;
+  }
+
+  .form-control[type="date"] {
+    padding-left: 9px;
+    padding-right: 5px;
+    font-size: 14px;
   }
 
   .list-header {
