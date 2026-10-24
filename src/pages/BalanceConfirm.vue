@@ -821,11 +821,14 @@ onMounted(async () => {
 }
 
 .form-control[type="date"] {
+  display: block;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  padding-right: 8px;
-  font-size: clamp(13px, 3.6vw, 16px);
+  box-sizing: border-box;
+  padding: 10px 4px;
+  font-size: 16px;
+  line-height: 1.3;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -1062,9 +1065,12 @@ onMounted(async () => {
   }
 
   .form-control[type="date"] {
-    padding-left: 9px;
-    padding-right: 5px;
-    font-size: 14px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 10px 2px;
+    font-size: 15px;
+    letter-spacing: -0.3px;
   }
 
   .list-header {
