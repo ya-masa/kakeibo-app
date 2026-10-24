@@ -4,28 +4,27 @@
    各 Vue コンポーネントには画面固有のレイアウトだけを残してください。
    ========================================================= */
 
-/* ---------- デザイントークン ---------- */
-/* ---------- デザイントークン ---------- */
+   /* ---------- デザイントークン ---------- */
 :root {
   color-scheme: light;
 
   /* 背景・カード */
-  --color-background: #F6F7F2;
+  --color-background: #FAFAF7;
   --color-surface: #FFFFFF;
-  --color-surface-strong: #E9EEE5;
-  --color-greige-light: #F0F2EB;
+  --color-surface-strong: #F5F1E7;
+  --color-greige-light: #F0EDE5;
 
-  /* メインカラー：セージグリーン */
-  --color-beige: #879B83;
-  --color-coffee: #526650;
-  --color-brown-dark: #303A30;
+  /* メインカラー：山吹色・マスタード */
+  --color-beige: #D6A43B;
+  --color-coffee: #514637;
+  --color-brown-dark: #39352E;
 
   /* 文字・境界線 */
-  --color-text: #343A35;
-  --color-muted: #7D877C;
-  --color-border: #DDE4D8;
+  --color-text: #39352E;
+  --color-muted: #89847A;
+  --color-border: #E9E5DC;
 
-  /* アクセント */
+  /* アクセント：注意・削除など */
   --color-accent: #D97770;
   --color-accent-hover: #C45F58;
   --color-accent-text: #873E38;
