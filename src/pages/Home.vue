@@ -660,7 +660,7 @@
     width: 100%;
     min-height: 44px;
     padding: 10px 16px;
-    border: 1px solid #6b4f3f;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     background: #6b4f3f;
     color: #fffaf4;
@@ -747,7 +747,7 @@
   /* 明細 */
   .today-expense-row {
     padding: 10px 0;
-    color: var(--coffee);
+    color: var(--color-coffee, #6b4f3f);
     font-size: 14px;
     font-weight: 600;
   }
@@ -756,8 +756,8 @@
   .today-expense-total {
     margin-top: 12px;
     padding-top: 14px;
-    border-top: 2px solid #cbb5a3;
-    color: var(--coffee);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-coffee, #6b4f3f);
     font-size: 16px;
     font-weight: 800;
   }
@@ -836,7 +836,7 @@
   .toggle-btn {
     width: 40px;
     background: none;
-    border: 1px solid #6b4f3f;
+    border: 1px solid var(--color-border);
     color: #6b4f3f;
     padding: 2px 6px;
     border-radius: 6px;
@@ -873,7 +873,7 @@
   .sub-wrapper {
     margin: 6px 12px 10px 20px;
     padding-left: 12px;
-    border-left: 2px solid #e2d2c3;
+    border-left: 1px solid var(--color-border);
   }
 
   /* 小項目：口座名と照合日 */
@@ -910,7 +910,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 0;
-    border-bottom: 1px solid #eee5dc;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .sub-row:last-child {
@@ -939,10 +939,10 @@
     justify-content: space-between;
     width: 100%;
     padding: 14px 18px;
-    border: 1px solid #d0d7de;
+    border: 1px solid var(--color-border);
     border-radius: 10px;
-    background-color: #fff;
-    color: #333;
+    background-color: var(--color-surface, #f5e8d8);
+    color: var(--color-coffee, #6b4f3f);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -950,13 +950,13 @@
   }
 
   .balance-confirm-btn:active {
-    background-color: #f3f4f6;
+    background-color: var(--color-surface-strong, #efe1d2);
   }
 
   .balance-confirm-btn .action-arrow {
     font-size: 24px;
     line-height: 1;
-    color: #666;
+    color: var(--color-coffee, #6b4f3f);
   }
 
 </style>
