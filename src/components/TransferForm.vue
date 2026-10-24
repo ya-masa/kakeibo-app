@@ -61,15 +61,15 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">残高確認</label>
+      <label class="form-lavel">支払い確認</label>
       <div class="radio-group">
       <label>
         <input type="radio" value="true" v-model="localForm.kakunin">
-        確認済み
+        支払い確認済み
       </label>
       <label>
         <input type="radio" value="false" v-model="localForm.kakunin">
-        未確認
+        支払い未確認
       </label>
       </div>
     </div>
