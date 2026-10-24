@@ -144,7 +144,7 @@ function normalizeShops(shops) {
 
           <div class="item-row">
             <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
-            <span class="item-input":class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
+            <span class="item-input" :class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
             <button class="toggle-btn" @click="toggle(item.code)">＋</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
@@ -163,124 +163,220 @@ function normalizeShops(shops) {
 
 <style scoped>
 .settings-wrapper {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  box-sizing: border-box;
+  color: var(--color-brown-dark, #49372d);
 }
 
-/* タブUI */
+/* 資産・負債・収入・支出タブ */
 .tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
+.tabs button {
+  min-width: 0;
+  padding: 10px 6px;
+  border: 1px solid var(--color-border, #d8c8b9);
+  border-radius: 10px;
+  background: var(--color-surface, #fffdf9);
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
 
-/* 大項目ヘッダー */
+.tabs button.active {
+  background: var(--color-coffee, #6b4f3f);
+  border-color: var(--color-coffee, #6b4f3f);
+  color: #fff;
+}
+
+/* 大項目カード */
+.card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border, #e1d5c9);
+  border-radius: 14px;
+  background: var(--color-surface, #fffdf9);
+  box-shadow: 0 2px 8px rgb(75 53 38 / 5%);
+}
+
 .card-header {
   display: flex;
   align-items: center;
-  width: 100%;
   gap: 8px;
+  width: 100%;
   margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border, #e1d5c9);
+}
+
+.card-header h3 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--color-brown-dark, #49372d);
+  font-size: 16px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .lock {
-  opacity: 0.6;
+  opacity: 0.65;
+  font-size: 14px;
+}
+
+.item-area,
+.item-list,
+.shop-area {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 2px;
+}
+
+.item-code {
+  flex: 0 0 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: var(--color-beige, #f2e8dc);
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 13px;
+  text-align: center;
 }
 
 .item-code.dirty {
-  background-color: #ffe5e5; /* 薄い赤 */
-  padding: 2px 4px;
-  border-radius: 4px;
+  background: #f8e2dc;
 }
 
-/* 小項目行 */
-.item-area {
-  display: flex;
-  flex-direction: column;
-  width:100%;
-  gap: 10px;
-}
-
-.item-row ,.shop-row{
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  margin-bottom: 10px;
-  width:80%;
-}
-
-.item-list,.shop-area{
-  display: flex;
-  flex-direction: column;
-  align-items: right;
-  gap: 10px;
-}
-
-.shop-row input{
-  width: 80%;
-  margin-left:40px;
-}
-/* 削除ボタン */
-.delete {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: #ffdddd;
-}
-
-/* 追加ボタン */
-.add-btn {
-  margin-top: 10px;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #e0f0ff;
-}
-
-.add-btn:disabled {
-  background: #ccc;
-}
-
-/*固定ヘッダー */
-.header-save {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  padding: 12px;
-  z-index: 100;
-  border-bottom: 1px solid #ddd;
-}
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: #66aaff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-.item-code {
-  width: 60px;
-  display: inline-block;
-  text-align: center;
-  color: #555;
+.item-input {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  color: var(--color-brown-dark, #49372d);
   font-size: 14px;
-}
-.item-input{
-  width: 80%;
-  display: inline-block;
-  text-align: left;
-  color: #555;
-  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .dirty {
-  color: red;
+  color: #a34232;
 }
 
+.toggle-btn {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border, #d8c8b9);
+  border-radius: 9px;
+  background: var(--color-beige, #f2e8dc);
+  color: var(--color-coffee, #6b4f3f);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
 
+.shop-area {
+  margin: 2px 0 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border, #e1d5c9);
+  border-radius: 12px;
+  background: var(--color-background, #faf6f0);
+  box-sizing: border-box;
+}
+
+.shop-row {
+  display: flex;
+  width: 100%;
+  margin: 0;
+  gap: 8px;
+}
+
+.shop-row input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 11px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border, #d8c8b9);
+  border-radius: 9px;
+  background: var(--color-surface, #fffdf9);
+  color: var(--color-brown-dark, #49372d);
+  font: inherit;
+}
+
+.shop-row input:focus {
+  outline: 2px solid var(--color-coffee, #6b4f3f);
+  outline-offset: 1px;
+}
+
+.btn {
+  align-self: flex-end;
+  min-width: 88px;
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--color-coffee, #6b4f3f);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:active,
+.toggle-btn:active,
+.tabs button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 420px) {
+  .settings-wrapper {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .tabs {
+    gap: 4px;
+  }
+
+  .tabs button {
+    padding: 9px 3px;
+    font-size: 13px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .shop-area {
+    padding: 10px;
+  }
+}
 </style>
