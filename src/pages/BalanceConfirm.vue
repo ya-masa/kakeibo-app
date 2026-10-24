@@ -786,7 +786,7 @@ onMounted(async () => {
   padding: 20px;
   border: 1px solid var(--color-border, #e3d8cc);
   border-radius: 14px;
-  background: var(--color-beige, #eee2d4);
+  background: var(--color-greige-light, #eee2d4);
   box-shadow: 0 2px 7px rgb(75 54 39 / 5%);
 }
 
