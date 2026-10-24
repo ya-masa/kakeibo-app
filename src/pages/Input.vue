@@ -254,40 +254,100 @@ const emitDelete = (rowNo) => {
 
 
 
-<style>
-/*タイトル*/
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-weight: 600;
-}
-/*タブの外側のCSS*/
-.tabs {
-  display: flex;
-  max-width: 600px;
-  min-width: 375px;
-  margin:0 auto;
-}
-.tab-card{
-  max-width:600px;
-  min-width: 375px;
-  background: var(--beige-light);
-  border-top: none;
-  border: 1px solid var(--coffee);
-  padding: 0 10px 16px;
-  margin:0 auto;
-  color: var(--coffee);
-  flex:0 0 auto;
-  border-radius: 0 0 6px 6px;
-  border-top:1px solid var(--rightist);
+<style scoped>
+.container {
+  width: 100%;
+  max-width: 620px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0 12px 20px;
+  box-sizing: border-box;
+  color: var(--color-coffee, #6b4f3f);
 }
 
-/*スマホ用の調整*/
+.container h1 {
+  font-size: 24px;
+  margin: 0 0 20px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-brown-dark, var(--color-coffee, #6b4f3f));
+}
+
+.tabs {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  min-width: 0;
+  margin: 0 auto;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.tab-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 4px;
+  border: 1px solid var(--color-border, #eee7df);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: var(--color-surface-muted, #f5e8d8);
+  color: var(--color-coffee, #6b4f3f);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--color-greige-light, #f7f4ef);
+  border-color: var(--color-border, #eee7df);
+  font-weight: 600;
+}
+
+.tab-card {
+  width: 100%;
+  max-width: 600px;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 10px 16px;
+  color: var(--color-coffee, #6b4f3f);
+  background: var(--color-greige-light, #f7f4ef);
+  border: 1px solid var(--color-border, #eee7df);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.tab-card :deep(*) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 400px) {
-  .form-row {
-    flex-direction: column;
-    align-items: flex-start;
+  .container {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .container h1 {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .tabs {
+    gap: 2px;
+  }
+
+  .tab-btn {
+    padding: 9px 2px;
+    font-size: 12px;
+  }
+
+  .tab-card {
+    padding-right: 8px;
+    padding-left: 8px;
   }
 }
 </style>
