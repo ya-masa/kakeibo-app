@@ -291,84 +291,217 @@ function formatMD(dateStr) {
 
 
 <style scoped>
+.continer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px;
+}
 
-/*　日付の表示用CSS */
-td.date {
+.card {
+  background: var(--color-greige-light, #F7F4EF);
+  border: 1px solid var(--color-border, #EEE7DF);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.row {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  min-width: 0;
 }
 
-td.date::before {
-  content: attr(data-md);
-  font-size: 20px;
-  padding-top: 10px;
-}
-
-td.date::after {
-  content: attr(data-year);
+.form-label {
+  flex: 0 0 76px;
+  color: var(--color-brown-dark, #5B4636);
   font-size: 14px;
-  opacity: 0.6;
 }
-/*チェック関連 */
-.tr-check{
+
+.input-field,
+.select-field {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border, #EEE7DF);
+  border-radius: 8px;
+  background: var(--color-surface, #F5E8D8);
+  color: var(--color-brown-dark, #5B4636);
+  font: inherit;
+}
+
+.btn,
+.check-btn {
+  border: 1px solid var(--color-border, #EEE7DF);
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: var(--color-beige, #C8A27E);
+  color: var(--color-brown-dark, #5B4636);
+  cursor: pointer;
+  font: inherit;
+}
+
+.card > .btn {
+  min-width: 88px;
+  display: block;
+  margin-left: auto;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-area {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.has-footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 12px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-border, #EEE7DF);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-greige-light, #F7F4EF);
+  color: var(--color-brown-dark, #5B4636);
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-border, #EEE7DF);
+  text-align: center;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.table th {
+  background: var(--color-surface, #F5E8D8);
+  color: var(--color-brown-dark, #5B4636);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr.unchecked {
+  color: var(--color-red-dark, #A94442);
+}
+
+.table .amount {
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table .minus {
+  color: var(--color-red-dark, #A94442);
+}
+
+.table .plus {
+  color: var(--color-brown-dark, #5B4636);
+}
+
+.table td.date {
+  min-width: 64px;
+  white-space: nowrap;
+}
+
+.table td.date::before {
+  content: attr(data-md);
+  display: block;
+  font-size: 18px;
+  padding-top: 2px;
+}
+
+.table td.date::after {
+  content: attr(data-year);
+  display: block;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.tr-check {
   text-align: center;
 }
-.check-btn{
-  background: var(--beige);
-  color: var(--coffee);
-  border: 1px solid var(--coffee);
-  padding:10px;
-  border-radius: 6px;
-}
-  /* マイナス時の赤表示　
-  　　未チェック時の赤表示*/
-  .unchecked {
-    color: var(--red-dark);/*未チェックのものは赤色に */
-  }
 
-  .minus {
-    color: var(--red-dark);/*金額がマイナスの時は赤色*/
-    text-align: right;
-  }
-
-  .plus {
-    color: var(--dark-brown);/*金額がプラスなら黒で*/
-    text-align: right;
-  }
-
-
-  /*リスト表示の日付CSS*/
-  td.date{
-  display: flex;    /* ← inline-flex ではなく flex にする */
-  flex-direction: column;
-  /*justify-content: center; /* 中央揃え */
-  align-items:center;
+.table input[type="checkbox"] {
+  accent-color: var(--color-coffee, #6b4f3f);
+  width: 18px;
+  height: 18px;
 }
 
-/* 年 */
-td.date::before {
-  content: attr(data-md);
-  font-size: 20px;
-  padding-top:10px;
-  /*font-weight: bold;*/
-}
-
-/* 月日 */
-td.date::after {
-  content: attr(data-year);
-  font-size: 14px;
-  opacity: 0.6;      /* 薄くして控えめに */
-}
-
-
-  
-  /* スマホ用（幅が狭いときは縦並びに） */
-  @media (max-width: 375px) {
-    .filter-row {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
+@media (max-width: 600px) {
+  .continer {
+    padding: 8px;
   }
+
+  .card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .row {
+    gap: 8px;
+  }
+
+  .form-label {
+    flex-basis: 64px;
+    font-size: 13px;
+  }
+
+  .input-field,
+  .select-field {
+    padding: 9px 8px;
+    font-size: 14px;
+  }
+
+  .has-footer {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .table {
+    min-width: 680px;
+    font-size: 13px;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .form-label {
+    flex-basis: 100%;
+  }
+}
 </style>
