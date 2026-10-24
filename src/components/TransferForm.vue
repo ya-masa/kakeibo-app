@@ -206,33 +206,24 @@ form {
   flex-wrap: wrap;
 }
 
-/* ラジオボタン */
+/* ラジオボタン：小さな内側の点は使わず、選択時は大きな丸で表示 */
 input[type="radio"] {
   appearance: none;
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  flex: 0 0 20px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
   margin: 0;
   border: 2px solid var(--dark-brown);
   border-radius: 50%;
-  display: inline-grid;
-  place-content: center;
+  background: transparent;
   cursor: pointer;
+  display: inline-block;
 }
 
-input[type="radio"]::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--dark-brown);
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
-}
-
-input[type="radio"]:checked::before {
-  transform: scale(1);
+input[type="radio"]:checked {
+  border: 5px solid var(--dark-brown);
+  background: transparent;
 }
 
 input[type="radio"]:focus-visible {
