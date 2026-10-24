@@ -377,7 +377,8 @@ function formatMD(dateStr) {
 }
 
 .table {
-  width: 100%;
+  width: max-content;
+  min-width: 760px;
   border-collapse: collapse;
   border: 1px solid var(--color-border, #EEE7DF);
   border-radius: 10px;
@@ -431,17 +432,16 @@ function formatMD(dateStr) {
 }
 
 .table td.date::before {
-  content: attr(data-md);
-  display: block;
-  font-size: 18px;
-  padding-top: 2px;
+  content: attr(data-year) " / " attr(data-md);
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 13px;
+  padding-top: 0;
 }
 
 .table td.date::after {
-  content: attr(data-year);
-  display: block;
-  font-size: 12px;
-  opacity: 0.65;
+  content: none;
+  display: none;
 }
 
 .tr-check {
@@ -485,7 +485,8 @@ function formatMD(dateStr) {
   }
 
   .table {
-    min-width: 680px;
+    width: max-content;
+    min-width: 760px;
     font-size: 13px;
   }
 
