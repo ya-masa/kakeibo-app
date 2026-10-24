@@ -47,66 +47,91 @@
   
   <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
   <!-- 一覧表示 -->
-  <div class="has-footer">
-    <table v-if="!loading && list.length > 0" class="table">
-      <thead>
-        <tr>
-          <th>☑<br><button class="check-btn" @click="updateCheck">更新</button></th>
-          <th>日付</th>
-          <th>大項目<br>小項目</th>
-          <th>店名</th>
-          <th>内容</th>
-          <th>金額</th>
-          <th>修正</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr 
-          class="tr-check"
-          v-for="item in list" 
-          :key="item.id"
-          :class="{
-            unchecked: item.check === false
-          }"
+<div class="has-footer">
+  <div v-if="!loading && list.length > 0" class="transaction-list">
+    <article
+      v-for="item in list"
+      :key="item.id"
+      class="card transaction-card"
+      :class="{ unchecked: item.check === false }"
+    >
+      <!-- チェックボックス -->
+      <div class="card-left">
+        <div
+          class="transaction-card-header"
+          v-if="item.check === false"
         >
-        <td>
-          <!-- チェックが false のときだけ表示 -->
-          <input 
-            type="checkbox" 
-            v-if="item.check === false"
-            :value="item.id"
-            v-model="selectedIds"
+          <input
+            type="checkbox"
+            :checked="selectedCheckId === item.id"
+            @change="selectedCheckId = $event.target.checked ? item.id : null"
+          ><span>支払い確認</span>
+
+          <!-- チェックを入れたときだけ更新ボタンを表示 -->
+          <div
+            v-if="selectedCheckId === item.id"
+            class="check-update-btn"
           >
-        </td>
-          <td class="date"
-          :data-year="new Date(item.date).getFullYear()"
-          :data-md="formatMD(item.date)">
-        </td>
-          <td>{{ item.large }}<br>{{ item.small }}</td>
-          <td>{{ item.shop }}</td>
-          <td>{{ item.naiyo }}</td>
-          <td 
-            class="amount"
+            <button
+              class="btn check-btn"
+              @click="updateCheck(item.id)"
+              :disabled="isLoading"
+            >
+              チェック更新
+            </button>
+          </div>
+        </div>
+      
+      </div>
+      <!-- 日付 -->
+      <div class="card-center">
+        <div class="transaction-date">
+          <span>{{ new Date(item.date).getFullYear() }} / {{ formatMD(item.date) }}</span>
+          <span></span>
+        </div>
+
+        <!-- 大項目・小項目 -->
+        <div class="transaction-category">
+          {{ item.large }} ／ {{ item.small }}
+        </div>
+
+        <!-- 店名 -->
+        <div class="transaction-shop">
+          {{ item.shop }}
+        </div>
+
+        <!-- 内容 -->
+        <div class="transaction-description">
+          {{ item.naiyo }}
+        </div>
+
+        <!-- 金額 -->
+        <div class="card-amount-center">
+          <span
+            class="card-amount"
             :class="{
               minus: item.amount < 0,
               plus: item.amount >= 0
             }"
           >
-            {{ item.amount }}
-          </td>
-            <!-- ここに修正ボタンを置く -->
-          <td>
-            <button class="btn" @click="goEdit(item.id)">修正</button>
-          </td>
-          <hr>
-        </tr>
-      </tbody>
-    </table>
-
-    <p v-if="!loading && list.length === 0">
-      条件に一致するデータがありません。
-    </p>
+            {{ item.amount }}円
+          </span>
+        </div>
+      </div>
+      <div class="card-right">
+        <button class="btn edit-btn" @click="goEdit(item.id)">
+          修正
+        </button>
+      </div>
+    </article>
   </div>
+
+  <p v-if="!loading && list.length === 0">
+    条件に一致するデータがありません。
+  </p>
+</div>
+
+
 </template>
 
 <script setup>
@@ -124,13 +149,6 @@ const router = useRouter()
 // 未確認データだけを検索するか
 const uncheckedOnly = ref(false)
 
-  //修正画面に移動する
-  const goEdit = (id) => {
-    router.push({
-      name: "edit",     // ルート名（後で説明）
-      query: { id }  // 修正したいid
-    })
-  }
   // ローディング
   const isLoading = ref(false)
   /* GASから一覧データ取得 */
@@ -140,8 +158,9 @@ const uncheckedOnly = ref(false)
   const large = ref("")
   const small = ref("")
   const keyword = ref("")
+  
+  const selectedCheckId = ref(null)
 
-  // チェックされた id を保持
   const selectedIds = ref([])
 
   // カテゴリ取得
@@ -255,12 +274,14 @@ function formatMD(dateStr) {
   }
 
   // チェック更新（Vue → GAS）
-  const updateCheck = async () => {
-    if (selectedIds.value.length === 0) {
-      alert("チェックがありません")
+  const updateCheck = async (id) => {
+    if (id == null) {
+      alert("更新するデータがありません")
       return
     }
-    isLoading.value=true
+
+    isLoading.value = true
+
     try {
       const res = await fetch(GAS_URL, {
         method: "POST",
@@ -268,190 +289,272 @@ function formatMD(dateStr) {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          mode: "updateCheck",   // ← ここに置くのが正しい
-          ids: selectedIds.value
-        })
+          mode: "updateCheck",
+          id: String(id),
+        }),
       })
+
+      if (!res.ok) {
+        throw new Error(`HTTPエラー: ${res.status}`)
+      }
 
       const result = await res.json()
       console.log("更新結果:", result)
 
-      alert("更新しました")
-      selectedIds.value = []
-      fetchList()
+      // GAS側の成功判定に合わせて調整する
+      if (result.success === false) {
+        throw new Error(result.message || "更新に失敗しました")
+      }
+
+      alert("チェック済みに更新しました")
+
+      selectedCheckId.value = null
+      await fetchList()
 
     } catch (e) {
       console.error("更新エラー", e)
-      isLoading.value=false
+      alert("更新に失敗しました")
+
+    } finally {
+      isLoading.value = false
     }
   }
+  
 
+  //修正画面に移動する
+  const goEdit = (id) => {
+    router.push({
+      name: "edit",     // ルート名（後で説明）
+      query: { id }  // 修正したいid
+    })
+  }
 
 </script>
 
 
 <style scoped>
-/*.continer {
+
+/* 一覧全体 */
+.transaction-list {
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 12px;
-}
-
-.card {
-  background: var(--color-greige-light, #F7F4EF);
-  border: 1px solid var(--color-border, #EEE7DF);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-sizing: border-box;
-  min-width: 0;
-}
-
-.row {
+  max-width: var(--content-width);
+  margin: 0 auto;
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* カード全体 */
+.transaction-card {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-2);
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* 左端：チェックボックス＋縦書き文字 */
+.card-left {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-top: 4px;
+  min-width: 32px;
+}
+
+/* チェックボックス */
+.card-left input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-beige);
+}
+
+/* 確認チェックの縦書き */
+.check-label {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* 中央：日付・内容・金額 */
+.card-center {
   min-width: 0;
-}
-
-.form-label {
-  flex: 0 0 76px;
-  color: var(--color-brown-dark, #5B4636);
-  font-size: 14px;
-}
-
-.input-field,
-.select-field {
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border, #EEE7DF);
-  border-radius: 8px;
-  background: var(--color-surface, #F5E8D8);
-  color: var(--color-brown-dark, #5B4636);
-  font: inherit;
-}
-
-.btn,
-.check-btn {
-  border: 1px solid var(--color-border, #EEE7DF);
-  border-radius: 8px;
-  padding: 9px 14px;
-  background: var(--color-beige, #C8A27E);
-  color: var(--color-brown-dark, #5B4636);
-  cursor: pointer;
-  font: inherit;
-}
-
-.card > .btn {
-  min-width: 88px;
-  display: block;
-  margin-left: auto;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.loading-area {
-  display: flex;
-  justify-content: center;
-  padding: 8px 0;
-}
-
-.has-footer {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 0 12px 20px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table {
-  width: max-content;
-  min-width: 760px;
-  border-collapse: collapse;
-  border: 1px solid var(--color-border, #EEE7DF);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--color-greige-light, #F7F4EF);
-  color: var(--color-brown-dark, #5B4636);
-  font-size: 14px;
-}
-
-.table th,
-.table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--color-border, #EEE7DF);
   text-align: center;
-  vertical-align: middle;
   overflow-wrap: anywhere;
 }
 
-.table th {
-  background: var(--color-surface, #F5E8D8);
-  color: var(--color-brown-dark, #5B4636);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.table tbody tr.unchecked {
-  color: var(--color-red-dark, #A94442);
-}
-
-.table .amount {
-  white-space: nowrap;
-  text-align: right;
+/* 日付 */
+.transaction-date {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-2);
   font-variant-numeric: tabular-nums;
 }
 
-.table .minus {
-  color: var(--color-red-dark, #A94442);
+.transaction-date span:first-child {
+  font-size: 14px;
 }
 
-.table .plus {
-  color: var(--color-brown-dark, #5B4636);
+.transaction-date span:last-child {
+  font-size: 11px;
+  color: var(--color-muted);
 }
 
-.table td.date {
-  min-width: 64px;
-  white-space: nowrap;
+/* 項目 */
+.transaction-category {
+  font-weight: 600;
+  margin-bottom: var(--space-2);
 }
 
-.table td.date::before {
-  content: attr(data-year) " / " attr(data-md);
-  display: inline-block;
-  white-space: nowrap;
-  font-size: 13px;
-  padding-top: 0;
+.transaction-shop,
+.transaction-description {
+  margin-bottom: var(--space-2);
 }
 
-.table td.date::after {
-  content: none;
-  display: none;
-}
-
-.tr-check {
+/* 金額 */
+.card-center {
+  min-width: 0;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
-.table input[type="checkbox"] {
-  accent-color: var(--color-coffee, #6b4f3f);
+/* 金額 */
+.card-amount {
+  text-align: center;
+  width: 100%;
+}
+
+.card-amount.minus {
+  color: var(--color-danger);
+}
+
+.card-amount.plus {
+  color: var(--color-text);
+}
+
+/* チェック更新ボタン */
+.check-update-btn {
+  margin-top: var(--space-3);
+}
+
+/* 右端：修正ボタン */
+.card-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+/* 未チェック */
+.transaction-card.unchecked {
+  border-left: 4px solid var(--color-danger);
+  background: var(--color-accent-light);
+}
+
+/* 日付とチェックボックス */
+.transaction-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.transaction-date {
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+}
+
+.transaction-date span:first-child {
+  font-size: 14px;
+}
+
+.transaction-date span:last-child {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+/* カテゴリ */
+.transaction-category {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  margin-bottom: var(--space-2);
+}
+
+/* 店名・内容 */
+.transaction-shop,
+.transaction-description {
+  overflow-wrap: anywhere;
+  margin-bottom: var(--space-2);
+}
+
+/* 金額・修正ボタン */
+.transaction-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 32px;
+}
+
+.transaction-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.transaction-card-header input[type="checkbox"] {
   width: 18px;
   height: 18px;
+  margin: 0;
+  accent-color: var(--color-beige);
+}
+
+/* 「支払い確認」を縦書きにする */
+.transaction-card-header > span {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* チェック更新ボタン */
+.check-update-btn {
+  margin-top: 8px;
+}
+
+.check-btn,.edit-btn {
+  margin-left: auto;
+  margin-right: 0;
+  min-height: 20px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
 @media (max-width: 600px) {
@@ -479,24 +582,11 @@ function formatMD(dateStr) {
     font-size: 14px;
   }
 
-  .has-footer {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .table {
-    width: max-content;
-    min-width: 760px;
-    font-size: 13px;
-  }
-
-  .table th,
-  .table td {
-    padding: 8px 6px;
-  }
 }
 
-@media (max-width: 360px) {
+
+@media(max-width: 360px) {
+
   .row {
     flex-wrap: wrap;
   }
@@ -504,5 +594,5 @@ function formatMD(dateStr) {
   .form-label {
     flex-basis: 100%;
   }
-}*/
+}
 </style>

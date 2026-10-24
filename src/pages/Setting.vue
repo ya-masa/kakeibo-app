@@ -62,7 +62,7 @@ export default {
 
 .settings-page h1 {
   margin: 0 0 20px;
-  color: var(--color-brown-dark);
+  color: var(--color-text);
   font-size: 1.5rem;
   text-align: center;
 }

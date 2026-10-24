@@ -58,7 +58,7 @@
         </div>
 
         <button
-          class="unchecked-action"
+          class="btn unchecked-action"
           @click="goUnchecked"
         >
           タップして確認
@@ -88,7 +88,7 @@
         </div>
 
         <p v-if="todayExpenseTotal === 0" class="no-expense">
-          今日の支出はまだありません。
+          今日の支出はまだありません
         </p>
       </div>
 
@@ -119,7 +119,7 @@
         <div  class="large-row">
           <!-- ＋ボタン（左寄せ） -->
           <button
-            class="toggle-btn"
+            class="btn toggle-btn"
             @click="openLarge = openLarge === item.name ? null : item.name"
           >
             {{ openLarge === item.name ? '－' : '＋' }}
@@ -155,7 +155,7 @@
       <div v-for="(acc, i) in accounts" :key="i">
         <div class="large-row">
           <button
-            class="toggle-btn"
+            class="btn toggle-btn"
             @click="openKouza = openKouza === acc.name ? null : acc.name"
           >
             {{ openKouza === acc.name ? '－' : '＋' }}
@@ -196,7 +196,7 @@
     <!-- 残高確定画面へのボタン -->
     <div class="balance-confirm-action">
       <button
-        class="balance-confirm-btn"
+        class="btn balance-confirm-btn"
         @click="goBalanceConfirm"
       >
         <span>確定残高を入力する</span>
@@ -614,15 +614,10 @@
 
 
 <style scoped>
-  /* 仮のCSS 後で base.css にまとめる */
 
   /* =========================
     未確認データ
   ========================= */
-
-  .unchecked-card h2 {
-    color: #6b4f3f;
-  }
 
   .unchecked-content {
     display: flex;
@@ -642,42 +637,14 @@
     font-size: 30px;
     font-weight: 800;
     line-height: 1.2;
-    color: #b7473a;
+    color: var(--color-danger);
     margin:20px;
   }
 
   .unchecked-message {
     font-size: 14px;
-    font-weight: 600;
-    color: #6b4f3f;
+    color:var(--color-muted);
   }
-
-  .unchecked-action {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: #6b4f3f;
-    color: #fffaf4;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .unchecked-action:active {
-    background: var(--color-coffee);
-  }
-
-  .action-arrow {
-    font-size: 22px;
-    line-height: 1;
-  }
-
 
   /* =========================
     今日の支出
@@ -694,7 +661,7 @@
   .today-expense-header h2 {
     grid-column: 2;
     margin: 0;
-    color: var(--color-coffee);
+    color: var(--color-text);
     text-align: center;
   }
 
@@ -705,7 +672,7 @@
     padding: 5px 10px;
     border-radius: 6px;
     background: var(--color-surface);
-    color: var(--color-coffee);
+    color: var(--color-text);
     font-size: 14px;
     font-weight: 700;
   }
@@ -747,7 +714,7 @@
   /* 明細 */
   .today-expense-row {
     padding: 10px 0;
-    color: var(--color-coffee);
+    color: var(--color-text);
     font-size: 14px;
     font-weight: 600;
   }
@@ -757,7 +724,7 @@
     margin-top: 12px;
     padding-top: 14px;
     border-top: 1px solid var(--color-border);
-    color: var(--color-coffee);
+    color: var(--color-text);
     font-size: 16px;
     font-weight: 800;
   }
@@ -770,12 +737,12 @@
  
   .no-expense {
     margin: 8px 0 14px;
-    color: #8a7769;
+    color: var(--color-muted);
     font-size: 14px;
   }
 
 
-    /* 一か月の収支：費目と金額を中央にまとめる */
+  /* 一か月の収支：費目と金額を中央にまとめる */
   .row {
     display: flex;
     justify-content: center;
@@ -796,7 +763,7 @@
   }
 
   .chart-placeholder {
-    background: rgba(255,255,255,0.4);
+    background: var(--color-beige-light);
     height: 120px;
     border-radius: 6px;
     margin: 8px 0;
@@ -837,7 +804,7 @@
     width: 40px;
     background: none;
     border: 1px solid var(--color-border);
-    color: #6b4f3f;
+    color: var(--color-text);
     padding: 2px 6px;
     border-radius: 6px;
     font-size: 16px;
@@ -938,25 +905,15 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 14px 18px;
-    border: 1px solid var(--color-border);
     border-radius: 10px;
-    background-color: var(--color-surface);
-    color: var(--color-coffee, #6b4f3f);
-    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     box-sizing: border-box;
   }
 
-  .balance-confirm-btn:active {
-    background-color: var(--color-surface-strong);
-  }
-
   .balance-confirm-btn .action-arrow {
     font-size: 24px;
     line-height: 1;
-    color: var(--color-coffee);
   }
 
 </style>

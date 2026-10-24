@@ -7,7 +7,7 @@
       </div>
 
       <button
-        class="button button-secondary"
+        class="btn button-secondary"
         :disabled="loading"
       >
         {{ loading ? "読込中..." : "再読み込み" }}
@@ -29,7 +29,7 @@
       <div class="mode-switch">
         <button
           type="button"
-          :class="{ 'mode-active': reconciliationMode === 'csv' }"
+          :class="['btn', { 'mode-active': reconciliationMode === 'csv' }]"
           @click="reconciliationMode = 'csv'"
         >
           CSV照合
@@ -37,7 +37,7 @@
 
         <button
           type="button"
-          :class="{ 'mode-active': reconciliationMode === 'manual' }"
+          :class="['btn', { 'mode-active': reconciliationMode === 'manual' }]"
           @click="reconciliationMode = 'manual'"
         >
           手照合
@@ -45,9 +45,9 @@
       </div>
     </section>
     <!-- 口座・カード選択 -->
-    <section class="panel">
+    <section class="card panel">
       <h2>照合する口座・カード</h2>
-      <div class="filter-row">
+      <div class="card filter-row">
 
         <label>
           口座・カード
@@ -95,31 +95,31 @@
 
     <!-- 進捗カード -->
     <section class="summary-grid">
-      <article class="summary-card">
+      <article class="card summary-card">
         <span>全仕訳</span>
         <strong>{{ targets.length }}</strong>
         <small>件</small>
       </article>
 
-      <article class="summary-card">
+      <article class="card summary-card">
         <span>未照合</span>
         <strong>{{ countByStatus("未照合") }}</strong>
         <small>件</small>
       </article>
 
-      <article class="summary-card">
+      <article class="card summary-card">
         <span>要確認</span>
         <strong>{{ countByStatus("要確認") }}</strong>
         <small>件</small>
       </article>
 
-      <article class="summary-card summary-card-done">
+      <article class="card summary-card summary-card-done">
         <span>照合済み</span>
         <strong>{{ countByStatus("照合済み") }}</strong>
         <small>件</small>
       </article>
 
-      <article class="summary-card">
+      <article class="card summary-card">
         <span>対象外</span>
         <strong>{{ countByStatus("対象外") }}</strong>
         <small>件</small>
@@ -132,7 +132,7 @@
       v-if="reconciliationMode === 'csv'"
       class="panel"
     >
-      <div class="section-header">
+      <div class="card section-header">
         <div>
           <h2>明細CSVの取込</h2>
           <p>
@@ -181,7 +181,7 @@
         選択中：{{ selectedFile.name }}
       </p>
       <p class="help-text">
-        現在は画面のみです。CSVの解析・保存・重複チェックは
+        CSVの解析・保存・重複チェックは
         GAS側の取込処理と接続した後に有効になります。
       </p>
     </section>
@@ -294,7 +294,7 @@
     <!-- 照合候補の表示 -->
     <section
       v-if="!selectedCandidate"
-      class="reconciliation-candidates"
+      class="card reconciliation-candidates"
     >
     <h2>エポスカード照合候補</h2>
 
@@ -1876,7 +1876,7 @@ input[type="search"] {
   padding: 8px 10px;
   border: 1px solid var(--color-border, #eee7df);
   border-radius: 8px;
-  background: var(--color-greige-light, #f7f4ef);
+  background: var(--color-accent);
   color: inherit;
 }
 

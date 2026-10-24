@@ -255,7 +255,7 @@ const emitDelete = (rowNo) => {
 
 
 <style scoped>
-.container {
+/*.container {
   width: 100%;
   max-width: 620px;
   min-width: 0;
@@ -318,7 +318,7 @@ const emitDelete = (rowNo) => {
   border-top: none;
   border-radius: 0 0 8px 8px;
   overflow: hidden;
-}
+}*/
 
 .tab-card :deep(*) {
   max-width: 100%;
