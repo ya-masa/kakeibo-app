@@ -670,7 +670,7 @@
   }
 
   .unchecked-action:active {
-    background: #523b30;
+    background: var(--color-coffee);
   }
 
   .action-arrow {
@@ -694,7 +694,7 @@
   .today-expense-header h2 {
     grid-column: 2;
     margin: 0;
-    color: #6b4f3f;
+    color: var(--color-coffee);
     text-align: center;
   }
 
@@ -704,8 +704,8 @@
     flex-shrink: 0;
     padding: 5px 10px;
     border-radius: 6px;
-    background: #efe1d2;
-    color: #6b4f3f;
+    background: var(--color-surface);
+    color: var(--color-coffee);
     font-size: 14px;
     font-weight: 700;
   }
@@ -747,7 +747,7 @@
   /* 明細 */
   .today-expense-row {
     padding: 10px 0;
-    color: var(--color-coffee, #6b4f3f);
+    color: var(--color-coffee);
     font-size: 14px;
     font-weight: 600;
   }
@@ -757,7 +757,7 @@
     margin-top: 12px;
     padding-top: 14px;
     border-top: 1px solid var(--color-border);
-    color: var(--color-coffee, #6b4f3f);
+    color: var(--color-coffee);
     font-size: 16px;
     font-weight: 800;
   }
@@ -941,7 +941,7 @@
     padding: 14px 18px;
     border: 1px solid var(--color-border);
     border-radius: 10px;
-    background-color: var(--color-surface, #f5e8d8);
+    background-color: var(--color-surface);
     color: var(--color-coffee, #6b4f3f);
     font-size: 15px;
     font-weight: 600;
@@ -950,13 +950,13 @@
   }
 
   .balance-confirm-btn:active {
-    background-color: var(--color-surface-strong, #efe1d2);
+    background-color: var(--color-surface-strong);
   }
 
   .balance-confirm-btn .action-arrow {
     font-size: 24px;
     line-height: 1;
-    color: var(--color-coffee, #6b4f3f);
+    color: var(--color-coffee);
   }
 
 </style>

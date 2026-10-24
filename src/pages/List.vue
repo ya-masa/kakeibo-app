@@ -291,7 +291,7 @@ function formatMD(dateStr) {
 
 
 <style scoped>
-.continer {
+/*.continer {
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -504,5 +504,5 @@ function formatMD(dateStr) {
   .form-label {
     flex-basis: 100%;
   }
-}
+}*/
 </style>
