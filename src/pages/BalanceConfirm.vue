@@ -743,7 +743,7 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 20px 16px 40px;
   box-sizing: border-box;
-  color: #333;
+  color: var(--color-brown-dark, #44352c);
 }
 
 .page-header {
@@ -751,23 +751,32 @@ onMounted(async () => {
 }
 
 .back-button {
-  padding: 6px 0;
-  border: none;
+  min-height: 36px;
+  padding: 6px 10px 6px 0;
+  border: 0;
+  border-radius: 6px;
   background: transparent;
-  color: #555;
+  color: var(--color-coffee, #6b4f3f);
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
+.back-button:hover {
+  color: var(--color-brown-dark, #44352c);
+}
+
 .page-header h1 {
-  margin: 14px 0 8px;
+  margin: 12px 0 8px;
+  color: var(--color-brown-dark, #44352c);
   font-size: 24px;
   font-weight: 700;
+  line-height: 1.4;
 }
 
 .page-description {
   margin: 0;
-  color: #666;
+  color: var(--color-text-muted, #786b61);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -775,21 +784,24 @@ onMounted(async () => {
 .card {
   margin-bottom: 16px;
   padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 3%);
+  border: 1px solid var(--color-border, #e3d8cc);
+  border-radius: 14px;
+  background: var(--color-beige, #eee2d4);
+  box-shadow: 0 2px 7px rgb(75 54 39 / 5%);
 }
 
 .card h2 {
   margin: 0 0 18px;
+  color: var(--color-brown-dark, #44352c);
   font-size: 17px;
   font-weight: 700;
+  line-height: 1.45;
 }
 
 .field-label {
   display: block;
   margin-bottom: 8px;
+  color: var(--color-brown-dark, #44352c);
   font-size: 14px;
   font-weight: 600;
 }
@@ -799,23 +811,25 @@ onMounted(async () => {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid #cfd4da;
+  border: 1px solid var(--color-border, #d9cbbd);
   border-radius: 8px;
-  background: #fff;
-  color: #333;
+  background: var(--color-surface, #fffdf9);
+  color: var(--color-brown-dark, #44352c);
   font: inherit;
   box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-control:focus {
-  outline: 2px solid #a8c7fa;
-  outline-offset: 1px;
-  border-color: #5b91e5;
+  outline: none;
+  border-color: var(--color-coffee, #6b4f3f);
+  box-shadow: 0 0 0 3px rgb(107 79 63 / 14%);
 }
 
 .form-control:disabled {
-  background: #f3f4f6;
-  color: #777;
+  background: var(--color-background, #f5f0e8);
+  color: var(--color-text-muted, #786b61);
+  cursor: not-allowed;
 }
 
 .balance-form {
@@ -842,13 +856,14 @@ onMounted(async () => {
 
 .amount-unit {
   flex-shrink: 0;
+  color: var(--color-brown-dark, #44352c);
   font-size: 14px;
 }
 
 .field-note,
 .sub-message {
   margin: 8px 0 0;
-  color: #777;
+  color: var(--color-text-muted, #786b61);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -873,37 +888,45 @@ onMounted(async () => {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.35;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
 .primary-button {
   flex: 1;
-  border: 1px solid #2563eb;
-  background: #2563eb;
+  border: 1px solid var(--color-coffee, #6b4f3f);
+  background: var(--color-coffee, #6b4f3f);
   color: #fff;
 }
 
-.primary-button:hover {
-  background: #1d4ed8;
+.primary-button:hover:not(:disabled) {
+  border-color: var(--color-brown-dark, #44352c);
+  background: var(--color-brown-dark, #44352c);
 }
 
 .secondary-button,
-.refresh-button {
-  border: 1px solid #cfd4da;
-  background: #fff;
-  color: #444;
+.refresh-button,
+.edit-button {
+  border: 1px solid var(--color-border, #d9cbbd);
+  background: var(--color-beige, #f0e5d7);
+  color: var(--color-brown-dark, #44352c);
 }
 
-.edit-button {
-  border: 1px solid #cfd4da;
-  background: #fff;
-  color: #333;
+.secondary-button:hover:not(:disabled),
+.refresh-button:hover:not(:disabled),
+.edit-button:hover:not(:disabled) {
+  background: var(--color-background, #f5f0e8);
 }
 
 .delete-button {
-  border: 1px solid #dc2626;
-  background: #fff;
-  color: #b91c1c;
+  border: 1px solid #d7aaa0;
+  background: #fff8f6;
+  color: #963f32;
+}
+
+.delete-button:hover:not(:disabled) {
+  background: #f9e8e3;
 }
 
 .primary-button:disabled,
@@ -918,22 +941,22 @@ onMounted(async () => {
 .message {
   margin-bottom: 16px;
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: 9px;
   font-size: 14px;
   line-height: 1.6;
   white-space: pre-line;
 }
 
 .error-message {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
+  border: 1px solid #e6b9b0;
+  background: #fff4f1;
+  color: #963f32;
 }
 
 .success-message {
-  border: 1px solid #bbf7d0;
-  background: #f0fdf4;
-  color: #166534;
+  border: 1px solid #b8d2b6;
+  background: #f3f8f0;
+  color: #38623a;
 }
 
 .list-header {
@@ -970,7 +993,7 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 14px;
   padding: 16px 0;
-  border-top: 1px solid #ededed;
+  border-top: 1px solid var(--color-border, #e3d8cc);
 }
 
 .confirm-item-main {
@@ -980,11 +1003,12 @@ onMounted(async () => {
 
 .confirm-date {
   margin-bottom: 5px;
-  color: #666;
+  color: var(--color-text-muted, #786b61);
   font-size: 13px;
 }
 
 .confirm-amount {
+  color: var(--color-brown-dark, #44352c);
   font-size: 20px;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -992,7 +1016,7 @@ onMounted(async () => {
 
 .confirm-memo {
   margin: 7px 0 0;
-  color: #777;
+  color: var(--color-text-muted, #786b61);
   font-size: 12px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -1007,8 +1031,9 @@ onMounted(async () => {
 .empty-message,
 .loading-message {
   padding: 18px 0;
-  color: #777;
+  color: var(--color-text-muted, #786b61);
   font-size: 14px;
+  line-height: 1.6;
   text-align: center;
 }
 
@@ -1017,20 +1042,60 @@ onMounted(async () => {
     padding: 16px 12px 32px;
   }
 
+  .page-header h1 {
+    font-size: 22px;
+  }
+
   .card {
     padding: 16px;
+    border-radius: 12px;
+  }
+
+  .list-header {
+    align-items: center;
   }
 
   .confirm-item {
     align-items: flex-start;
+    gap: 10px;
   }
 
   .confirm-item-actions {
     flex-direction: column;
   }
 
+  .confirm-item-actions button {
+    min-width: 64px;
+    padding: 8px 10px;
+  }
+
   .confirm-amount {
     font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .confirm-item {
+    flex-direction: column;
+  }
+
+  .confirm-item-actions {
+    flex-direction: row;
+    align-self: flex-end;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
   }
 }
 </style>
