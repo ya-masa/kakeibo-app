@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="submitForm">
+  <form class="card"@submit.prevent="submitForm">
     <div class="row">
       <label class="form-lavel">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />

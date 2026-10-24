@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="submitForm">
+  <form class ="card" @submit.prevent="submitForm">
     <div class="row">
       <label class="form-lavel">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />
@@ -230,7 +230,7 @@ input[type="radio"]::before {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background-color: var(--dark-brown);
+  background-color: var(--color-text);
   transform: scale(0);
   transition: transform 120ms ease-in-out;
 }
@@ -240,17 +240,17 @@ input[type="radio"]:checked::before {
 }
 
 input[type="radio"]:focus-visible {
-  outline: 2px solid var(--beige);
+  outline: 2px solid var(--color-text);
   outline-offset: 3px;
 }
 
 input[type="radio"]:checked {
-  border: 5px solid var(--color-coffee);
+  border: 5px solid var(--color-text);
   background: transparent;
 }
 
 input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-beige);
+  outline: 2px solid var(--color-text);
   outline-offset: 3px;
 }
 
