@@ -303,7 +303,7 @@ const update = async (item) => {
   color: var(--color-brown-dark, #4b382d);
 }
 
-.card {
+/*.card {
   width: 100%;
   box-sizing: border-box;
   padding: 16px;
@@ -312,7 +312,7 @@ const update = async (item) => {
   background: var(--color-surface, #fffdf9);
   box-shadow: 0 2px 8px rgb(75 56 45 / 5%);
 }
-
+*/
 .item-area {
   display: flex;
   flex-direction: column;
@@ -363,7 +363,7 @@ const update = async (item) => {
   font-weight: 600;
 }
 
-.toggle-btn {
+/*.toggle-btn {
   flex: 0 0 36px;
   width: 36px;
   height: 36px;
@@ -374,7 +374,7 @@ const update = async (item) => {
   font-size: 21px;
   line-height: 1;
   cursor: pointer;
-}
+}*/
 
 .form-label {
   display: block;
@@ -384,7 +384,7 @@ const update = async (item) => {
   font-weight: 600;
 }
 
-.input-field,
+/*.input-field,
 .select-field,
 .textarea-field {
   display: block;
@@ -410,7 +410,7 @@ const update = async (item) => {
 .input-number {
   text-align: right;
 }
-
+*/
 .month-check {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -437,7 +437,7 @@ const update = async (item) => {
   accent-color: var(--color-coffee, #6b4f3f);
 }
 
-.btn,
+/*.btn,
 .btn-red {
   display: block;
   width: 100%;
@@ -463,7 +463,7 @@ const update = async (item) => {
 .btn-red:active,
 .toggle-btn:active {
   transform: translateY(1px);
-}
+}*/
 
 @media (max-width: 480px) {
   .settings-wrapper {

@@ -243,7 +243,7 @@ a {
 
 .toggle-btn {
   padding: 4px 10px;
-  background: var(--color-beige);
+  background: var(--color-surface);
   color: var(--color-text);
   font-size: 18px;
 }
@@ -270,12 +270,12 @@ a {
 
 .tab-btn:hover,
 .tabs button:hover {
-  background: var(--color-surface-strong);
+  background: var(--color-surface);
 }
 
 .tab-btn.active,
 .tabs button.active {
-  border-color: var(--color-border);
+  border-color: var(--color-beige);
   background: var(--color-surface);
   color: var(--color-text);
   font-weight: 700;

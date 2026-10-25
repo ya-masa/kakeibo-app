@@ -123,10 +123,10 @@ function normalizeShops(shops) {
 
     <!-- タブUI -->
     <div class="tabs">
-      <button :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
-      <button :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
-      <button :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
-      <button :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
+      <button class="button" :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
+      <button class="button" :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
+      <button class="button" :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
+      <button class="button" :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
     </div>
 
     <!-- カード表示（大項目ごと） -->
@@ -144,12 +144,12 @@ function normalizeShops(shops) {
 
           <div class="item-row">
             <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
-            <span class="item-input" :class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
+            <span class="input-field" :class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
             <button class="toggle-btn" @click="toggle(item.code)">＋</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="shop-row">
-              <input v-model="item.shops[sIndex]" placeholder="ショップ名" />
+              <input v-model="item.shops[sIndex]" placeholder="ショップ名" class="input-field"/>
             </div>
             <button class="btn" @click="update(item)">
               更新
@@ -162,7 +162,7 @@ function normalizeShops(shops) {
 </template>
 
 <style scoped>
-.settings-wrapper {
+/*.settings-wrapper {
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
@@ -172,10 +172,10 @@ function normalizeShops(shops) {
   gap: 18px;
   box-sizing: border-box;
   color: var(--color-brown-dark, #49372d);
-}
+}*/
 
 /* 資産・負債・収入・支出タブ */
-.tabs {
+/*.tabs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
@@ -199,7 +199,7 @@ function normalizeShops(shops) {
   background: var(--color-coffee, #6b4f3f);
   border-color: var(--color-coffee, #6b4f3f);
   color: #fff;
-}
+}*/
 
 /* 大項目カード */
 .card {
@@ -255,25 +255,19 @@ function normalizeShops(shops) {
 }
 
 .item-code {
-  flex: 0 0 54px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 4px;
-  box-sizing: border-box;
-  border-radius: 7px;
-  background: var(--color-beige, #f2e8dc);
-  color: var(--color-coffee, #6b4f3f);
-  font-size: 13px;
+  flex: 0 0 42px;
+  display: inline-block;
   text-align: center;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-code.dirty {
   background: #f8e2dc;
 }
 
-.item-input {
+/*.input-field {
   flex: 1;
   min-width: 0;
   display: inline-flex;
@@ -282,13 +276,13 @@ function normalizeShops(shops) {
   color: var(--color-brown-dark, #49372d);
   font-size: 14px;
   overflow-wrap: anywhere;
-}
+}*/
 
 .dirty {
   color: #a34232;
 }
 
-.toggle-btn {
+/*.toggle-btn {
   flex: 0 0 36px;
   width: 36px;
   height: 36px;
@@ -299,9 +293,9 @@ function normalizeShops(shops) {
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
-}
+}*/
 
-.shop-area {
+/*.shop-area {
   margin: 2px 0 12px;
   padding: 12px;
   border: 1px solid var(--color-border, #e1d5c9);
@@ -317,7 +311,7 @@ function normalizeShops(shops) {
   gap: 8px;
 }
 
-.shop-row input {
+.shop-row input-field {
   width: 100%;
   min-width: 0;
   min-height: 42px;
@@ -354,7 +348,7 @@ function normalizeShops(shops) {
 .toggle-btn:active,
 .tabs button:active {
   transform: translateY(1px);
-}
+}*/
 
 @media (max-width: 420px) {
   .settings-wrapper {
