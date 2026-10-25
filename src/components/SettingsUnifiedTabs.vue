@@ -197,10 +197,10 @@ try {
 
     <!-- タブUI -->
     <div class="tabs">
-      <button :class="tab &&{ active: mode === 100 }" @click="mode = 100">資産</button>
-      <button :class="tab &&{ active: mode === 200 }" @click="mode = 200">負債</button>
-      <button :class="tab &&{ active: mode === 400 }" @click="mode = 400">収入</button>
-      <button :class="tab &&{ active: mode === 500 }" @click="mode = 500">支出</button>
+      <button class="button" :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
+      <button class="button" :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
+      <button class="button" :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
+      <button class="button" :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
     </div>
 
     <!-- カード表示（大項目ごと） -->
@@ -230,7 +230,7 @@ try {
           <input
             v-model="item.shoukoumoku"
             type="text"
-            class=".input-field item-input"
+            class="input-field item-input"
             @input="changeItem(item)"
             :class="{ disabled: item.disabled }"
           />
@@ -288,7 +288,7 @@ try {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  margin: 0 0 4px;
+  margin: 0px;
 }
 
 /*.tabs button {
@@ -367,19 +367,19 @@ try {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--color-coffee, #6b4f3f);
+  accent-color: var(--color-text);
 }
 
 .item-code {
   flex: 0 0 42px;
   display: inline-block;
   text-align: center;
-  color: var(--color-muted, #8a7769);
+  color: var(--color-muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
-.item-input {
+/*.item-input {
   flex: 1 1 auto;
   width: 0;
   min-width: 0;
@@ -397,14 +397,14 @@ try {
   outline-offset: 1px;
   border-color: var(--color-accent, #f47270);
 }
-
+*/
 .item-input.disabled {
-  background: var(--color-surface-strong, #efe1d2);
-  color: var(--color-muted, #8a7769);
+  background: var(--color-surface-strong);
+  color: var(--color-muted);
 }
 
 /* 小項目追加ボタン */
-.card > .btn {
+/*.card > .btn {
   width: 100%;
   min-height: 42px;
   margin: 0;
@@ -419,7 +419,7 @@ try {
 
 .card > .btn:disabled {
   opacity: 0.5;
-}
+}*/
 
 @media (max-width: 360px) {
   .settings-wrapper {

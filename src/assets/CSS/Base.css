@@ -138,7 +138,7 @@ a {
   width: 100%;
   max-width: var(--content-width);
   min-width: 0;
-  margin: 0 auto var(--space-4);
+  margin: 0 auto;
   padding: var(--space-3);
   flex: 0 1 auto;
   background: var(--color-surface);
@@ -176,7 +176,7 @@ a {
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-strong);
+  background: var(--color-surface);
   color: var(--color-text);
   font-size: 16px;
 }
@@ -262,8 +262,8 @@ a {
   padding: 10px 6px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-strong);
-  color: var(--color-text);
+  background: var(--color-background);
+  color: var(--color-muted);
   font-size: 16px;
   overflow-wrap: anywhere;
 }
@@ -276,7 +276,6 @@ a {
 .tab-btn.active,
 .tabs button.active {
   border-color: var(--color-border);
-  border-bottom: 3px solid var(--color-surface);
   background: var(--color-surface);
   color: var(--color-text);
   font-weight: 700;
