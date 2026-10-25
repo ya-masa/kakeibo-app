@@ -197,10 +197,10 @@ try {
 
     <!-- タブUI -->
     <div class="tabs">
-      <button :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
-      <button :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
-      <button :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
-      <button :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
+      <button :class="tab &&{ active: mode === 100 }" @click="mode = 100">資産</button>
+      <button :class="tab &&{ active: mode === 200 }" @click="mode = 200">負債</button>
+      <button :class="tab &&{ active: mode === 400 }" @click="mode = 400">収入</button>
+      <button :class="tab &&{ active: mode === 500 }" @click="mode = 500">支出</button>
     </div>
 
     <!-- カード表示（大項目ごと） -->
@@ -230,7 +230,7 @@ try {
           <input
             v-model="item.shoukoumoku"
             type="text"
-            class="item-input"
+            class=".input-field item-input"
             @input="changeItem(item)"
             :class="{ disabled: item.disabled }"
           />
@@ -291,7 +291,7 @@ try {
   margin: 0 0 4px;
 }
 
-.tabs button {
+/*.tabs button {
   min-width: 0;
   min-height: 42px;
   padding: 8px 4px;
@@ -307,9 +307,10 @@ try {
   background: var(--color-coffee, #6b4f3f);
   color: var(--color-white, #fff);
   border-color: var(--color-coffee, #6b4f3f);
-}
+}*/
 
 /* 大項目カード */
+/*
 .card {
   width: 100%;
   min-width: 0;
@@ -339,7 +340,7 @@ try {
   font-size: 17px;
   font-weight: 700;
 }
-
+*/
 .lock {
   flex: 0 0 auto;
   opacity: 0.65;

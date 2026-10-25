@@ -245,7 +245,7 @@ input[type="radio"]:focus-visible {
 }
 
 input[type="radio"]:checked {
-  border: 5px solid var(--color-text);
+  border: 1px solid var(--color-text);
   background: transparent;
 }
 
