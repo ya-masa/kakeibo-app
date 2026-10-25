@@ -436,7 +436,7 @@
         </button>
 
         <button
-          type="button"class="tab-btn"
+          type="button" class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '未照合' }"
           @click="manualStatusFilter = '未照合'"
         >
@@ -445,7 +445,7 @@
         </button>
 
         <button
-          type="button"class="tab-btn"
+          type="button" class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '照合済' }"
           @click="manualStatusFilter = '照合済'"
         >
@@ -454,7 +454,7 @@
         </button>
 
         <button
-          type="button"class="tab-btn"
+          type="button" class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '重複登録' }"
           @click="manualStatusFilter = '重複登録'"
         >
@@ -641,7 +641,7 @@
               <td>
                 <button
                   v-if="item.status === '照合済み'"
-                  type="button"
+                  type="button" class="btn-red"
                   :disabled="cancellingReconciliation"
                   @click="cancelConfirmedReconciliation(item)"
                 >
