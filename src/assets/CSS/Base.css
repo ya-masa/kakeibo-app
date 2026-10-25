@@ -138,7 +138,7 @@ a {
   width: 100%;
   max-width: var(--content-width);
   min-width: 0;
-  margin: 0 auto var(--space-);
+  margin: 0 auto var(--space-4);
   padding: var(--space-3);
   flex: 0 1 auto;
   background: var(--color-surface);
@@ -215,9 +215,9 @@ a {
 
 .btn,
 .btn-red {
-  width: 100%;
   margin-bottom: 10px;
   padding: 10px 16px;
+  color: var(--color-text);
 }
 
 .btn {
@@ -231,6 +231,7 @@ a {
 }
 
 .btn-red {
+  Color :var(--color-accent);
   border-color: var(--color-accent-text);
   background: var(--color-accent);
   color: var(--color-white);

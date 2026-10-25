@@ -65,7 +65,7 @@
 
       <p
         v-if="loadingAccounts"
-        class="sub-message"
+        class="message sub-message"
       >
         口座一覧を読み込み中…
       </p>
@@ -212,7 +212,7 @@
 
       <div
         v-if="loadingList"
-        class="loading-message"
+        class="message loading-message"
       >
         確定履歴を読み込み中…
       </div>
@@ -269,7 +269,7 @@
 
             <button
               type="button"
-              class="del-btn delete-button"
+              class="btn-red delete-button"
               :disabled="saving || deletingPairId === item.pairId"
               @click="deleteConfirm(item)"
             >
@@ -811,10 +811,10 @@ onMounted(async () => {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid var(--color-border, #d9cbbd);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--color-surface, #fffdf9);
-  color: var(--color-brown-dark, #44352c);
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
   box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -906,7 +906,7 @@ onMounted(async () => {
   transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
-.primary-button {
+/*.primary-button {
   flex: 1;
   border: 1px solid var(--color-coffee, #6b4f3f);
   background: var(--color-coffee, #6b4f3f);
@@ -916,14 +916,14 @@ onMounted(async () => {
 .primary-button:hover:not(:disabled) {
   border-color: var(--color-brown-dark, #44352c);
   background: var(--color-brown-dark, #44352c);
-}
+}*/
 
 .secondary-button,
 .refresh-button,
 .edit-button {
-  border: 1px solid var(--color-border, #d9cbbd);
+  border: 1px solid var(--color-border);
   background: var(--color-beige, #f0e5d7);
-  color: var(--color-brown-dark, #44352c);
+  color: var(--color-beige);
 }
 
 .secondary-button:hover:not(:disabled),
