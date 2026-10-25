@@ -8,6 +8,9 @@
 
   /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
   const mode = ref(500)
+  
+  //トグルボタンを押したときの動作
+  var openedCode = ref(null)
 
   /* GASから一覧データ取得 */
   onMounted(async () => {
@@ -66,7 +69,6 @@
   return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
   })
 
-  const openedCode = ref(null)
   //トグルボタンを押したときの動作
   const toggle = (code) => {
     console.log("toggle:", code)
@@ -145,7 +147,7 @@ function normalizeShops(shops) {
           <div class="item-row">
             <span class="item-code" :class="{ dirty: item.dirty }">{{ item.code }}</span>
             <span class="input-field" :class="{ dirty: item.dirty }">{{ item.shoukoumoku }}</span>
-            <button class="toggle-btn" @click="toggle(item.code)">＋</button>
+            <button class="toggle-btn" @click="toggle(item.code)"> {{ openedCode === item.code ? '－' : '＋' }}</button>
           </div>
           <div v-if="openedCode === item.code" class="shop-area">
             <div v-for="(shop, sIndex) in item.shops" :key="sIndex" class="shop-row">

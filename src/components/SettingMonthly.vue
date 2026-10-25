@@ -13,9 +13,9 @@
             <span class="item-No">{{ item.no }}</span>
             <span class="item-day">{{ item.day }}日</span>
             <span class="item-name">{{ item.name }}</span>
-            <button class="toggle-btn" @click="toggle(item)">{{ openLarge === item.no ? '－' : '＋' }}</button>
+            <button class="toggle-btn" @click="toggle(item)">{{ openedCode === item.no ? '－' : '＋' }}</button>
           </div>
-
+        
           <!-- 展開フォーム -->
           <div v-if="openedCode === item.no" class="card">
 
