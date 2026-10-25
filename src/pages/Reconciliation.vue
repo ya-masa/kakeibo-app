@@ -1991,7 +1991,7 @@ td small { color: var(--color-text-muted); }
 .candidate-card { padding: 14px; margin: 12px 0; overflow-wrap: anywhere; }
 .candidate-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 .candidate-status { padding: 4px 8px; border-radius: 6px; background: var(--color-surface-strong); font-size: 0.9rem; }
-.ledger-candidate { margin-top: 10px; padding: 10px; background: var(--color-greige-light); border: 1px solid var(--color-border); border-radius: 8px; }
+.ledger-candidate { margin-top: 10px; padding: 10px; background: var(--color-surface-strong); border: 1px solid var(--color-border); border-radius: 8px; }
 .reconciliation-confirm { scroll-margin-top: 20px; }
 .confirm-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .confirm-card { padding: 16px; overflow-wrap: anywhere; }
@@ -2009,7 +2009,7 @@ td small { color: var(--color-text-muted); }
 .mode-switch button { min-width: 120px; min-height: 44px; padding: 10px 20px; }
 /*.mode-switch button.mode-active { border-color: var(--color-); background: var(--color-surface-strong, #efe1d2); }*/
 
-/*.manual-reconciliation { min-width: 0; }
+.manual-reconciliation { min-width: 0; }
 .manual-card-list { display: grid; gap: 12px; }
 .manual-check-card { display: flex; flex-direction: column; gap: 10px; }
 .manual-counterpart-title { font-size: 1rem; font-weight: 700; text-align: left; }
@@ -2020,7 +2020,7 @@ td small { color: var(--color-text-muted); }
 .manual-card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .manual-filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .manual-filter-tabs button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; }
-.manual-filter-tabs button span { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--color-surface-strong, #efe1d2); font-size: 12px; }*/
+.manual-filter-tabs button span { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--color-surface-strong, #efe1d2); font-size: 12px; }
 
 /* 照合状態ごとの行色は、状態を識別できるよう控えめに維持 */
 tbody tr.ledger-row-done { background: #f1f5ed; }
