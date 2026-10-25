@@ -174,8 +174,8 @@
 
           <button
             v-if="editingPairId"
-            type="btn button"
-            class="secondary-button"
+            type="button"
+            class="cancel-btn secondary-button"
             :disabled="saving"
             @click="cancelEdit"
           >
@@ -896,51 +896,14 @@ onMounted(async () => {
 .refresh-button,
 .edit-button,
 .delete-button {
-  min-height: 40px;
+  height: 40px;
   padding: 9px 16px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
   line-height: 1.35;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
-/*.primary-button {
-  flex: 1;
-  border: 1px solid var(--color-coffee, #6b4f3f);
-  background: var(--color-coffee, #6b4f3f);
-  color: #fff;
-}
-
-.primary-button:hover:not(:disabled) {
-  border-color: var(--color-brown-dark, #44352c);
-  background: var(--color-brown-dark, #44352c);
-}*/
-
-.secondary-button,
-.refresh-button,
-.edit-button {
-  border: 1px solid var(--color-border);
-  background: var(--color-beige, #f0e5d7);
-  color: var(--color-beige);
-}
-
-.secondary-button:hover:not(:disabled),
-.refresh-button:hover:not(:disabled),
-.edit-button:hover:not(:disabled) {
-  background: var(--color-background, #f5f0e8);
-}
-
-/*.delete-button {
-  border: 1px solid #d7aaa0;
-  background: #fff8f6;
-  color: #963f32;
-}
-
-.delete-button:hover:not(:disabled) {
-  background: #f9e8e3;
-}*/
 
 .primary-button:disabled,
 .secondary-button:disabled,
@@ -978,8 +941,6 @@ onMounted(async () => {
 
 .refresh-button {
   flex-shrink: 0;
-  min-height: 34px;
-  padding: 6px 10px;
   font-size: 12px;
 }
 
@@ -994,6 +955,7 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 14px;
   padding: 16px 0;
+  min-height: 34px;
 }
 
 .confirm-item-main {

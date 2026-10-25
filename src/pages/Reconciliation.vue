@@ -7,7 +7,7 @@
       </div>
 
       <button
-        class="btn button-secondary"
+        class="cancel-btn button-secondary"
         :disabled="loading"
       >
         {{ loading ? "読込中..." : "再読み込み" }}
@@ -15,11 +15,11 @@
     </header>
 
     <!-- エラー・メッセージ -->
-    <p v-if="errorMessage" class="message error">
+    <p v-if="errorMessage" class="error errormessage">
       {{ errorMessage }}
     </p>
 
-    <p v-if="successMessage" class="message success">
+    <p v-if="successMessage" class="success successmessage">
       {{ successMessage }}
     </p>
     <!-- 照合モード切り替え -->
@@ -29,7 +29,7 @@
       <div class="mode-switch">
         <button
           type="button"
-          :class="['btn', { 'mode-active': reconciliationMode === 'csv' }]"
+          :class="['tab-btn', { 'active': reconciliationMode === 'csv' }]"
           @click="reconciliationMode = 'csv'"
         >
           CSV照合
@@ -37,7 +37,7 @@
 
         <button
           type="button"
-          :class="['btn', { 'mode-active': reconciliationMode === 'manual' }]"
+          :class="['tab-btn', { 'active': reconciliationMode === 'manual' }]"
           @click="reconciliationMode = 'manual'"
         >
           手照合
@@ -47,13 +47,14 @@
     <!-- 口座・カード選択 -->
     <section class="card panel">
       <h2>照合する口座・カード</h2>
-      <div class="card filter-row">
+      <div class="filter-row">
 
         <label>
           口座・カード
 
           <select
             v-model="selectedAccountCode"
+            class="select-field"
           >
             <option value="">選択してください</option>
 
@@ -71,6 +72,7 @@
           照合状態
           <select
             v-model="selectedStatus"
+            class="select-field"
             :class="statusFilterClass(selectedStatus)"
           >
             <option value="すべて">すべて</option>
@@ -87,6 +89,7 @@
           <input
             v-model.trim="keyword"
             type="search"
+            class="input-field"
             placeholder="店・内容・固有ID"
           />
         </label>
@@ -130,9 +133,9 @@
     <!-- CSV取込 -->
     <section
       v-if="reconciliationMode === 'csv'"
-      class="panel"
+      class="card panel"
     >
-      <div class="card section-header">
+      <div class="section-header">
         <div>
           <h2>明細CSVの取込</h2>
           <p>
@@ -146,6 +149,7 @@
           ref="csvInput"
           type="file"
           accept=".csv,text/csv"
+          class="input-field"
           @change="onCsvSelected"
         />
 
@@ -160,6 +164,7 @@
         <button
           type="button"
           :disabled="!selectedFile || uploadingCsv"
+          class="btn-red"
           @click="importCsv"
         >
           {{ uploadingCsv ? "取り込み中…" : "CSVを取り込む" }}
@@ -175,7 +180,8 @@
             {{ item.date }} ／ {{ item.place }} ／
             {{ formatAmount(item.amount) }}
           </div>
-        </div>      </div>
+        </div>      
+      </div>
 
       <p v-if="selectedFile" class="file-name">
         選択中：{{ selectedFile.name }}
@@ -198,8 +204,8 @@
         CSV明細と家計簿の取引が正しい組み合わせか確認してください。
       </p>
 
-      <div class="confirm-comparison">
-        <article class="confirm-card">
+      <div class="card confirm-comparison">
+        <article class="card confirm-card">
           <h3>CSV明細</h3>
 
           <p>
@@ -233,7 +239,7 @@
           </p>
         </article>
 
-        <article class="confirm-card">
+        <article class="card confirm-card">
           <h3>家計簿の取引</h3>
 
           <p>
@@ -270,7 +276,7 @@
 
       <div class="confirm-actions">
         <button
-          type="button"
+          type="button"class="cancel-btn"
           @click="cancelEposReconciliation"
           :disabled="confirmingReconciliation"
         >
@@ -278,7 +284,7 @@
         </button>
 
         <button
-          type="button"
+          type="button"class="btn"
           @click="confirmEposReconciliation"
           :disabled="confirmingReconciliation"
         >
@@ -304,24 +310,24 @@
 
       <template v-else-if="[201, 202].includes(Number(selectedAccountCode))">
         <div class="candidate-summary">
-          <button type="button" @click="candidateFilter = 'すべて'">
+          <button type="button" class="tab-btn" @click="candidateFilter = 'すべて'">
             すべて {{ eposCandidates.length }}
           </button>
 
-          <button type="button" @click="candidateFilter = '一致候補'">
+          <button type="button" class="tab-btn" @click="candidateFilter = '一致候補'">
             一致候補 {{ candidateCount('一致候補') }}
           </button>
 
-          <button type="button" @click="candidateFilter = '要確認'">
+          <button type="button" class="tab-btn" @click="candidateFilter = '要確認'">
             要確認 {{ candidateCount('要確認') }}
           </button>
 
-          <button type="button" @click="candidateFilter = '未対応'">
+          <button type="button" class="tab-btn" @click="candidateFilter = '未対応'">
             未対応 {{ candidateCount('未対応') }}
           </button>
 
           <button
-            type="button"
+            type="button" class="cancel-btn"
             @click="loadEposCandidates"
             :disabled="loadingCandidates"
           >
@@ -338,11 +344,11 @@
         <article
           v-for="item in filteredEposCandidates"
           :key="item.statementId"
-          class="candidate-card"
+          class="card candidate-card"
         >
           <div class="candidate-heading">
             <strong>{{ item.place || "利用先不明" }}</strong>
-            <span class="candidate-status">{{ item.status }}</span>
+            <span class="card candidate-status">{{ item.status }}</span>
           </div>
 
           <p>
@@ -367,7 +373,7 @@
             <div
               v-for="candidate in item.candidates"
               :key="`${item.statementId}-${candidate.rowNo}`"
-              class="ledger-candidate"
+              class="card ledger-candidate"
             >
               <p>
                 {{ candidate.date }} ／
@@ -386,7 +392,7 @@
                 家計簿ID：{{ candidate.id }}
               </p>
               <button
-                type="button"
+                type="button" class="btn"
                 @click="selectEposCandidate(item, candidate)"
               >
                 この取引と照合
@@ -395,7 +401,7 @@
           </div>
           <button
             v-if="item.status === '未対応'"
-            type="button"
+            type="button" class="cancel-btn"
             @click="goToAddFromStatement(item)"
           >
             家計簿に入力
@@ -422,7 +428,7 @@
       <!-- 手照合の絞り込みタブ -->
       <div class="manual-filter-tabs">
         <button
-          type="button"
+          type="button" class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === 'すべて' }"
           @click="manualStatusFilter = 'すべて'"
         >
@@ -431,7 +437,7 @@
         </button>
 
         <button
-          type="button"
+          type="button"class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '未照合' }"
           @click="manualStatusFilter = '未照合'"
         >
@@ -440,7 +446,7 @@
         </button>
 
         <button
-          type="button"
+          type="button"class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '照合済' }"
           @click="manualStatusFilter = '照合済'"
         >
@@ -449,7 +455,7 @@
         </button>
 
         <button
-          type="button"
+          type="button"class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '重複登録' }"
           @click="manualStatusFilter = '重複登録'"
         >
@@ -457,7 +463,7 @@
           <span>{{ manualFilterCounts.duplicates }}</span>
         </button>
         <button
-          type="button"
+          type="button" class="tab-btn"
           :class="{ 'filter-selected': manualStatusFilter === '要確認' }"
           @click="manualStatusFilter = '要確認'"
         >
@@ -494,7 +500,7 @@
             </strong>
 
             <button
-              type="button"
+              type="button" class="cancel-btn"
               @click="goToEditFromManual(item)"
             >
               修正
@@ -538,6 +544,7 @@
               pendingManualChecks[String(item.id)] === undefined
             "
             @click="confirmManualReconciliation(item)"
+            class="btn-red"
           >
             {{
               confirmingManualReconciliation
@@ -1831,7 +1838,7 @@ p {
   line-height: 1.55;
 }
 
-.panel,
+/*.panel,
 .card,
 .summary-card,
 .candidate-card,
@@ -1840,7 +1847,7 @@ p {
   background: var(--color-surface, #f5e8d8);
   border: 1px solid var(--color-border, #eee7df);
   border-radius: 12px;
-}
+}*/
 
 .panel { margin-bottom: 20px; padding: 20px; }
 .card { padding: 20px; }
@@ -1874,20 +1881,20 @@ input[type="search"] {
   width: 100%;
   min-height: 40px;
   padding: 8px 10px;
-  border: 1px solid var(--color-border, #eee7df);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--color-accent);
+  background: var(--color-surface);
   color: inherit;
 }
 
-input:focus,
+/*input:focus,
 select:focus,
 button:focus-visible {
-  outline: 2px solid var(--color-coffee, #6b4f3f);
+  outline: 2px solid var(--color-beige);
   outline-offset: 2px;
-}
+}*/
 
-.button,
+/*.button,
 .csv-row button,
 .candidate-summary button,
 .mode-switch button,
@@ -1907,15 +1914,15 @@ button:focus-visible {
 .csv-row button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
-}
+}*/
 
 .button-primary {
-  border-color: var(--color-coffee, #6b4f3f);
-  background: var(--color-coffee, #6b4f3f);
-  color: #fff;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
-.button-secondary { background: var(--color-surface, #f5e8d8); }
+.button-secondary { background: var(--color-surface); }
 
 .summary-grid {
   display: grid;
@@ -1928,7 +1935,7 @@ button:focus-visible {
 .summary-card span,
 .summary-card small {
   display: block;
-  color: var(--color-text-muted, #776b62);
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 .summary-card strong {
@@ -1937,8 +1944,8 @@ button:focus-visible {
   font-size: clamp(23px, 2.5vw, 30px);
   overflow-wrap: anywhere;
 }
-.summary-card-done { background: var(--color-surface-strong, #efe1d2); }
-.summary-card-done strong { color: var(--color-coffee, #6b4f3f); }
+.summary-card-done { background: var(--color-surface); }
+.summary-card-done strong { color: var(--color-text); }
 
 .csv-row {
   display: flex;
@@ -1948,9 +1955,9 @@ button:focus-visible {
   margin-top: 16px;
 }
 .csv-row > input[type="file"] { max-width: 100%; }
-.file-name { margin-top: 12px; color: var(--color-brown-dark, #49382f); overflow-wrap: anywhere; }
+.file-name { margin-top: 12px; color: var(--color-beige); overflow-wrap: anywhere; }
 .help-text { margin-top: 12px; font-size: 12px; }
-.result-count { color: var(--color-text-muted, #776b62); font-size: 13px; }
+.result-count { color: var(--color-text-muted); font-size: 13px; }
 
 .table-wrapper { width: 100%; margin-top: 16px; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px; }
@@ -1959,62 +1966,62 @@ th, td {
   border-bottom: 1px solid var(--color-border, #eee7df);
   text-align: left;
 }
-th { background: var(--color-surface-strong, #efe1d2); color: var(--color-brown-dark, #49382f); font-weight: 600; }
-tbody tr:hover { background: var(--color-greige-light, #f7f4ef); }
-td small { color: var(--color-text-muted, #776b62); }
+th { background: var(--color-surface-strong, #efe1d2); color: var(--color-text-muted); font-weight: 600; }
+tbody tr:hover { background: var(--color-surface-strong); }
+td small { color: var(--color-text-muted); }
 .content-cell { min-width: 160px; white-space: normal; overflow-wrap: anywhere; }
 .number-cell { text-align: right; font-variant-numeric: tabular-nums; }
-.amount-positive { color: #28734a; }
-.amount-negative { color: #b94b42; }
+.amount-positive { color: var(--color-success); }
+.amount-negative { color: var(--color-danger); }
 .id-cell { font-family: monospace; }
 
 .status-badge { display: inline-block; padding: 4px 9px; border-radius: 20px; font-size: 12px; }
-.status-unchecked { background: #eee7df; color: #65584f; }
-.status-done { background: #e3eee3; color: #286344; }
-.status-review { background: #f5ead5; color: #805b23; }
-.status-mismatch { background: #f6e2df; color: #9e3e36; }
-.status-excluded { background: #e9e4de; color: #6e665f; }
+.status-unchecked { background: #eee7df; color: var(--color-text-muted); }
+.status-done { background: #e3eee3; color: var(--color-success); }
+.status-review { background: #f5ead5; color: var(--color-warning); }
+.status-mismatch { background: #f6e2df; color: var(--color-danger); }
+.status-excluded { background: #e9e4de; color: var(--color-text-muted); }
 
-.empty-state { padding: 40px 16px; color: var(--color-text-muted, #776b62); text-align: center; }
-.message { margin-bottom: 16px; padding: 12px 16px; border: 1px solid var(--color-border, #eee7df); border-radius: 8px; }
-.error { background: #f8e7e3; color: #9e3e36; }
-.success { background: #e7efe4; color: #286344; }
+.empty-state { padding: 40px 16px; color: var(--color-text-muted); text-align: center; }
+.message { margin-bottom: 16px; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: 8px; }
+/*.error { background: #f8e7e3; color: var(--color-danger); }
+.success { background: #e7efe4; color: var(--color-success); }*/
 
 .reconciliation-candidates { margin-top: 24px; }
 .candidate-summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .candidate-card { padding: 14px; margin: 12px 0; overflow-wrap: anywhere; }
 .candidate-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
-.candidate-status { padding: 4px 8px; border-radius: 6px; background: var(--color-surface-strong, #efe1d2); font-size: 0.9rem; }
-.ledger-candidate { margin-top: 10px; padding: 10px; background: var(--color-greige-light, #f7f4ef); border: 1px solid var(--color-border, #eee7df); border-radius: 8px; }
+.candidate-status { padding: 4px 8px; border-radius: 6px; background: var(--color-surface-strong); font-size: 0.9rem; }
+.ledger-candidate { margin-top: 10px; padding: 10px; background: var(--color-greige-light); border: 1px solid var(--color-border); border-radius: 8px; }
 .reconciliation-confirm { scroll-margin-top: 20px; }
 .confirm-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .confirm-card { padding: 16px; overflow-wrap: anywhere; }
-.confirm-warning { padding: 10px 12px; border-radius: 8px; background: #f5ead5; color: #805b23; }
+.confirm-warning { padding: 10px 12px; border-radius: 8px; background: #f5ead5; color: var(--color-warning); }
 .confirm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 
 .filter-selected,
 .manual-filter-tabs button.filter-selected {
-  border-color: var(--color-coffee, #6b4f3f);
-  background: var(--color-surface-strong, #efe1d2);
-  color: var(--color-brown-dark, #49382f);
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   font-weight: 700;
 }
 .mode-switch { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .mode-switch button { min-width: 120px; min-height: 44px; padding: 10px 20px; }
-.mode-switch button.mode-active { border-color: var(--color-coffee, #6b4f3f); background: var(--color-surface-strong, #efe1d2); }
+/*.mode-switch button.mode-active { border-color: var(--color-); background: var(--color-surface-strong, #efe1d2); }*/
 
-.manual-reconciliation { min-width: 0; }
+/*.manual-reconciliation { min-width: 0; }
 .manual-card-list { display: grid; gap: 12px; }
 .manual-check-card { display: flex; flex-direction: column; gap: 10px; }
 .manual-counterpart-title { font-size: 1rem; font-weight: 700; text-align: left; }
 .manual-check-details { padding-left: 12px; }
 .manual-check-details p { margin: 4px 0; }
 .manual-check-label { display: flex; flex-direction: row; align-items: center; gap: 8px; margin-top: 4px; cursor: pointer; }
-.manual-check-label input { width: 18px; height: 18px; accent-color: var(--color-coffee, #6b4f3f); }
+.manual-check-label input { width: 18px; height: 18px; accent-color: var(--color-accent); }
 .manual-card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .manual-filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .manual-filter-tabs button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; }
-.manual-filter-tabs button span { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--color-surface-strong, #efe1d2); font-size: 12px; }
+.manual-filter-tabs button span { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--color-surface-strong, #efe1d2); font-size: 12px; }*/
 
 /* 照合状態ごとの行色は、状態を識別できるよう控えめに維持 */
 tbody tr.ledger-row-done { background: #f1f5ed; }
