@@ -560,7 +560,7 @@
 
 
     <!-- 仕訳一覧 -->
-    <section class="panel">
+    <section class="card panel">
       <div class="section-header">
         <div>
           <h2>照合対象の仕訳</h2>
