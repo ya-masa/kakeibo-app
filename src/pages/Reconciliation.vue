@@ -347,10 +347,9 @@
           class="card candidate-card"
         >
           <div class="candidate-heading">
-            <strong>{{ item.place || "利用先不明" }}</strong>
             <span class="card candidate-status">{{ item.status }}</span>
           </div>
-
+          <strong>{{ item.place || "利用先不明" }}</strong>
           <p>
             利用日：{{ item.date }}
           </p>
@@ -417,7 +416,7 @@
     <!-- 手照合用の確認カード -->
     <section
       v-if="reconciliationMode === 'manual'"
-      class="panel manual-reconciliation"
+      class="card panel manual-reconciliation"
     >
       <div class="section-header">
         <div>

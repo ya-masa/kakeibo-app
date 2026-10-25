@@ -249,7 +249,7 @@ a {
 
 .cancel-btn:hover,
 .cancel-btn:active {
-  background: var(--color-accent-hover);
+  background: var(--color-surface-strong);
 }
 
 .toggle-btn {
