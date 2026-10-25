@@ -261,9 +261,8 @@ a {
   flex: 1 1 0;
   padding: 10px 6px;
   border: 1px solid var(--color-border);
-  border-bottom-color: var(--color-border);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-strong);
   color: var(--color-text);
   font-size: 16px;
   overflow-wrap: anywhere;
@@ -271,14 +270,14 @@ a {
 
 .tab-btn:hover,
 .tabs button:hover {
-  background: var(--color-beige-hover);
+  background: var(--color-surface-strong);
 }
 
 .tab-btn.active,
 .tabs button.active {
   border-color: var(--color-border);
   border-bottom: 3px solid var(--color-surface);
-  background: var(--color-beige);
+  background: var(--color-surface);
   color: var(--color-text);
   font-weight: 700;
 }

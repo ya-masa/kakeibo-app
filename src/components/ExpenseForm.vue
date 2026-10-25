@@ -259,19 +259,20 @@ input[type="radio"]:checked::before {
 }
 
 input[type="radio"]:focus-visible {
-  outline: 1px solid var(--color-text);
+  outline: 2px solid var(--color-text);
   outline-offset: 1px;
 }
 
 input[type="radio"]:checked {
-  border: 5px solid var(--color-text);
+  border: 1px solid var(--color-text);
   background: transparent;
 }
 
 input[type="radio"]:focus-visible {
-  outline: 1px solid var(--color-text);
+  outline: 2px solid var(--color-text);
   outline-offset: 1px;
 }
+
 
 @media (max-width: 400px) {
   .row {

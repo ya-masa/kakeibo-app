@@ -265,7 +265,7 @@ input[type="radio"]:checked::before {
 
 input[type="radio"]:focus-visible {
   outline: 2px solid var(--color-text);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
 
 input[type="radio"]:checked {
@@ -275,8 +275,9 @@ input[type="radio"]:checked {
 
 input[type="radio"]:focus-visible {
   outline: 2px solid var(--color-text);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
+
 
 @media (max-width: 400px) {
   .row {
