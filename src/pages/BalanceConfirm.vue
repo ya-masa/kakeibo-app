@@ -11,7 +11,7 @@
 
       <h1>残高の確定</h1>
       <p class="page-description">
-        指定した日付の口座残高を確定し、その後の残高計算の基準にします。
+        指定した日付の残高を確定し、その後の残高計算の基準にします。
       </p>
     </header>
 
@@ -46,7 +46,7 @@
       <select
         id="account-select"
         v-model="selectedAccountCode"
-        class="form-control"
+        class="select-field form-control"
         :disabled="loadingAccounts || saving"
         @change="onAccountChange"
       >
@@ -104,7 +104,7 @@
             id="confirm-date"
             v-model="form.date"
             type="date"
-            class="form-control"
+            class="input-field form-control"
             required
             :disabled="saving"
           />
@@ -125,7 +125,7 @@
               type="number"
               step="1"
               inputmode="numeric"
-              class="form-control amount-input"
+              class="input-field form-control amount-input"
               placeholder="例：125000"
               required
               :disabled="saving"
@@ -149,7 +149,7 @@
           <textarea
             id="confirm-memo"
             v-model="form.memo"
-            class="form-control memo-input"
+            class="textarea-field form-control memo-input"
             rows="2"
             maxlength="500"
             placeholder="残高確認のメモ"
@@ -160,7 +160,7 @@
         <div class="form-actions">
           <button
             type="submit"
-            class="primary-button"
+            class="btn primary-button"
             :disabled="saving"
           >
             {{
@@ -174,7 +174,7 @@
 
           <button
             v-if="editingPairId"
-            type="button"
+            type="btn button"
             class="secondary-button"
             :disabled="saving"
             @click="cancelEdit"
@@ -202,7 +202,7 @@
         <button
           v-if="selectedAccountCode"
           type="button"
-          class="refresh-button"
+          class="btn refresh-button"
           :disabled="loadingList || saving"
           @click="loadConfirmList"
         >
@@ -260,7 +260,7 @@
           <div class="confirm-item-actions">
             <button
               type="button"
-              class="edit-button"
+              class="btn edit-button"
               :disabled="saving || deletingPairId === item.pairId"
               @click="startEdit(item)"
             >
@@ -269,7 +269,7 @@
 
             <button
               type="button"
-              class="delete-button"
+              class="del-btn delete-button"
               :disabled="saving || deletingPairId === item.pairId"
               @click="deleteConfirm(item)"
             >
@@ -743,7 +743,7 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 20px 16px 40px;
   box-sizing: border-box;
-  color: var(--color-brown-dark, #44352c);
+  color: var(--color-text);
 }
 
 .page-header {
@@ -756,19 +756,19 @@ onMounted(async () => {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--color-coffee, #6b4f3f);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .back-button:hover {
-  color: var(--color-brown-dark, #44352c);
+  color: var(--color-text);
 }
 
 .page-header h1 {
   margin: 12px 0 8px;
-  color: var(--color-brown-dark, #44352c);
+  color: var(--color-text);
   font-size: 24px;
   font-weight: 700;
   line-height: 1.4;
@@ -776,12 +776,12 @@ onMounted(async () => {
 
 .page-description {
   margin: 0;
-  color: var(--color-text-muted, #786b61);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.7;
 }
 
-.card {
+/*.card {
   margin-bottom: 16px;
   padding: 20px;
   border: 1px solid var(--color-border, #e3d8cc);
@@ -796,12 +796,12 @@ onMounted(async () => {
   font-size: 17px;
   font-weight: 700;
   line-height: 1.45;
-}
+}*/
 
 .field-label {
   display: block;
   margin-bottom: 8px;
-  color: var(--color-brown-dark, #44352c);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
 }
@@ -932,7 +932,7 @@ onMounted(async () => {
   background: var(--color-background, #f5f0e8);
 }
 
-.delete-button {
+/*.delete-button {
   border: 1px solid #d7aaa0;
   background: #fff8f6;
   color: #963f32;
@@ -940,7 +940,7 @@ onMounted(async () => {
 
 .delete-button:hover:not(:disabled) {
   background: #f9e8e3;
-}
+}*/
 
 .primary-button:disabled,
 .secondary-button:disabled,
@@ -958,18 +958,6 @@ onMounted(async () => {
   font-size: 14px;
   line-height: 1.6;
   white-space: pre-line;
-}
-
-.error-message {
-  border: 1px solid #e6b9b0;
-  background: #fff4f1;
-  color: #963f32;
-}
-
-.success-message {
-  border: 1px solid #b8d2b6;
-  background: #f3f8f0;
-  color: #38623a;
 }
 
 .list-header {
@@ -1006,7 +994,6 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 14px;
   padding: 16px 0;
-  border-top: 1px solid var(--color-border, #e3d8cc);
 }
 
 .confirm-item-main {
@@ -1016,12 +1003,10 @@ onMounted(async () => {
 
 .confirm-date {
   margin-bottom: 5px;
-  color: var(--color-text-muted, #786b61);
   font-size: 13px;
 }
 
 .confirm-amount {
-  color: var(--color-brown-dark, #44352c);
   font-size: 20px;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -1029,7 +1014,6 @@ onMounted(async () => {
 
 .confirm-memo {
   margin: 7px 0 0;
-  color: var(--color-text-muted, #786b61);
   font-size: 12px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -1044,7 +1028,6 @@ onMounted(async () => {
 .empty-message,
 .loading-message {
   padding: 18px 0;
-  color: var(--color-text-muted, #786b61);
   font-size: 14px;
   line-height: 1.6;
   text-align: center;
