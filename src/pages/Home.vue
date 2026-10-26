@@ -333,34 +333,13 @@
 
   // 今月の未確認件数
   function calcUncheckedCount() {
-    console.log("① calcUncheckedCount 開始")
-    console.log("② list件数:", list.value.length)
 
-    console.log(
-      "③ 収入・支出データ:",
-      list.value.filter(item =>
-        ["4_収入", "5_支出"].includes(item.group)
-      )
-    )
 
     uncheckedCount.value = list.value.filter(item =>
       ["4_収入", "5_支出"].includes(item.group) &&
       item.check === false
     ).length
 
-    console.log(
-      "チェック値の内訳:",
-      list.value
-        .filter(item => ["4_収入", "5_支出"].includes(item.group))
-        .map(item => ({
-          group: item.group,
-          check: item.check,
-          type: typeof item.check
-        }))
-    )
-
-
-    console.log("④ 今月の未確認件数:", uncheckedCount.value)
   }
 
   // 今日の支出を費目別に集計
@@ -397,8 +376,6 @@
 
     todayExpenseTotal.value = total
 
-    console.log("今日の支出:", todayExpenseSummary.value)
-    console.log("今日の支出合計:", todayExpenseTotal.value)
   }
 
 
@@ -589,15 +566,13 @@
   onMounted(async () => {
     await fetchThisMonth()
     calcMonthly()
-    console.log("accountSubs:", accountSubs.value)
     calcExpenseSummary()
     calcAccounts()
     calcUncheckedCount()
-    console.log("accountSubs:", accountSubs.value)
     calcTodayExpense()
 
     setTimeout(() => {
-      loadingStore.globalLoading.value = false
+      /*loadingStore.globalLoading.value = false*/
     }, 500)
   })
 
