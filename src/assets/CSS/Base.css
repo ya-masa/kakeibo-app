@@ -15,9 +15,9 @@
     --color-accent-light: #FFF5F5;/*未入力の背景色*/
     --color-greige-light: #F0EDE5;/*使っているところがなくなったら削除*/
 
-    /* メインカラー：山吹色 */
-    --color-beige: #D6A43B;        /* 通常ボタン */
-    --color-beige-hover: #B88926;  /* 通常ボタン hover */
+    /* メインカラー：クリームイエロー */
+    --color-beige: #FFF5D9;        /* 通常ボタン */
+    --color-beige-hover: #F0E0B5;  /* 通常ボタン hover */
 
     /* 文字・境界線 */
     --color-text: #39352E;         /* 通常の文字 */
