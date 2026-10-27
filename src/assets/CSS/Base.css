@@ -234,12 +234,14 @@ a {
   padding: 12px 20px;
   font-size: 17px;
   font-weight: 700;
+  border-radius: var(--radius-md);
 }
 /* 中くらいのボタン　横並びに2個くらい配置するとき　*/
 .btn-md {
   min-height: 46px;
   padding: 10px 16px;
   font-size: 16px;
+  border-radius: var(--radius-md);
 }
 
 /* 小さいボタン　一覧や補助的な操作の時　*/
@@ -247,6 +249,7 @@ a {
   min-height: 38px;
   padding: 6px 12px;
   font-size: 14px;
+  border-radius: var(--radius-md);
 }
 
 .btn,
@@ -254,6 +257,7 @@ a {
   margin-bottom: 10px;
   padding: 10px 16px;
   color: var(--color-text);
+  border-radius: var(--radius-md);
 }
 
 .btn {
