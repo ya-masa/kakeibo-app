@@ -133,6 +133,28 @@ a {
   color: var(--color-text);
 }
 
+/* ---------- 最優先の金額の見易さのために ---------- */
+/* 金額・数値の表示 */
+.amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  font-weight: 600;
+}
+
+/* 主要な金額 */
+.amount-primary {
+  font-size: 30px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* マイナス金額 */
+.amount-negative {
+  color: var(--color-danger);
+}
+
+
+
 /* ---------- 共通コンテナ ---------- */
 .card {
   width: 100%;
@@ -203,14 +225,28 @@ a {
 }
 
 /* ---------- 共通ボタン ---------- */
-.btn,
-.btn-red,
-.toggle-btn,.cancel-btn{
-  min-height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+
+/* 大きいボタン（大きさのみ）　*/
+.btn-lg {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: 700;
+}
+/* 中くらいのボタン　横並びに2個くらい配置するとき　*/
+.btn-md {
+  min-height: 46px;
+  padding: 10px 16px;
   font-size: 16px;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* 小さいボタン　一覧や補助的な操作の時　*/
+.btn-sm {
+  min-height: 38px;
+  padding: 6px 12px;
+  font-size: 14px;
 }
 
 .btn,
@@ -493,3 +529,5 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+

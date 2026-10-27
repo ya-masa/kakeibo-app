@@ -274,15 +274,47 @@
 
 
   async function fetchThisMonth() {
+    const start = getMonthStart();
+    const end = getMonthEnd();
+
     const params = new URLSearchParams({
       list: "homelist",
-      start: getMonthStart(),
-      end: getMonthEnd()
-    })
+      start,
+      end
+    });
 
-    const res = await fetch(`${GAS_URL}?${params}`)
-    list.value = await res.json()
+    const url = `${GAS_URL}?${params}`;
+    const startedAt = performance.now();
+
+    console.log("[Home] データ取得開始", { start, end });
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTPエラー: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("GASの応答が配列ではありません");
+      }
+
+      list.value = data;
+
+      console.log("[Home] データ取得完了", {
+        件数: data.length,
+        所要時間: `${((performance.now() - startedAt) / 1000).toFixed(2)}秒`
+      });
+
+      return true;
+    } catch (error) {
+      console.error("[Home] データ取得失敗", error);
+      return false;
+    }
   }
+
 
   watch(outputMonth, async () => {
     await fetchThisMonth()
@@ -563,18 +595,33 @@
   const labels = computed(() => expenseSummary.value.map(i => i.name))
   const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
 
-  onMounted(async () => {
-    await fetchThisMonth()
-    calcMonthly()
-    calcExpenseSummary()
-    calcAccounts()
-    calcUncheckedCount()
-    calcTodayExpense()
 
-    setTimeout(() => {
-      /*loadingStore.globalLoading.value = false*/
-    }, 500)
-  })
+onMounted(async () => {
+  const totalStartedAt = performance.now();
+
+  const success = await fetchThisMonth();
+  const fetchFinishedAt = performance.now();
+
+  if (!success) {
+    console.error("[Home] データ取得失敗のため、集計を中止しました");
+    return;
+  }
+
+  calcMonthly();
+  calcExpenseSummary();
+  calcAccounts();
+  calcUncheckedCount();
+  calcTodayExpense();
+
+  const calcFinishedAt = performance.now();
+
+  console.log("[Home] 処理時間", {
+    通信時間: `${((fetchFinishedAt - totalStartedAt) / 1000).toFixed(2)}秒`,
+    集計時間: `${((calcFinishedAt - fetchFinishedAt) / 1000).toFixed(3)}秒`,
+    合計時間: `${((calcFinishedAt - totalStartedAt) / 1000).toFixed(2)}秒`
+  });
+});
+
 
 
   // 残高確定画面へ移動
