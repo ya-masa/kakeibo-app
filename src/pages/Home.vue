@@ -613,8 +613,10 @@
 
 
 
+
 <style scoped>
-/* ホーム画面固有のレイアウト。色・文字・カードの基本設定は Base.css に合わせる。 */
+/* ホーム画面固有のレイアウトのみ。
+   色・基本文字・カード・共通ボタン・金額表示は Base.css を使用。 */
 
 /* 未確認データ */
 .unchecked-content {
@@ -633,19 +635,15 @@
 
 .unchecked-count {
   flex-shrink: 0;
-  margin: 0;
   color: var(--color-danger);
   font-size: 30px;
-  font-weight: 400;
   line-height: 1.2;
-  font-variant-numeric: tabular-nums;
 }
 
 .unchecked-message {
   min-width: 0;
   color: var(--color-muted);
   font-size: 14px;
-  font-weight: 400;
 }
 
 .unchecked-action {
@@ -674,9 +672,6 @@
 .today-expense-header h2 {
   min-width: 0;
   margin: 0;
-  color: var(--color-text);
-  font-size: 20px;
-  font-weight: 400;
   text-align: left;
 }
 
@@ -687,7 +682,6 @@
   background: var(--color-background);
   color: var(--color-muted);
   font-size: 13px;
-  font-weight: 400;
 }
 
 .today-expense-list {
@@ -704,7 +698,6 @@
   column-gap: 12px;
   width: 100%;
   min-width: 0;
-  box-sizing: border-box;
 }
 
 .today-expense-row > span:first-child,
@@ -713,78 +706,51 @@
   text-align: left;
 }
 
-.today-expense-row .amount,
-.today-expense-total .amount {
-  min-width: 0;
-  margin: 0;
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
 .today-expense-row {
   padding: 8px 0;
-  color: var(--color-text);
   font-size: 14px;
-  font-weight: 400;
 }
 
 .today-expense-total {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-size: 16px;
-  font-weight: 400;
 }
 
 .today-expense-total .amount {
   font-size: 18px;
-  font-weight: 400;
 }
 
 .no-expense {
   margin: 8px 0 12px;
   color: var(--color-muted);
   font-size: 14px;
-  font-weight: 400;
 }
 
-/* 一か月の収支 */
-.row {
-  display: flex;
+/* 一か月の収支：中央寄りの領域で項目名は左、金額は右 */
+.card > .row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
+  width: 100%;
+  max-width: 320px;
   min-width: 0;
+  margin-inline: auto;
   padding: 8px 0;
-  font-weight: 400;
 }
 
-.row > * {
+.card > .row > * {
   min-width: 0;
 }
 
-.row > .amount {
-  flex: 0 0 auto;
-  margin: 0;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.row.total {
+.card > .row.total {
   margin-top: 4px;
   padding-top: 12px;
   border-top: 1px solid var(--color-border);
 }
 
-.toggle-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* 円グラフ */
+/* 円グラフ領域 */
 .chart-placeholder {
   position: relative;
   display: flex;
@@ -805,46 +771,30 @@
   gap: 6px;
   min-width: 0;
   padding: 8px 0;
-  font-weight: 400;
 }
 
 .dot {
   display: inline-block;
   width: 10px;
   height: 10px;
-  margin: 0;
   border-radius: 50%;
 }
 
 .large-name {
   min-width: 0;
-  margin: 0;
   text-align: left;
-  overflow-wrap: anywhere;
 }
 
-.large-row > .amount {
-  flex: 0 0 auto;
-  min-width: 0;
-  margin: 0;
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
+/* 展開ボタン：共通ボタンの見た目を使い、サイズのみ指定 */
 .toggle-btn {
   width: 40px;
   min-width: 40px;
   min-height: 40px;
   padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--color-input);
-  color: var(--color-text);
-  font-size: 16px;
-  font-weight: 400;
   text-align: center;
 }
 
+/* 展開した小項目 */
 .sub-wrapper {
   min-width: 0;
   margin: 6px 0 10px 20px;
@@ -876,36 +826,27 @@
 
 .sub-name {
   min-width: 0;
-  margin: 0 0 0 8px;
-  color: var(--color-text);
+  margin-left: 8px;
   font-size: 14px;
-  font-weight: 400;
-  text-align: left;
-  overflow-wrap: anywhere;
 }
 
 .check-date {
   margin-left: 8px;
   color: var(--color-success);
   font-size: 12px;
-  font-weight: 400;
   line-height: 1.4;
-  text-align: left;
-  overflow-wrap: anywhere;
 }
 
 .sub-amount {
   flex: 0 0 auto;
-  margin: 0 8px 0 0;
-  color: var(--color-text);
+  margin-right: 8px;
   font-size: 14px;
-  font-weight: 400;
   text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
-/* 残高確定画面へのボタン */
+/* 残高確定ボタン：共通ボタンの見た目を使い、配置のみ指定 */
 .balance-confirm-action {
   margin: 12px 0 24px;
 }
@@ -917,19 +858,10 @@
   width: 100%;
   min-height: 56px;
   gap: 12px;
-  border-radius: var(--radius-sm);
-  font-weight: 400;
-}
-
-.balance-confirm-btn .action-arrow {
-  flex: 0 0 auto;
-  font-size: 24px;
-  line-height: 1;
 }
 
 @media (max-width: 420px) {
   .large-row {
-    grid-template-columns: 40px 10px minmax(0, 1fr) auto;
     gap: 4px;
   }
 
