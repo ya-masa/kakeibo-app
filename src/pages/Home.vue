@@ -192,17 +192,17 @@
         </div>
 
       </div>
+      <!-- 残高確定画面へのボタン -->
+      <div class="balance-confirm-action">
+        <button
+          class="btn balance-confirm-btn"
+          @click="goBalanceConfirm"
+        >
+          <span>確定残高を入力する</span>
+          <span class="action-arrow">›</span>
+        </button>
+      </div>
     </section>
-    <!-- 残高確定画面へのボタン -->
-    <div class="balance-confirm-action">
-      <button
-        class="btn balance-confirm-btn"
-        @click="goBalanceConfirm"
-      >
-        <span>確定残高を入力する</span>
-        <span class="action-arrow">›</span>
-      </button>
-    </div>
   </div>
 </template>
 
