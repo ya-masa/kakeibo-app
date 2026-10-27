@@ -274,47 +274,15 @@
 
 
   async function fetchThisMonth() {
-    const start = getMonthStart();
-    const end = getMonthEnd();
-
     const params = new URLSearchParams({
       list: "homelist",
-      start,
-      end
-    });
+      start: getMonthStart(),
+      end: getMonthEnd()
+    })
 
-    const url = `${GAS_URL}?${params}`;
-    const startedAt = performance.now();
-
-    console.log("[Home] データ取得開始", { start, end });
-
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`HTTPエラー: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        throw new Error("GASの応答が配列ではありません");
-      }
-
-      list.value = data;
-
-      console.log("[Home] データ取得完了", {
-        件数: data.length,
-        所要時間: `${((performance.now() - startedAt) / 1000).toFixed(2)}秒`
-      });
-
-      return true;
-    } catch (error) {
-      console.error("[Home] データ取得失敗", error);
-      return false;
-    }
+    const res = await fetch(`${GAS_URL}?${params}`)
+    list.value = await res.json()
   }
-
 
   watch(outputMonth, async () => {
     await fetchThisMonth()
@@ -365,13 +333,34 @@
 
   // 今月の未確認件数
   function calcUncheckedCount() {
+    console.log("① calcUncheckedCount 開始")
+    console.log("② list件数:", list.value.length)
 
+    console.log(
+      "③ 収入・支出データ:",
+      list.value.filter(item =>
+        ["4_収入", "5_支出"].includes(item.group)
+      )
+    )
 
     uncheckedCount.value = list.value.filter(item =>
       ["4_収入", "5_支出"].includes(item.group) &&
       item.check === false
     ).length
 
+    console.log(
+      "チェック値の内訳:",
+      list.value
+        .filter(item => ["4_収入", "5_支出"].includes(item.group))
+        .map(item => ({
+          group: item.group,
+          check: item.check,
+          type: typeof item.check
+        }))
+    )
+
+
+    console.log("④ 今月の未確認件数:", uncheckedCount.value)
   }
 
   // 今日の支出を費目別に集計
@@ -408,6 +397,8 @@
 
     todayExpenseTotal.value = total
 
+    console.log("今日の支出:", todayExpenseSummary.value)
+    console.log("今日の支出合計:", todayExpenseTotal.value)
   }
 
 
@@ -595,33 +586,20 @@
   const labels = computed(() => expenseSummary.value.map(i => i.name))
   const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
 
+  onMounted(async () => {
+    await fetchThisMonth()
+    calcMonthly()
+    console.log("accountSubs:", accountSubs.value)
+    calcExpenseSummary()
+    calcAccounts()
+    calcUncheckedCount()
+    console.log("accountSubs:", accountSubs.value)
+    calcTodayExpense()
 
-onMounted(async () => {
-  const totalStartedAt = performance.now();
-
-  const success = await fetchThisMonth();
-  const fetchFinishedAt = performance.now();
-
-  if (!success) {
-    console.error("[Home] データ取得失敗のため、集計を中止しました");
-    return;
-  }
-
-  calcMonthly();
-  calcExpenseSummary();
-  calcAccounts();
-  calcUncheckedCount();
-  calcTodayExpense();
-
-  const calcFinishedAt = performance.now();
-
-  console.log("[Home] 処理時間", {
-    通信時間: `${((fetchFinishedAt - totalStartedAt) / 1000).toFixed(2)}秒`,
-    集計時間: `${((calcFinishedAt - fetchFinishedAt) / 1000).toFixed(3)}秒`,
-    合計時間: `${((calcFinishedAt - totalStartedAt) / 1000).toFixed(2)}秒`
-  });
-});
-
+    setTimeout(() => {
+      loadingStore.globalLoading.value = false
+    }, 500)
+  })
 
 
   // 残高確定画面へ移動
@@ -636,306 +614,332 @@ onMounted(async () => {
 
 
 <style scoped>
+/* ホーム画面固有のレイアウト。色・文字・カードの基本設定は Base.css に合わせる。 */
 
-  /* =========================
-    未確認データ
-  ========================= */
+/* 未確認データ */
+.unchecked-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .unchecked-content {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+.unchecked-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
 
-  .unchecked-main {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+.unchecked-count {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
 
-  .unchecked-count {
-    flex-shrink: 0;
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1.2;
-    color: var(--color-danger);
-    margin:20px;
-  }
+.unchecked-message {
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
 
-  .unchecked-message {
-    font-size: 14px;
-    color:var(--color-muted);
-  }
+.unchecked-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
 
-  /* =========================
-    今日の支出
-  ========================= */
+.action-arrow {
+  flex: 0 0 auto;
+  font-size: 24px;
+  line-height: 1;
+}
 
-  .today-expense-header {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
+/* 今日の支出 */
+.today-expense-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
 
-  .today-expense-header h2 {
-    grid-column: 2;
-    margin: 0;
-    color: var(--color-text);
-    text-align: center;
-  }
+.today-expense-header h2 {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 20px;
+  font-weight: 400;
+  text-align: left;
+}
 
-  .today-date {
-    grid-column: 3;
-    justify-self: end;
-    flex-shrink: 0;
-    padding: 5px 10px;
-    border-radius: 6px;
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-size: 14px;
-    font-weight: 700;
-  }
+.today-date {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
 
-  .today-expense-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
+.today-expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
 
-  /* 今日の支出：明細と合計を同じ列幅で表示 */
-  /* 明細と合計を同じ幅の2列にする */
-  .today-expense-row,
-  .today-expense-total {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 16px;
-    width: 100%;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-  }
+.today-expense-row,
+.today-expense-total {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
 
-  /* 費目・合計ラベルは左揃え */
-  .today-expense-row > span:first-child,
-  .today-expense-total > span:first-child {
-    text-align: left;
-  }
+.today-expense-row > span:first-child,
+.today-expense-total > span:first-child {
+  min-width: 0;
+  text-align: left;
+}
 
-  /* 金額は右揃え */
-  .today-expense-row .amount,
-  .today-expense-total .amount {
-    text-align: right;
-    white-space: nowrap;
-    margin: 0;
-  }
+.today-expense-row .amount,
+.today-expense-total .amount {
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 
-  /* 明細 */
-  .today-expense-row {
-    padding: 10px 0;
-    color: var(--color-text);
-    font-size: 14px;
-    font-weight: 600;
-  }
+.today-expense-row {
+  padding: 8px 0;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 400;
+}
 
-  /* 合計 */
-  .today-expense-total {
-    margin-top: 12px;
-    padding-top: 14px;
-    border-top: 1px solid var(--color-border);
-    color: var(--color-text);
-    font-size: 16px;
-    font-weight: 800;
-  }
+.today-expense-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 400;
+}
 
-  /* 合計金額は少し大きく */
-  .today-expense-total .amount {
-    font-size: 18px;
-    font-weight: 800;
-  }
- 
-  .no-expense {
-    margin: 8px 0 14px;
-    color: var(--color-muted);
-    font-size: 14px;
-  }
+.today-expense-total .amount {
+  font-size: 18px;
+  font-weight: 400;
+}
 
+.no-expense {
+  margin: 8px 0 12px;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
 
-  /* 一か月の収支：費目と金額を中央にまとめる */
-  .row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
-    padding: 8px 0;
-    font-weight: bold;
-  }
+/* 一か月の収支 */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 0;
+  font-weight: 400;
+}
 
-  .row > .amount {
-    margin: 0;
-  }
+.row > * {
+  min-width: 0;
+}
 
-  .toggle-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.row > .amount {
+  flex: 0 0 auto;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
 
-  .chart-placeholder {
-    background: var(--color-beige-light);
-    height: 120px;
-    border-radius: 6px;
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.row.total {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
 
-  /*丸のCSS */
-  .dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-left: 25px;
-  }
+.toggle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+/* 円グラフ */
+.chart-placeholder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  min-width: 0;
+  margin: 8px 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+/* 大項目・口座の行 */
+.large-row {
+  display: grid;
+  grid-template-columns: 40px 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 0;
+  font-weight: 400;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  border-radius: 50%;
+}
+
+.large-name {
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.large-row > .amount {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.toggle-btn {
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-input);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.sub-wrapper {
+  min-width: 0;
+  margin: 6px 0 10px 20px;
+  padding-left: 12px;
+  border-left: 1px solid var(--color-border);
+}
+
+.sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sub-row:last-child {
+  border-bottom: none;
+}
+
+.sub-info {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sub-name {
+  min-width: 0;
+  margin: 0 0 0 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.check-date {
+  margin-left: 8px;
+  color: var(--color-success);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.sub-amount {
+  flex: 0 0 auto;
+  margin: 0 8px 0 0;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 残高確定画面へのボタン */
+.balance-confirm-action {
+  margin: 12px 0 24px;
+}
+
+.balance-confirm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  gap: 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 400;
+}
+
+.balance-confirm-btn .action-arrow {
+  flex: 0 0 auto;
+  font-size: 24px;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
   .large-row {
-    display: grid;
-    grid-template-columns: 20px 40px 1fr auto;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 0; /* ← 上下の余白 */
-    font-weight: bold;
-  }
-
-  .large-name {
-    text-align: left;
-    margin-left:6px;
-  }
-
-  .amount {
-    text-align: right;
-    margin-right:30px;
-  }
-
-  .toggle-btn {
-    width: 40px;
-    background: none;
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-size: 16px;
-    text-align: center;
-  }
-
-  .chart-placeholder {
-    height: 240px;
-    position: relative;
-  }
-
-  .sub-wrapper {
-    margin:4px 10px;
-  }
-
-  .sub-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    /*border-bottom: 1px solid #eee;*/
-  }
-  .sub-name {
-    text-align: left;
-    margin-left:20px;
-  }
-  .sub-amount {
-    text-align: right;
-    margin-right:40px;
-  }
-
-
-  /* 口座残高：小項目のレイアウト */
-  .sub-wrapper {
-    margin: 6px 12px 10px 20px;
-    padding-left: 12px;
-    border-left: 1px solid var(--color-border);
-  }
-
-  /* 小項目：口座名と照合日 */
-  .sub-info {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: 40px 10px minmax(0, 1fr) auto;
     gap: 4px;
-    min-width: 0;
-    flex: 1;
   }
 
-  .sub-name {
-    text-align: left;
-    margin-left: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #4b4038;
+  .sub-wrapper {
+    margin-left: 12px;
+    padding-left: 8px;
   }
 
-  /* 照合状態・照合日 */
-  .check-date {
-    margin-left: 8px;
-    font-size: 12px;
-    font-weight: normal;
-    line-height: 1.4;
-    color: #47765a;
-    text-align: left;
-  }
-
-  /* 小項目の1行 */
   .sub-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--color-border);
+    gap: 6px;
   }
-
-  .sub-row:last-child {
-    border-bottom: none;
-  }
-
-  /* 小項目の残高 */
-  .sub-amount {
-    flex-shrink: 0;
-    text-align: right;
-    margin-right: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: #4b4038;
-  }
-
-  /*　残高確定ボタン　*/
-  .balance-confirm-action {
-    margin: 12px 0 24px;
-  }
-
-  .balance-confirm-btn {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    box-sizing: border-box;
-  }
-
-  .balance-confirm-btn .action-arrow {
-    font-size: 24px;
-    line-height: 1;
-  }
-
+}
 </style>
