@@ -22,15 +22,18 @@
       <h2>一か月の収支</h2>
       <div class="row">
         <span>収入</span>
-        <span class ="amount">{{ monthly.income }} 円</span>
+        <span class ="amount"
+        :class="{ 'amount-negative': monthly.income < 0 }">{{ monthly.income }} 円</span>
       </div>
       <div class="row">
         <span>支出</span>
-        <span class ="amount">{{ monthly.expense }} 円</span>
+        <span class ="amount"
+        :class="{ 'amount-negative': monthly.expense < 0 }">{{ monthly.expense }} 円</span>
       </div>
       <div class="row total">
         <span>差額</span>
-        <span class ="amount">{{ monthly.income + monthly.expense }} 円</span>
+        <span class ="amount"
+        :class="{ 'amount-negative': monthly.income + monthly.expense < 0 }">{{ monthly.income + monthly.expense }} 円</span>
       </div>
     </section>
 
@@ -84,7 +87,8 @@
           class="today-expense-row"
         >
           <span>{{ item.name }}</span>
-          <span class="amount">{{ item.amount }} 円</span>
+          <span class="amount"
+          :class=" { 'amount-negative' : item.amount < 0 } ">{{ item.amount }} 円</span>
         </div>
 
         <p v-if="todayExpenseTotal === 0" class="no-expense">
@@ -94,7 +98,8 @@
 
       <div class="today-expense-total">
         <span>今日の支出合計</span>
-        <span class="amount">{{ todayExpenseTotal }} 円</span>
+        <span class="amount"
+        :class=" { 'amount-negative' : todayExpenseTotal < 0 } ">{{ todayExpenseTotal }} 円</span>
       </div>
     </section>
 
@@ -141,7 +146,8 @@
             class="sub-row"
           >
             <span class="sub-name">{{ sub.name }}</span>
-            <span class="sub-amount">{{ sub.amount }} 円</span>
+            <span class="sub-amount"
+            :class=" { 'amount-negative' : sub.amount < 0 } ">{{ sub.amount }} 円</span>
           </div>
         </div>
       </div>
@@ -163,7 +169,8 @@
           <!-- ● 色丸（口座は色が無いなら透明でもOK） -->
           <span class="dot" style="background-color: transparent;opacity:0;"></span>
           <span class="large-name">{{ acc.name }}</span>
-          <span class="amount">{{ acc.amount }} 円</span>
+          <span class="amount"
+          :class=" { 'amount-negative' : acc.amount < 0 } ">{{ acc.amount }} 円</span>
         </div>
 
         <div
@@ -187,7 +194,8 @@
               </span>
             </div>
 
-            <span class="sub-amount">{{ sub.amount }} 円</span>
+            <span class="sub-amount"
+            :class=" { 'amount-negative' : sub.amount < 0 } ">{{ sub.amount }} 円</span>
           </div>
         </div>
 
@@ -783,15 +791,6 @@
 .large-name {
   min-width: 0;
   text-align: left;
-}
-
-/* 展開ボタン：共通ボタンの見た目を使い、サイズのみ指定 */
-.toggle-btn {
-  width: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  padding: 2px 6px;
-  text-align: center;
 }
 
 /* 展開した小項目 */

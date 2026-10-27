@@ -9,11 +9,12 @@
     color-scheme: light;
 
     /* 背景・カード */
-    --color-background: #FAFAF7;/*背景*/
-    --color-surface: #FFFFFF;/*カード*/
-    --color-surface-strong: #F5F1E7;/*入力欄*/
-    --color-accent-light: #FFF5F5;/*未入力の背景色*/
-    --color-greige-light: #F0EDE5;/*使っているところがなくなったら削除*/
+    --color-background: #F8F6EF;/*背景*/
+    --color-surface: #FFFDF8;/*カード*/
+    --color-surface-strong: #FFFFFF;/*入力欄*/
+    --color-accent-light: #FFF5D9;/*入力中の背景色*/
+    --color-success-bg: #EDF5ED;/*淡いグリーン*/
+    --color-danger-bg: #FBEFED;/*淡い赤*/
 
     /* メインカラー：クリームイエロー */
     --color-beige: #FFF5D9;        /* 通常ボタン */
@@ -139,6 +140,7 @@ a {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
   font-weight: 600;
+  text-align: right;
 }
 
 /* 主要な金額 */
@@ -297,6 +299,11 @@ a {
   background: var(--color-surface);
   color: var(--color-text);
   font-size: 18px;
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 2px 6px;
+  text-align: center;
 }
 
 /* ---------- 共通タブ ---------- */
@@ -459,20 +466,20 @@ a {
   padding-bottom: calc(var(--footer-height) + 20px + env(safe-area-inset-bottom));
 }
 
-/* メッセージ */
+/* ----------メッセージ ---------*/
 .error-message {
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-danger-bg);
   color: var(--color-danger);
 }
 .warning-message {
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-beige);
   color: var(--color-warning);
 }
 .success-message {
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-success-bg);
   color: var(--color-success);
 }
 
