@@ -34,7 +34,7 @@
       <input type="text" v-model="keyword" class="input-field" placeholder="店名・メモを検索">
     </div>
     <!-- 表示ボタン -->
-    <button class="btn-lg" @click="fetchList" :disabled="loading">
+    <button class="btn btn-lg" @click="fetchList" :disabled="loading">
       表示
     </button>
   </div>
@@ -73,7 +73,7 @@
             class="check-update-btn"
           >
             <button
-              class="btn-sm check-btn"
+              class="btn-red btn-sm check-btn"
               @click="updateCheck(item.id)"
               :disabled="isLoading"
             >
@@ -108,7 +108,7 @@
         <!-- 金額 -->
         <div class="card-amount-center">
           <span
-            class="card-amount"
+            class="amount card-amount"
             :class="{
               'amount-negative' : item.amount < 0,
               'amount-plus': item.amount >= 0
@@ -436,14 +436,6 @@ function formatMD(dateStr) {
   width: 100%;
 }
 
-.card-amount.minus {
-  color: var(--color-danger);
-}
-
-.card-amount.plus {
-  color: var(--color-text);
-}
-
 /* チェック更新ボタン */
 .check-update-btn {
   margin-top: var(--space-3);
@@ -527,7 +519,7 @@ function formatMD(dateStr) {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--color-beige);
+  accent-color: var(--color-surface-strong);
 }
 
 /* 「支払い確認」を縦書きにする */
@@ -545,7 +537,7 @@ function formatMD(dateStr) {
   margin-top: 8px;
 }
 
-.check-btn,.edit-btn {
+/*.check-btn,.edit-btn {
   margin-left: auto;
   margin-right: 0;
   min-height: 20px;
@@ -555,7 +547,7 @@ function formatMD(dateStr) {
   line-height: 1.35;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-}
+}*/
 
 @media (max-width: 600px) {
   .continer {
