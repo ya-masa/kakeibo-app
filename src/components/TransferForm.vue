@@ -79,13 +79,13 @@
     </div>
     <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
     <!-- ボタン（追加 or 修正） -->
-    <button class="btn" type="submit" :disabled="isLoading">
+    <button class="btn-lg btn" type="submit" :disabled="isLoading">
       {{ props.mode === 'edit' ? '修正' : '追加' }}
     </button>
 
     <!-- 削除ボタン（修正モードのみ） -->
     <button 
-      class="btn-red"
+      class="btn-lg btn-red"
       v-if="props.mode === 'edit'"  
       type="button":disabled="isLoading"
       @click="emit('delete', localForm.value.id)"

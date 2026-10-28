@@ -70,7 +70,7 @@
                 <input type="checkbox" v-model="form.month[m]" /> {{ m }}月
               </label>
             </div>
-            <button class="btn-red" @click="update(item)">
+            <button class="btn-lg btn-red" @click="update(item)">
               更新
             </button>
           </div>
