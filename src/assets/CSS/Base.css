@@ -155,6 +155,11 @@ a {
   color: var(--color-danger);
 }
 
+/*プラス金額*/
+.amount-plus{
+  color:var(--color-success);
+}
+
 
 
 /* ---------- 共通コンテナ ---------- */

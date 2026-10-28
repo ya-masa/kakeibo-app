@@ -136,7 +136,8 @@
           <span class="large-name">{{ item.name }}</span>
 
           <!-- 金額 -->
-          <span class="amount">{{ item.amount }}円</span>
+          <span class="amount"
+          :class=" { 'amount-negative' : item.amount < 0 } ">{{ item.amount }}円</span>
         </div>
         <!-- ★★★ 小項目は “大項目ループの外” に置く ★★★ -->
         <div class="sub-wrapper" v-if="openLarge === item.name">

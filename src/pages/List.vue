@@ -34,7 +34,7 @@
       <input type="text" v-model="keyword" class="input-field" placeholder="店名・メモを検索">
     </div>
     <!-- 表示ボタン -->
-    <button class="btn" @click="fetchList" :disabled="loading">
+    <button class="btn-lg" @click="fetchList" :disabled="loading">
       表示
     </button>
   </div>
@@ -73,11 +73,11 @@
             class="check-update-btn"
           >
             <button
-              class="btn check-btn"
+              class="btn-sm check-btn"
               @click="updateCheck(item.id)"
               :disabled="isLoading"
             >
-              チェック更新
+              更新
             </button>
           </div>
         </div>
@@ -110,8 +110,8 @@
           <span
             class="card-amount"
             :class="{
-              minus: item.amount < 0,
-              plus: item.amount >= 0
+              'amount-negative' : item.amount < 0,
+              'amount-plus': item.amount >= 0
             }"
           >
             {{ item.amount }}円
@@ -119,7 +119,7 @@
         </div>
       </div>
       <div class="card-right">
-        <button class="btn edit-btn" @click="goEdit(item.id)">
+        <button class="btn-sm edit-btn" @click="goEdit(item.id)">
           修正
         </button>
       </div>
@@ -375,7 +375,7 @@ function formatMD(dateStr) {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--color-beige);
+  accent-color: var(--color-surface);
 }
 
 /* 確認チェックの縦書き */
@@ -459,7 +459,7 @@ function formatMD(dateStr) {
 /* 未チェック */
 .transaction-card.unchecked {
   border-left: 4px solid var(--color-danger);
-  background: var(--color-accent-light);
+  background: var(--color-danger-bg);
 }
 
 /* 日付とチェックボックス */
