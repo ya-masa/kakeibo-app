@@ -408,14 +408,6 @@ function formatMD(dateStr) {
   overflow-wrap: anywhere;
 }
 
-
-/* 金額 */
-.card-center {
-  min-width: 0;
-  text-align: center;
-  overflow-wrap: anywhere;
-}
-
 /* 金額 */
 .card-amount {
   text-align: center;

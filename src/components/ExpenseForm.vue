@@ -1,14 +1,14 @@
 <template>
   <form class="card"@submit.prevent="submitForm">
     <div class="row">
-      <label class="form-lavel">日付</label>
+      <label class="form-label">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />
       <!-- 曜日があるときだけ表示 -->
       <span v-if="weekday">（{{ weekday }}）</span>
     </div>
 
     <div class="row">
-      <label  class="form-lavel">科目</label>
+      <label  class="form-label">科目</label>
       <select v-model="localForm.kamoku2"  class="select-field">
         <option 
           v-for="item in props.listShishutsu"
@@ -21,7 +21,7 @@
     </div>
 
     <div class="row">
-      <label  class="form-lavel">口座</label>
+      <label  class="form-label">口座</label>
       <select v-model="localForm.kamoku1"  class="select-field">
         <option 
           v-for="item in props.listHouhou" 
@@ -34,7 +34,7 @@
     </div>
 
     <div class="row">
-      <label  class="form-lavel">相手</label>
+      <label  class="form-label">相手</label>
       <input type="text" v-model="localForm.aite" list="shopList"  class="input-field"/>
       <datalist id="shopList">
         <option v-for="s in shops" :key="s" :value="s" />
@@ -42,17 +42,17 @@
     </div>
 
     <div class="row">
-      <label  class="form-lavel">金額</label>
+      <label  class="form-label">金額</label>
       <input class="input-field input-number" type="number" v-model="localForm.kingaku1" />
     </div>
 
     <div class="row">
-      <label  class="form-lavel">内容</label>
+      <label  class="form-label">内容</label>
       <input type="text" v-model="localForm.naiyo"  class="input-field"/>
     </div>
 
     <div class="row">
-      <label  class="form-lavel">支払い確認</label>
+      <label  class="form-label">支払い確認</label>
       <div class="radio-group">
         <label><input type="radio" value="true" v-model="localForm.kakunin" /> 支払い確認済み</label>
         <label><input type="radio" value="false" v-model="localForm.kakunin" /> 支払い未確認</label>
@@ -207,19 +207,6 @@ import LoadingIcon from './LoadingIcon.vue'
 </script>
 
 <style scoped>
-form {
-  width: 100%;
-  max-width: 560px;
-  margin: 16px auto;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
 .radio-group {
   display: flex;
   align-items: center;
@@ -274,11 +261,11 @@ input[type="radio"]:focus-visible {
 }
 
 
-@media (max-width: 400px) {
+/*@media (max-width: 400px) {
   .row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-}
+}*/
 </style>

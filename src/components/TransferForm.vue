@@ -1,14 +1,14 @@
 <template>
   <form class ="card" @submit.prevent="submitForm">
     <div class="row">
-      <label class="form-lavel">日付</label>
+      <label class="form-label">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />
       <!-- 曜日は表示しない -->
       <span v-if="false">（{{ weekday }}）</span>
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目(増える)</label>
+      <label class="form-label">増える科目</label>
       <select v-model="localForm.kamoku1" class="select-field">
         <option 
           v-for="item in props.listKouza"
@@ -21,13 +21,13 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">金額プラス</label>
+      <label class="form-label">金額プラス</label>
       <input type="number" v-model="localForm.kingaku1" class="input-field input-number"
 />
     </div>
 
     <div class="row">
-      <label class="form-lavel">科目(減る)</label>
+      <label class="form-label">減る科目</label>
       <select v-model="localForm.kamoku2" class="select-field">
         <option 
           v-for="item in props.listKouza"
@@ -40,13 +40,13 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">金額マイナス</label>
+      <label class="form-label">金額マイナス</label>
       <input type="number" v-model="localForm.kingaku2" class="input-field input-number"
  />
     </div>
 
     <div class="row">
-      <label class="form-lavel">相手</label>
+      <label class="form-label">相手</label>
       <input type="text" v-model="localForm.aite" list="shopList" class="input-field"
  />
       <datalist id="shopList">
@@ -55,13 +55,13 @@
     </div>
 
     <div class="row">
-      <label class="form-lavel">内容</label>
+      <label class="form-label">内容</label>
       <input type="text" v-model="localForm.naiyo" class="input-field"
 />
     </div>
 
     <div class="row">
-      <label class="form-lavel">支払い確認</label>
+      <label class="form-label">支払い確認</label>
       <div class="radio-group">
       <label>
         <input type="radio" value="true" v-model="localForm.kakunin">
@@ -188,19 +188,6 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-form {
-  width: 100%;
-  max-width: 560px;
-  margin: 16px auto;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
 .radio-group {
   display: flex;
   align-items: center;
@@ -254,13 +241,13 @@ input[type="radio"]:focus-visible {
   outline-offset: 1px;
 }
 
-@media (max-width: 400px) {
+/*@media (max-width: 400px) {
   .row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-}
+}*/
 </style>
 
 

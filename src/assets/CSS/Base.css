@@ -225,10 +225,11 @@ a {
 
 .form-label {
   display: block;
-  margin-bottom: var(--space-1);
+  margin: var(--space-1);
   color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* ---------- 共通ボタン ---------- */
