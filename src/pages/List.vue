@@ -86,13 +86,12 @@
       <!-- 日付 -->
       <div class="card-center">
         <div class="transaction-date">
-          <span>{{ new Date(item.date).getFullYear() }} / {{ formatMD(item.date) }}</span>
-          <span></span>
+          <span>{{ new Date(item.date).getFullYear() }}/{{ formatMD(item.date) }}</span>
         </div>
 
         <!-- 大項目・小項目 -->
         <div class="transaction-category">
-          {{ item.large }} ／ {{ item.small }}
+          {{ item.large }} _ {{ item.small }}
         </div>
 
         <!-- 店名 -->
@@ -343,6 +342,36 @@ function formatMD(dateStr) {
   flex-direction: column;
   gap: var(--space-3);
 }
+  /* 期間入力：スマホでも横幅に収める */
+  .card > .row:first-child {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card > .row:first-child .form-label {
+    min-width: 0;
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+
+  .card > .row:first-child input[type="date"] {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 0;
+    padding: 9px 4px;
+    font-size: 14px;
+  }
+
+  .card > .row:first-child > span {
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .card > .row >.form-label{
+    white-space: nowrap;
+  }
 
 /* カード全体 */
 .transaction-card {
@@ -350,24 +379,8 @@ function formatMD(dateStr) {
   grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--space-2);
-
   width: 100%;
-  box-sizing: border-box;
   padding: var(--space-3);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-/* 左端：チェックボックス＋縦書き文字 */
-.card-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  padding-top: 4px;
-  min-width: 32px;
 }
 
 /* チェックボックス */
@@ -395,33 +408,6 @@ function formatMD(dateStr) {
   overflow-wrap: anywhere;
 }
 
-/* 日付 */
-.transaction-date {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--space-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.transaction-date span:first-child {
-  font-size: 14px;
-}
-
-.transaction-date span:last-child {
-  font-size: 11px;
-  color: var(--color-muted);
-}
-
-/* 項目 */
-.transaction-category {
-  font-weight: 600;
-  margin-bottom: var(--space-2);
-}
-
-.transaction-shop,
-.transaction-description {
-  margin-bottom: var(--space-2);
-}
 
 /* 金額 */
 .card-center {
@@ -455,13 +441,6 @@ function formatMD(dateStr) {
 }
 
 /* 日付とチェックボックス */
-.transaction-card-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-
 .transaction-date {
   display: flex;
   flex-direction: column;
@@ -470,11 +449,6 @@ function formatMD(dateStr) {
 
 .transaction-date span:first-child {
   font-size: 14px;
-}
-
-.transaction-date span:last-child {
-  font-size: 11px;
-  color: var(--color-muted);
 }
 
 /* カテゴリ */
@@ -512,7 +486,8 @@ function formatMD(dateStr) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .transaction-card-header input[type="checkbox"] {
@@ -531,23 +506,6 @@ function formatMD(dateStr) {
   line-height: 1.5;
   color: var(--color-muted);
 }
-
-/* チェック更新ボタン */
-.check-update-btn {
-  margin-top: 8px;
-}
-
-/*.check-btn,.edit-btn {
-  margin-left: auto;
-  margin-right: 0;
-  min-height: 20px;
-  padding: 9px 16px;
-  border-radius: 8px;
-  font-size: 12px;
-  line-height: 1.35;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-}*/
 
 @media (max-width: 600px) {
   .continer {
