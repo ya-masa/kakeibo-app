@@ -257,10 +257,6 @@
             {{ formatAmount(selectedCandidate.candidate.amount) }}
           </p>
 
-          <p>
-            <strong>家計簿固有ID：</strong>
-            {{ selectedCandidate.candidate.id }}
-          </p>
 
           <p>
             <strong>日付差：</strong>
@@ -346,68 +342,79 @@
           :key="item.statementId"
           class="card candidate-card"
         >
+          <!-- CSV明細 -->
           <div class="candidate-heading">
-            <span class="card candidate-status">{{ item.status }}</span>
+            <span class="candidate-status">{{ item.status }}</span>
           </div>
-          <strong>{{ item.place || "利用先不明" }}</strong>
-          <p>
-            利用日：{{ item.date }}
-          </p>
 
-          <p>
-            利用金額：{{ formatAmount(item.amount) }}
-          </p>
+          <strong class="statement-place">
+            {{ item.place || "利用先不明" }}
+          </strong>
 
-          <p>
-            支払金額：{{ formatAmount(item.paymentAmount) }}
-          </p>
+          <div class="statement-details">
+            <p>
+              <span class="detail-label">利用日：</span>
+              <strong>{{ item.date }}</strong>
+              <span class="statement-amount-label">利用金額：</span>
+              <strong>{{ formatYen(item.amount) }}</strong>
+            </p>
+            <p v-if="item.paymentAmount != null">
+              <span class="detail-label">支払金額：</span>
+              <strong>{{ formatYen(item.paymentAmount) }}</strong>
+            </p>
+          </div>
 
-          <p v-if="item.content">
-            利用内容：{{ item.content }}
-          </p>
+          <div class="candidate-divider"></div>
 
-          <div v-if="item.candidates?.length">
-            <h3>家計簿側の候補</h3>
-
+          <!-- 家計簿側の候補 -->
+          <div v-if="item.candidates?.length" class="ledger-candidate-list">
             <div
               v-for="candidate in item.candidates"
               :key="`${item.statementId}-${candidate.rowNo}`"
-              class="card ledger-candidate"
+              class="ledger-candidate"
             >
-              <p>
-                {{ candidate.date }} ／
-                {{ candidate.shop || candidate.content || "店名なし" }}
-              </p>
+              <div class="ledger-candidate-main">
+                <span class="ledger-candidate-date">{{ candidate.date }}</span>
+                <span class="ledger-separator">／</span>
+                <strong class="ledger-candidate-shop">
+                  {{ candidate.shop || candidate.content || "店名なし" }}
+                </strong>
+                <button
+                  type="button"
+                  class="candidate-edit-link"
+                  @click="goToEditFromCandidate(candidate)"
+                >
+                  修正へ ＞
+                </button>
+              </div>
 
-              <p>
-                金額：{{ formatAmount(candidate.amount) }}
-              </p>
+              <div class="ledger-candidate-meta">
+                <span>日付差：{{ candidate.dateDifference }}日</span>
+                <span>金額：{{ formatYen(candidate.amount) }}</span>
+              </div>
 
-              <p>
-                日付差：{{ candidate.dateDifference }}日
-              </p>
-
-              <p>
-                家計簿ID：{{ candidate.id }}
-              </p>
               <button
-                type="button" class="btn"
+                type="button"
+                class="btn ledger-match-button"
                 @click="selectEposCandidate(item, candidate)"
               >
                 この取引と照合
               </button>
             </div>
           </div>
+
+          <div v-else class="candidate-no-match">
+            対応する家計簿データの候補は見つかりませんでした。
+          </div>
+
           <button
             v-if="item.status === '未対応'"
-            type="button" class="cancel-btn"
+            type="button"
+            class="cancel-btn candidate-add-button"
             @click="goToAddFromStatement(item)"
           >
             家計簿に入力
           </button>
-          <p v-else>
-            対応する家計簿データの候補は見つかりませんでした。
-          </p>
         </article>
       </template>
     </section>
@@ -739,6 +746,17 @@
     })
   }
 
+  // CSV照合候補から家計簿の修正画面へ移動する
+  const goToEditFromCandidate = (candidate) => {
+    router.push({
+      name: "edit",
+      query: {
+        id: candidate.id,
+        jump: "reconciliation"
+      }
+    })
+  }
+
   /**
    * GASからJSONを取得する。
    */
@@ -924,6 +942,13 @@
       currency: "JPY",
       maximumFractionDigits: 0
     }).format(Number(amount) || 0);
+  }
+
+  // 照合候補カード用：円表記
+  function formatYen(amount) {
+    return `${new Intl.NumberFormat("ja-JP", {
+      maximumFractionDigits: 0
+    }).format(Number(amount) || 0)}円`;
   }
 
   function amountClass(amount) {
@@ -2025,7 +2050,7 @@ const manualReviewIds = computed(() => {
 .file-name { color: var(--color-coffee); }
 .help-text { line-height: 1.6; }
 
-/* CSV照合候補 */
+/* CSV照合候補：検索画面のカードに合わせた縦並び */
 .reconciliation-candidates {
   display: flex;
   flex-direction: column;
@@ -2054,6 +2079,9 @@ const manualReviewIds = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  width: 100%;
+  max-width: var(--content-width);
+  align-self: center;
   margin: 0;
   padding: var(--space-3);
   border: 1px solid var(--color-border);
@@ -2065,7 +2093,6 @@ const manualReviewIds = computed(() => {
 .candidate-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
 }
 
@@ -2082,32 +2109,124 @@ const manualReviewIds = computed(() => {
   font-weight: 700;
 }
 
-.candidate-card > strong {
+.statement-place {
   color: var(--color-coffee-dark);
   font-size: 15px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
-.candidate-card p,
-.ledger-candidate p {
+.statement-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.statement-details p {
   margin: 0;
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.detail-label {
+  color: var(--color-muted);
+}
+
+.statement-details p strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.candidate-divider {
+  width: 100%;
+  height: 1px;
+  margin: var(--space-2) 0;
+  background: var(--color-border-strong);
+}
+
+.ledger-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .reconciliation-page .ledger-candidate {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  margin: var(--space-2) 0 0;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
   box-shadow: none;
 }
 
-.ledger-candidate .btn,
-.candidate-card > .cancel-btn {
+.reconciliation-page .ledger-candidate:last-child {
+  border-bottom: 0;
+}
+
+.ledger-candidate-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ledger-candidate-date {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-separator {
+  color: var(--color-muted);
+}
+
+.ledger-candidate-shop {
+  min-width: 0;
+  color: var(--color-coffee-dark);
+  overflow-wrap: anywhere;
+}
+
+.candidate-edit-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 3px 0 3px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-coffee);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ledger-candidate-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ledger-match-button,
+.candidate-add-button {
   align-self: flex-start;
   margin: var(--space-1) 0 0;
+}
+
+.candidate-no-match {
+  padding: var(--space-2) 0;
+  color: var(--color-muted);
+  font-size: 13px;
 }
 
 /* 照合確定前の比較 */
