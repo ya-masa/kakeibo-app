@@ -11,6 +11,15 @@
     <!-- 検索条件 -->
     <section class="card search-form-card">
 
+      <div class="search-guide">
+        <div class="search-guide-title">
+          検索条件を入力してください
+        </div>
+        <div class="search-guide-description">
+          すべて空白でもだいじょうぶです
+        </div>
+      </div>
+
       <!-- 期間 -->
       <div class="search-form-row search-period-row">
         <label class="form-label">期間</label>
@@ -74,7 +83,7 @@
           type="text"
           v-model="keyword"
           class="input-field"
-          placeholder="店名・メモを検索"
+          placeholder="店名・メモを入力"
         />
       </div>
 
@@ -86,7 +95,7 @@
           @click="fetchList"
           :disabled="isLoading"
         >
-          表示
+          検索
         </button>
       </div>
 
@@ -607,6 +616,24 @@ const goEdit = (item) => {
   margin: 0;
 }
 
+/*　説明文 */
+.search-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-2);
+}
+
+.search-guide-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.search-guide-description {
+  font-size: 12px;
+  color: var(--color-muted);
+}
 
 /* 期間 */
 
