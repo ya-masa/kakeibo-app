@@ -226,7 +226,100 @@ a { color: var(--color-coffee); }
 }
 .textarea-field { min-height: 88px; resize: vertical; }
 .input-number { text-align: right; font-variant-numeric: tabular-nums; }
-.form-label { display: block; margin-bottom: var(--space-1); color: var(--color-text); font-size: 13px; font-weight: 700; }
+.form-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Input forms: shared row layout */
+.form-row > .form-label {
+  flex: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
+}
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 8px 0;
+}
+.form-row > .input-field,
+.form-row > .select-field {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.form-row > span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Shared radio controls */
+.radio-group {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  white-space: nowrap;
+}
+.radio-group input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  flex: 0 0 24px;
+  place-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: 1px solid var(--color-text);
+  border-radius: 50%;
+  background: var(--color-surface-strong);
+  cursor: pointer;
+}
+.radio-group input[type="radio"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-text);
+  transform: scale(0);
+  transition: transform 120ms ease-in-out;
+}
+.radio-group input[type="radio"]:checked::before { transform: scale(1); }
+.radio-group input[type="radio"]:focus-visible {
+  outline: 2px solid var(--color-coffee);
+  outline-offset: 2px;
+}
+
+@media (max-width: 420px) {
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .form-row > .form-label { align-self: flex-start; }
+  .form-row > .input-field,
+  .form-row > .select-field,
+  .form-row > .radio-group {
+    width: 100%;
+    flex: 0 1 auto;
+  }
+  .form-row > span { align-self: flex-start; }
+}
 
 /* Buttons: retain original class names */
 .btn-lg {
@@ -413,7 +506,7 @@ a { color: var(--color-coffee); }
 }
 
 /* ＋は初期状態だけ黄色 */
-.footer-nav .nav-item[href="/add"]:not(.active) .icon {
+.footer-nav .nav-item[href="*/add"]:not(.active) .icon {
   background: var(--color-yellow);
   color: var(--color-coffee-dark);
   transform: translateY(-9px) scale(1.2);

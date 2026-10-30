@@ -1,13 +1,13 @@
 <template>
   <form class="card"@submit.prevent="submitForm">
-    <div class="row">
+    <div class="row form-row">
       <label class="form-label">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />
       <!-- 曜日があるときだけ表示 -->
       <span v-if="weekday">（{{ weekday }}）</span>
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">科目</label>
       <select v-model="localForm.kamoku2"  class="select-field">
         <option 
@@ -20,7 +20,7 @@
       </select>
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">口座</label>
       <select v-model="localForm.kamoku1"  class="select-field">
         <option 
@@ -33,7 +33,7 @@
       </select>
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">相手</label>
       <input type="text" v-model="localForm.aite" list="shopList"  class="input-field"/>
       <datalist id="shopList">
@@ -41,17 +41,17 @@
       </datalist>
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">金額</label>
       <input class="input-field input-number" type="number" v-model="localForm.kingaku1" />
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">内容</label>
       <input type="text" v-model="localForm.naiyo"  class="input-field"/>
     </div>
 
-    <div class="row">
+    <div class="row form-row">
       <label  class="form-label">支払い確認</label>
       <div class="radio-group">
         <label><input type="radio" value="true" v-model="localForm.kakunin" /> 支払い確認済み</label>
@@ -206,66 +206,4 @@ import LoadingIcon from './LoadingIcon.vue'
   }
 </script>
 
-<style scoped>
-.radio-group {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
 
-/* ラジオボタン：中央に●を表示 */
-input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  margin: 0;
-  border: 1px solid var(--color-text);
-  border-radius: 50%;
-  background-color: white;
-  display: inline-grid;
-  place-content: center;
-  cursor: pointer;
-}
-
-/* 選択時に中央へ大きな●を表示 */
-input[type="radio"]::before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background-color: var(--color-text);
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
-}
-
-input[type="radio"]:checked::before {
-  transform: scale(1);
-}
-
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-}
-
-input[type="radio"]:checked {
-  border: 1px solid var(--color-text);
-  background: transparent;
-}
-
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-}
-
-
-/*@media (max-width: 400px) {
-  .row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-}*/
-</style>
