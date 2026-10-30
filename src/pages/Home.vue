@@ -4,7 +4,7 @@
 
     <header class="home-header">
       <div class="home-title-area">
-        <span class="home-title-icon">⌂</span>
+        <span class="home-title-icon"><House /></span>
         <div>
           <h1>ホーム</h1>
           <p>家計の状況</p>
@@ -318,7 +318,7 @@
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
   import { getAccountIcon } from '@/components/accountIcons'
-  import { ClipboardList ,Calendar } from "lucide-vue-next";
+  import { ClipboardList ,Calendar,House  } from "lucide-vue-next";
 
   const chartColors = ref([])
 
@@ -867,7 +867,8 @@
     transform: scale(.98);
   }
 
-  .home-summary-grid .unchecked-card {
+  .home-summary-grid .unchecked-card,
+  .home-summary-grid .unchecked-icon {
     background: var(--color-surface-soft);
   }
 
@@ -875,10 +876,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: var(--color-surface);
     color: var(--color-coffee);
     font-size: 19px;
   }
@@ -916,7 +916,10 @@
     font-size: 11px;
     line-height: 1.2;
   }
+  .today-icon{
+    background: var(--color-surface);
 
+  }
   .summary-arrow {
     justify-self: end;
     color: var(--color-coffee);
