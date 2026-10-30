@@ -926,120 +926,137 @@
     font-weight: 700;
   }
 
-  /* =================================
-   支出グラフ・内訳
-   ================================= */
+  
+/* 支出グラフ・内訳 */
+.expense-card h2 {
+  margin-bottom: 12px;
+}
 
-  .expense-card h2 {
-    margin-bottom: 16px;
-  }
+.expense-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
 
-  /* 円グラフと内訳を左右に配置 */
+/* 円グラフ */
+.chart-placeholder {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  min-width: 0;
+}
+
+.chart-placeholder :deep(canvas) {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 費目一覧 */
+.expense-summary-list {
+  min-width: 0;
+}
+
+.expense-summary-item {
+  min-width: 0;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.expense-summary-item:last-child {
+  border-bottom: none;
+}
+
+.expense-summary-item .large-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 0;
+}
+
+/* 展開ボタン */
+.expense-summary-item .toggle-btn {
+  flex: 0 0 25px;
+  width: 25px;
+  min-width: 25px;
+  min-height: 27px;
+  margin: 0;
+  padding: 2px;
+  font-size: 12px;
+}
+
+/* 色丸 */
+.expense-summary-item .dot {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+/* 大項目名 */
+.expense-summary-item .large-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* 金額 */
+.expense-item-amount {
+  flex-shrink: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* 小項目 */
+.expense-summary-item .sub-wrapper {
+  margin: 5px 0 2px 30px;
+  padding-left: 8px;
+  border-left: 2px solid var(--color-border);
+}
+
+.expense-summary-item .sub-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 4px 0;
+  font-size: 11px;
+}
+
+.expense-summary-item .sub-name {
+  min-width: 0;
+}
+
+.expense-summary-item .sub-amount {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 狭いスマホ */
+@media (max-width: 360px) {
   .expense-overview {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 7px;
   }
 
-  /* 円グラフ */
   .chart-placeholder {
-    position: relative;
-    width: 100%;
-    height: 190px;
-    min-width: 0;
+    height: 155px;
   }
 
-  .chart-placeholder :deep(canvas) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* 費目一覧 */
-  .expense-summary-list {
-    min-width: 0;
-  }
-
-  .expense-summary-item {
-    min-width: 0;
-    padding: 7px 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .expense-summary-item:last-child {
-    border-bottom: none;
-  }
-
-  .expense-summary-item .large-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    min-width: 0;
-    padding: 0;
+  .expense-summary-item .large-name,
+  .expense-item-amount {
+    font-size: 10px;
   }
 
   .expense-summary-item .toggle-btn {
-    flex-shrink: 0;
-    width: 27px;
-    min-width: 27px;
-    min-height: 27px;
-    margin: 0;
-    padding: 2px;
-    font-size: 13px;
+    flex-basis: 22px;
+    width: 22px;
+    min-width: 22px;
   }
-
-  .expense-summary-item .dot {
-    flex-shrink: 0;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .expense-summary-item .large-name {
-    flex: 1;
-    min-width: 0;
-    font-size: 12px;
-    overflow-wrap: anywhere;
-  }
-
-  .expense-summary-amount {
-    margin-top: 3px;
-    padding-left: 42px;
-    text-align: right;
-  }
-
-  .expense-summary-amount .amount {
-    font-size: 13px;
-    white-space: nowrap;
-  }
-
-  /* 小項目 */
-  .expense-summary-item .sub-wrapper {
-    margin-top: 7px;
-    padding-left: 12px;
-    border-left: 2px solid var(--color-border);
-  }
-
-  .expense-summary-item .sub-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 5px;
-    padding: 5px 0;
-    font-size: 11px;
-  }
-
-  .expense-summary-item .sub-name {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .expense-summary-item .sub-amount {
-    flex-shrink: 0;
-    font-size: 11px;
-    white-space: nowrap;
-  }
-
+}
 
 
 
