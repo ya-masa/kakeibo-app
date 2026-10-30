@@ -4,7 +4,7 @@
 
     <header class="home-header">
       <div class="home-title-area">
-        <span class="home-title-icon">⌂</span>
+        <span class="home-title-icon"><House /></span>
         <div>
           <h1>ホーム</h1>
           <p>家計の状況</p>
@@ -50,7 +50,14 @@
           </span>
         </div>
 
-        <div class="monthly-item monthly-difference">
+        <div
+          class="monthly-item monthly-difference"
+          :class="{
+            'difference-negative': monthly.income + monthly.expense < 0,
+            'difference-positive': monthly.income + monthly.expense > 0,
+            'difference-zero': monthly.income + monthly.expense === 0
+          }"
+        >
           <span class="monthly-label">差額</span>
           <span
             class="monthly-value amount amount-primary"
@@ -76,7 +83,7 @@
           @keydown.enter="goUnchecked"
           @keydown.space.prevent="goUnchecked"
         >
-          <span class="summary-icon unchecked-icon">▤</span>
+          <span class="summary-icon unchecked-icon"><ClipboardList /></span>
           <div class="summary-card-content">
             <span class="summary-title">未確認データ</span>
             <span class="summary-number amount">
@@ -95,7 +102,7 @@
           @keydown.enter="goTodayExpense"
           @keydown.space.prevent="goTodayExpense"
         >
-          <span class="summary-icon today-icon">▦</span>
+          <span class="summary-icon today-icon"><Calendar /></span>
           <div class="summary-card-content">
             <span class="today-date">
               {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
@@ -137,16 +144,12 @@
               :key="i"
               class="expense-summary-item"
             >
-              <div class="large-row">
-
-                <!-- 展開ボタン -->
-                <button
-                  class="btn toggle-btn"
-                  @click="openLarge = openLarge === item.name ? null : item.name"
-                >
-                  {{ openLarge === item.name ? '－' : '＋' }}
-                </button>
-
+              <button
+                type="button"
+                class="large-row"
+                :aria-expanded="openLarge === item.name"
+                @click="openLarge = openLarge === item.name ? null : item.name"
+              >
                 <!-- 色丸 -->
                 <span
                   class="dot"
@@ -166,7 +169,11 @@
                   {{ item.amount.toLocaleString() }}円
                 </span>
 
-              </div>
+                <!-- 展開矢印 -->
+                <span class="expense-arrow">
+                  {{ openLarge === item.name ? '⌄' : '›' }}
+                </span>
+              </button>
 
               <!-- 小項目 -->
               <div
@@ -311,6 +318,7 @@
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
   import { getAccountIcon } from '@/components/accountIcons'
+  import { ClipboardList ,Calendar,House  } from "lucide-vue-next";
 
   const chartColors = ref([])
 
@@ -754,7 +762,7 @@
     height: 44px;
     flex-shrink: 0;
     border-radius: var(--radius-md);
-    background: var(--color-yellow-soft);
+    background: var(--color-surface);
     color: var(--color-coffee);
     font-size: 26px;
   }
@@ -774,6 +782,8 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
+    padding: 0;
+    overflow: hidden;
   }
 
   .monthly-item {
@@ -783,7 +793,8 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 8px 3px;
+    min-height: 88px;
+    padding: 12px 3px;
     border-right: 1px solid var(--color-border);
   }
 
@@ -815,7 +826,19 @@
   }
 
   .monthly-difference {
-    border-radius: var(--radius-sm);
+    border-right: none;
+    transition: background-color .15s ease;
+  }
+
+  .monthly-difference.difference-negative {
+    background: var(--color-danger-bg);
+  }
+
+  .monthly-difference.difference-positive {
+    background: var(--color-success-bg);
+  }
+
+  .monthly-difference.difference-zero {
     background: var(--color-surface-soft);
   }
 
@@ -844,18 +867,18 @@
     transform: scale(.98);
   }
 
-  .home-summary-grid .unchecked-card {
-    background: var(--color-yellow-soft);
+  .home-summary-grid .unchecked-card,
+  .home-summary-grid .unchecked-icon {
+    background: var(--color-surface-soft);
   }
 
   .summary-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: var(--color-surface);
     color: var(--color-coffee);
     font-size: 19px;
   }
@@ -893,7 +916,10 @@
     font-size: 11px;
     line-height: 1.2;
   }
+  .today-icon{
+    background: var(--color-surface);
 
+  }
   .summary-arrow {
     justify-self: end;
     color: var(--color-coffee);
@@ -949,19 +975,27 @@
   .expense-summary-item .large-row {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    width: 100%;
     min-width: 0;
-    padding: 0;
+    padding: 5px 2px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .expense-summary-item .toggle-btn {
-    flex-shrink: 0;
-    width: 27px;
-    min-width: 27px;
-    min-height: 27px;
-    margin: 0;
-    padding: 2px;
-    font-size: 13px;
+  .expense-summary-item .large-row:active {
+    background: var(--color-surface-soft);
+  }
+
+  .expense-summary-item .large-row:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
   }
 
   .expense-summary-item .dot {
@@ -976,6 +1010,14 @@
     min-width: 0;
     font-size: 12px;
     overflow-wrap: anywhere;
+  }
+
+  .expense-summary-item .expense-arrow {
+    flex: 0 0 14px;
+    color: var(--color-muted);
+    font-size: 21px;
+    line-height: 1;
+    text-align: center;
   }
 
   .expense-summary-amount {
