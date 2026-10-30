@@ -3,6 +3,7 @@
   import { globalLoading } from '@/stores/loadingStore'
   import LoadingIcon from '@/components/LoadingIcon.vue'
   import { House, Search, Plus, WalletCards, Settings } from "lucide-vue-next";
+
 </script>
 
 <template>
@@ -16,7 +17,7 @@
       <router-link to="/home" class="nav-item" :class="{ active: $route.path === '/home' }">
         <span class="icon"><House /></span>
         <span>ホーム</span>
-      </router-link>
+      </router-link>    
 
       <router-link to="/list" class="nav-item" :class="{ active: $route.path === '/list' }">
         <span class="icon"><Search /></span>
