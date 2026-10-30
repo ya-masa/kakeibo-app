@@ -83,7 +83,7 @@
           @keydown.enter="goUnchecked"
           @keydown.space.prevent="goUnchecked"
         >
-          <span class="summary-icon unchecked-icon">▤</span>
+          <span class="summary-icon unchecked-icon"><ClipboardList /></span>
           <div class="summary-card-content">
             <span class="summary-title">未確認データ</span>
             <span class="summary-number amount">
@@ -102,7 +102,7 @@
           @keydown.enter="goTodayExpense"
           @keydown.space.prevent="goTodayExpense"
         >
-          <span class="summary-icon today-icon">▦</span>
+          <span class="summary-icon today-icon"><Calendar /></span>
           <div class="summary-card-content">
             <span class="today-date">
               {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
@@ -318,6 +318,7 @@
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
   import { getAccountIcon } from '@/components/accountIcons'
+  import { ClipboardList ,Calendar } from "lucide-vue-next";
 
   const chartColors = ref([])
 
@@ -867,7 +868,7 @@
   }
 
   .home-summary-grid .unchecked-card {
-    background: var(--color-yellow-soft);
+    background: var(--color-surface-soft);
   }
 
   .summary-icon {
