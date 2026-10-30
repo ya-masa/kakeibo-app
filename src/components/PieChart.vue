@@ -38,7 +38,6 @@ function drawChart() {
 
   if (chartInstance) chartInstance.destroy()
 
-  const isMobile = window.innerWidth < 600
   const colors = generateColors(props.labels.length)
 
   chartInstance = new Chart(canvasRef.value.getContext('2d'), {
@@ -56,15 +55,9 @@ function drawChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: isMobile ? 'bottom' : 'right',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 10,
-            padding: 10
-          }
+          display: false
         }
-      }
+      }    
     }
   })
 
