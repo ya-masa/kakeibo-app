@@ -255,9 +255,8 @@
 
               <!-- アイコン -->
               <span class="account-icon">
-                <component :is="getAccountIcon(acc.large)" :size="20" />
+                <component :is="getAccountIcon(acc.name)" :size="20" />
               </span>
-              
 
               <!-- 口座名 -->
               <span class="account-name">
@@ -343,6 +342,7 @@
   import loadingStore from "@/stores/loadingStore"
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
+  import { getAccountIcon } from '@/components/accountIcons'
 
   const chartColors = ref([])
 
