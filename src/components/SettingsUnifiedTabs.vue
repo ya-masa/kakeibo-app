@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, methods } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { GAS_URL } from '@/constants/index.js'
-import loadingStore from "@/stores/loadingStore"
+import loadingStore from '@/stores/loadingStore'
 
+const router = useRouter()
 
 /* GASから取得した生データ */
 const rawList = ref([])
@@ -10,35 +12,63 @@ const rawList = ref([])
 /* モード：100=資産, 200=負債, 400=収入, 500=支出 */
 const mode = ref(100)
 
-/* GASから一覧データ取得 */
-onMounted(async () => {
-  const res = await fetch(`${GAS_URL}?list=ALLLIST`)
-  console.log("ALLLIST:")
-  const all = await res.json()
-
-  rawList.value = all
-  console.log("rawList:",rawList)
-  // ローディング解除
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        loadingStore.globalLoading.value = false
-      }, 10)
-    })
-  })
-})
+/* 読み込み状態 */
+const loading = ref(false)
 
 /* モードに応じて group を決める */
 const modeGroup = computed(() => {
-  if (mode.value === 100) return "1_資産"
-  if (mode.value === 200) return "2_負債"
-  if (mode.value === 400) return "4_収入"
-  if (mode.value === 500) return "5_支出"
+  if (mode.value === 100) return '1_資産'
+  if (mode.value === 200) return '2_負債'
+  if (mode.value === 400) return '4_収入'
+  if (mode.value === 500) return '5_支出'
+  return ''
+})
+
+/* タブ情報 */
+const modeTabs = [
+  { code: 100, label: '資産' },
+  { code: 200, label: '負債' },
+  { code: 400, label: '収入' },
+  { code: 500, label: '支出' }
+]
+
+/* GASから一覧データ取得 */
+onMounted(async () => {
+  loading.value = true
+
+  try {
+    const res = await fetch(`${GAS_URL}?list=ALLLIST`)
+
+    if (!res.ok) {
+      throw new Error(`データ取得に失敗しました（${res.status}）`)
+    }
+
+    const all = await res.json()
+    rawList.value = all
+
+  } catch (e) {
+    console.error('科目一覧取得エラー:', e)
+    alert('科目一覧の取得に失敗しました。\n' + e.message)
+
+  } finally {
+    loading.value = false
+
+    // 画面表示後にローディングを解除
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          loadingStore.globalLoading.value = false
+        }, 10)
+      })
+    })
+  }
 })
 
 /* 大項目ごとにカード化する */
 const categories = computed(() => {
-  const list = rawList.value.filter(i => i.group === modeGroup.value)
+  const list = rawList.value.filter(
+    item => item.group === modeGroup.value
+  )
 
   const map = {}
 
@@ -46,7 +76,7 @@ const categories = computed(() => {
     if (!map[item.daikoumoku]) {
       map[item.daikoumoku] = {
         daikoumoku: item.daikoumoku,
-        daikoumokuCode: Math.floor(item.code / 10) * 10, // 大項目コード
+        daikoumokuCode: Math.floor(item.code / 10) * 10,
         items: []
       }
     }
@@ -59,37 +89,39 @@ const categories = computed(() => {
     })
   })
 
-  // 🔥 小項目を code 順に並べ替え
+  // 小項目をコード順に並べ替え
   Object.values(map).forEach(category => {
     category.items.sort((a, b) => a.code - b.code)
   })
 
-  // 🔥 大項目も code 順に並べ替え
-  return Object.values(map).sort((a, b) => a.daikoumokuCode - b.daikoumokuCode)
+  // 大項目をコード順に並べ替え
+  return Object.values(map).sort(
+    (a, b) => a.daikoumokuCode - b.daikoumokuCode
+  )
 })
-
-
 
 /* 小項目追加（最大10件） */
 const addItem = (category) => {
-  // 現在のタブの group（例：1_資産）
   const group = modeGroup.value
 
-  // rawList から該当大項目のデータを抽出
+  // 該当する大項目のデータを抽出
   const targetList = rawList.value.filter(
-    i => i.group === group && i.daikoumoku === category.daikoumoku
+    item =>
+      item.group === group &&
+      item.daikoumoku === category.daikoumoku
   )
 
   // 10件以上なら追加不可
   if (targetList.length >= 10) return
 
-  // 既存コードの1の位（小項目番号）を抽出
+  // 既存コードの1の位を取得
   const usedSmallCodes = targetList
-    .map(i => i.code % 10) // 1の位だけ取り出す
+    .map(item => item.code % 10)
     .sort((a, b) => a - b)
 
-  // 次の番号を決める（0〜9）
+  // 未使用の番号を取得
   let nextSmallCode = 0
+
   for (let i = 0; i < 10; i++) {
     if (!usedSmallCodes.includes(i)) {
       nextSmallCode = i
@@ -97,58 +129,70 @@ const addItem = (category) => {
     }
   }
 
-  // 大項目コード（10の位）を取得
+  // 大項目コードを取得
   const firstItem = targetList[0]
   const daikoumokuCode = Math.floor(firstItem.code / 10) * 10
 
-  // 新しい code を作成
+  // 新しいコードを作成
   const newCode = daikoumokuCode + nextSmallCode
 
-  // rawList に追加
+  // rawListに追加
   rawList.value.push({
     code: newCode,
     group: group,
     daikoumoku: category.daikoumoku,
-    shoukoumoku: "",
-    hihyouji: targetList.length + 1 // 表示順
+    shoukoumoku: '',
+    hihyouji: targetList.length + 1
   })
 }
-
 
 /* 小項目削除 */
 const removeItem = (category, index) => {
   const targetList = rawList.value.filter(
-    i => i.group === modeGroup.value && i.daikoumoku === category.daikoumoku
+    item =>
+      item.group === modeGroup.value &&
+      item.daikoumoku === category.daikoumoku
   )
 
   const item = targetList[index]
 
-  // rawList から削除
-  rawList.value = rawList.value.filter(i => i !== item)
+  if (!item) return
+
+  rawList.value = rawList.value.filter(
+    target => target !== item
+  )
 }
 
-/*小項目の変更を反映 */
+/* 小項目の変更を反映 */
 const changeItem = (item) => {
-  // rawList の該当データを探す
-  const target = rawList.value.find(i => i.code === item.code)
+  const target = rawList.value.find(
+    data => data.code === item.code
+  )
 
   if (target) {
-    target.shoukoumoku = item.shoukoumoku   // ← 保存用データを更新
+    target.shoukoumoku = item.shoukoumoku
   }
-
-  console.log("保存:", target)
 }
 
+/* 表示・非表示の変更 */
+const changeDisabled = (item, disabled) => {
+  const target = rawList.value.find(
+    data => data.code === item.code
+  )
 
-/*全項目保存 */
+  if (target) {
+    target.hihyouji = disabled ? true : item.order
+  }
+}
+
+/* 全項目保存 */
 const saveAll = async () => {
   loadingStore.globalLoading.value = true
-  
-try {
+
+  try {
     const payload = new URLSearchParams()
-    console.log("rawList件数:", rawList.value.length)
-    console.table(rawList.value)
-    payload.append("mode", "kamoku")
+
+    payload.append('mode', 'kamoku')
 
     rawList.value.forEach((item, index) => {
       payload.append(`code_${index}`, item.code)
@@ -158,92 +202,236 @@ try {
       payload.append(`hihyouji_${index}`, item.hihyouji)
     })
 
-    // 件数も送る（GAS側で復元するため）
-    payload.append("length", rawList.value.length)
-    
-  const res = await fetch(`${GAS_URL}?mode=kamoku`, {
-    method: "POST",
-    body: payload   // ← JSON ではない
-  })
-    console.log("保存件数:", rawList.value.length)
-    console.log("送信データ:", payload.toString())
-    const result = await res.json()
-     alert(result.message)
-     router.push('/setting')
-  }   catch (e) {
-    alert("更新に失敗しました"+e.message)
-  } 
+    // GAS側で復元するための件数
+    payload.append('length', rawList.value.length)
 
-  loadingStore.globalLoading.value = false
-}
-  const changeDisabled = (item, disabled) => {
-    const target = rawList.value.find(i => i.code === item.code)
+    const res = await fetch(`${GAS_URL}?mode=kamoku`, {
+      method: 'POST',
+      body: payload
+    })
 
-    if (target) {
-      target.hihyouji = disabled ? true : item.order
+    if (!res.ok) {
+      throw new Error(`保存に失敗しました（${res.status}）`)
     }
+
+    const result = await res.json()
+
+    alert(result.message)
+
+    // 保存後は設定メニューへ戻る
+    router.push('/setting')
+
+  } catch (e) {
+    console.error('科目保存エラー:', e)
+    alert('更新に失敗しました。\n' + e.message)
+
+  } finally {
+    loadingStore.globalLoading.value = false
   }
+}
 </script>
 
 <template>
   <div class="settings-wrapper">
 
-    <!-- 固定ヘッダー（保存ボタン） -->
-    <div class="header-save">
-      <button class="btn" @click="saveAll">
+    <!-- ヘッダー -->
+    <header class="settings-header">
+      <div class="settings-title">
+        <div class="title-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="23"
+            height="23"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 5h16" />
+            <path d="M4 12h16" />
+            <path d="M4 19h16" />
+            <path d="M9 5v14" />
+          </svg>
+        </div>
+
+        <div>
+          <h1>科目設定</h1>
+          <p class="settings-description">
+            大項目ごとに小項目を管理できます
+          </p>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-lg save-button"
+        type="button"
+        @click="saveAll"
+        :disabled="loading"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="19"
+          height="19"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
+          <path d="M17 21v-8H7v8" />
+          <path d="M7 3v5h8" />
+        </svg>
         保存する
+      </button>
+    </header>
+
+    <!-- 説明 -->
+    <div class="settings-help">
+      <p>
+        <strong>チェックを入れる</strong>と、入力画面などの選択肢に表示されなくなります。
+      </p>
+      <p>
+        小項目の追加・名称変更を行ったら、最後に保存してください。
+      </p>
+    </div>
+
+    <!-- 資産・負債・収入・支出タブ -->
+    <div class="tabs category-tabs">
+      <button
+        v-for="tab in modeTabs"
+        :key="tab.code"
+        type="button"
+        class="tab-btn"
+        :class="{ active: mode === tab.code }"
+        @click="mode = tab.code"
+      >
+        {{ tab.label }}
       </button>
     </div>
 
-    <!-- タブUI -->
-    <div class="tabs">
-      <button class="button" :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
-      <button class="button" :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
-      <button class="button" :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
-      <button class="button" :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
-    </div>
-
-    <!-- カード表示（大項目ごと） -->
+    <!-- 大項目カード -->
     <div
       v-for="category in categories"
       :key="category.daikoumoku"
-      class="card"
+      class="category-card"
     >
-      <div class="card-header">
-        <h3>{{ category.daikoumoku }}</h3>
-        <span class="lock">🔒</span>
+      <div class="category-header">
+        <div class="category-heading">
+          <span class="category-code">
+            {{ category.daikoumokuCode }}
+          </span>
+
+          <h2>{{ category.daikoumoku }}</h2>
+        </div>
+
+        <span class="lock-mark" title="大項目">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </span>
       </div>
 
+      <!-- 小項目一覧 -->
       <div class="item-list">
         <div
-          v-for="(item, index) in category.items"
-          :key="index"
+          v-for="item in category.items"
+          :key="item.code"
           class="item-row"
+          :class="{ 'item-hidden': item.disabled }"
         >
-          <input
-            type="checkbox"
-            :checked="item.disabled"
-            @change="changeDisabled(item, $event.target.checked)"
-          />
-          <span class="item-code">{{ item.code }}</span>
+          <label class="visibility-control">
+            <input
+              type="checkbox"
+              :checked="item.disabled"
+              @change="changeDisabled(item, $event.target.checked)"
+              :aria-label="`${item.code}を非表示にする`"
+            />
+          </label>
+
+          <span class="item-code">
+            {{ item.code }}
+          </span>
 
           <input
             v-model="item.shoukoumoku"
             type="text"
             class="input-field item-input"
+            placeholder="小項目名を入力"
             @input="changeItem(item)"
             :class="{ disabled: item.disabled }"
           />
-              
+
+          <span
+            v-if="item.disabled"
+            class="hidden-label"
+          >
+            非表示
+          </span>
         </div>
       </div>
 
+      <!-- 小項目追加 -->
       <button
-        class="btn"
+        class="add-item-button"
+        type="button"
         @click="addItem(category)"
         :disabled="category.items.length >= 10"
       >
-        ＋ 小項目を追加
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+
+        小項目を追加
+
+        <span class="add-count">
+          {{ category.items.length }}/10
+        </span>
+      </button>
+    </div>
+
+    <!-- データなし -->
+    <div
+      v-if="categories.length === 0"
+      class="empty-state"
+    >
+      <p>登録されている科目はありません。</p>
+    </div>
+
+    <!-- 画面下部の保存ボタン -->
+    <div class="bottom-save">
+      <button
+        class="btn btn-lg save-button"
+        type="button"
+        @click="saveAll"
+        :disabled="loading"
+      >
+        保存する
       </button>
     </div>
 
@@ -251,200 +439,392 @@ try {
 </template>
 
 <style scoped>
+/* ========================================
+   科目設定画面
+   共通カラー・サイズはBase.cssを使用
+======================================== */
+
 .settings-wrapper {
   width: 100%;
-  max-width: var(--content-width, 600px);
+  max-width: var(--content-width);
   min-width: 0;
   margin: 0 auto;
-  padding: 8px 0 24px;
+  padding: var(--space-3) 0 var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
-/* 固定保存エリア */
-.header-save {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 10px 12px 4px;
-  background: var(--color-background, #f9f1e7);
-  border-bottom: 1px solid var(--color-border, #c8a27e);
-}
-
-.header-save .btn {
-  width: 100%;
-  margin: 0;
-  min-height: 44px;
-  border: 1px solid var(--color-coffee, #6b4f3f);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-beige, #c8a27e);
-  color: var(--color-brown-dark, #3a2f2a);
-  font-weight: 600;
-}
-
-/* 資産・負債・収入・支出のタブ */
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0px;
-}
-
-/*.tabs button {
-  min-width: 0;
-  min-height: 42px;
-  padding: 8px 4px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-surface, #f5e8d8);
-  color: var(--color-coffee, #6b4f3f);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.tabs button.active {
-  background: var(--color-coffee, #6b4f3f);
-  color: var(--color-white, #fff);
-  border-color: var(--color-coffee, #6b4f3f);
-}*/
-
-/* 大項目カード */
-/*
-.card {
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding: 14px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-lg, 12px);
-  background: var(--color-surface, #f5e8d8);
-  color: var(--color-coffee, #6b4f3f);
-  box-shadow: 0 1px 3px rgb(58 47 42 / 7%);
-}
-
-.card-header {
+/* ヘッダー */
+.settings-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border, #c8a27e);
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
 }
 
-.card-header h3 {
-  flex: 1;
+.settings-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-coffee);
+}
+
+.settings-title h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.settings-description {
+  margin: 3px 0 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 112px;
+  min-height: 44px;
+  margin: 0;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+
+/* 説明エリア */
+.settings-help {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+}
+
+.settings-help p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.settings-help p + p {
+  margin-top: 4px;
+}
+
+.settings-help strong {
+  color: var(--color-coffee-dark);
+}
+
+/* タブ */
+.category-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.category-tabs .tab-btn {
+  min-height: 46px;
+  padding: 9px 5px;
+  white-space: nowrap;
+}
+
+/* 大項目カード */
+.category-card {
+  width: 100%;
   min-width: 0;
   margin: 0;
-  color: var(--color-brown-dark, #3a2f2a);
-  font-size: 17px;
-  font-weight: 700;
-}
-*/
-.lock {
-  flex: 0 0 auto;
-  opacity: 0.65;
-  font-size: 14px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.category-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.category-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 38px;
+  min-height: 28px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.category-heading h2 {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-coffee-dark);
+  font-size: 17px;
+}
+
+.lock-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--color-muted);
+}
+
+/* 小項目 */
 .item-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .item-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
-  margin: 0;
 }
 
-.item-row input[type="checkbox"] {
-  flex: 0 0 18px;
+.visibility-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  width: 24px;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.visibility-control input {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--color-text);
+  accent-color: var(--color-coffee);
+  cursor: pointer;
 }
 
 .item-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 42px;
-  display: inline-block;
-  text-align: center;
+  min-height: 40px;
   color: var(--color-muted);
   font-size: 13px;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
-/*.item-input {
+.item-input {
   flex: 1 1 auto;
   width: 0;
   min-width: 0;
-  min-height: 40px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-sm, 6px);
-  background: var(--color-white, #fff);
-  color: var(--color-brown-dark, #3a2f2a);
-  font-size: 16px;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 11px;
 }
 
-.item-input:focus {
-  outline: 2px solid rgb(244 114 112 / 35%);
-  outline-offset: 1px;
-  border-color: var(--color-accent, #f47270);
-}
-*/
 .item-input.disabled {
-  background: var(--color-surface-strong);
+  background: var(--color-surface-soft);
   color: var(--color-muted);
 }
 
+.hidden-label {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* 非表示項目 */
+.item-hidden {
+  opacity: 0.85;
+}
+
+.item-hidden .item-input {
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  border-color: var(--color-border);
+}
+
+.item-hidden .item-code {
+  color: var(--color-muted);
+}
+
+
 /* 小項目追加ボタン */
-/*.card > .btn {
+.add-item-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   width: 100%;
-  min-height: 42px;
-  margin: 0;
+  min-height: 44px;
   padding: 9px 12px;
-  border: 1px solid var(--color-coffee, #6b4f3f);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-beige, #c8a27e);
-  color: var(--color-brown-dark, #3a2f2a);
+
+  border: 1px dashed var(--color-yellow);
+  border-radius: var(--radius-md);
+
+  background: var(--color-yellow-soft);
+  color: var(--color-coffee-dark);
+
   font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background-color .16s ease,
+    border-color .16s ease;
+}
+
+.add-item-button:hover:not(:disabled) {
+  background: var(--color-accent-light);
+  border-color: var(--color-beige-hover);
+}
+
+.add-item-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.add-count {
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: 12px;
   font-weight: 600;
 }
 
-.card > .btn:disabled {
-  opacity: 0.5;
-}*/
+/* データなし */
+.empty-state {
+  padding: var(--space-6) var(--space-3);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  text-align: center;
+}
 
-@media (max-width: 360px) {
+/* 下部保存 */
+.bottom-save {
+  padding-top: var(--space-2);
+}
+
+.bottom-save .save-button {
+  width: 100%;
+}
+
+/* スマートフォン */
+@media (max-width: 420px) {
   .settings-wrapper {
-    gap: 12px;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
   }
 
-  .card {
-    padding: 11px;
+  .settings-header {
+    align-items: flex-start;
   }
 
-  .tabs {
-    gap: 4px;
+  .settings-title {
+    gap: var(--space-2);
   }
 
-  .tabs button {
+  .title-icon {
+    flex-basis: 38px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .settings-title h1 {
+    font-size: 20px;
+  }
+
+  .settings-description {
+    font-size: 11px;
+  }
+
+  .settings-header .save-button {
+    min-width: 94px;
+    min-height: 40px;
+    padding: 8px 10px;
     font-size: 13px;
-    padding-inline: 2px;
+  }
+
+  .category-card {
+    padding: var(--space-3);
+  }
+
+  .category-heading h2 {
+    font-size: 16px;
   }
 
   .item-row {
-    gap: 6px;
+    gap: 5px;
   }
 
   .item-code {
     flex-basis: 36px;
+    font-size: 12px;
+  }
+
+  .item-input {
+    min-height: 42px;
+    padding: 8px;
+    font-size: 15px;
+  }
+
+  .hidden-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 340px) {
+  .settings-header {
+    flex-wrap: wrap;
+  }
+
+  .settings-header .save-button {
+    width: 100%;
+  }
+
+  .category-tabs {
+    gap: 5px;
+  }
+
+  .category-tabs .tab-btn {
     font-size: 12px;
   }
 }
