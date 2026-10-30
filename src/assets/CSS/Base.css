@@ -228,10 +228,12 @@ a { color: var(--color-coffee); }
 .input-number { text-align: right; font-variant-numeric: tabular-nums; }
 .form-label {
   display: block;
+  flex-shrink: 0;
   margin-bottom: var(--space-1);
   color: var(--color-text);
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* Input forms: shared row layout */
@@ -244,9 +246,10 @@ a { color: var(--color-coffee); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  column-gap: var(--space-5);
+  row-gap: var(--space-2);
   min-width: 0;
-  padding: 8px 0;
+  padding: 10px 0;
 }
 .form-row > .input-field,
 .form-row > .select-field {
@@ -258,6 +261,16 @@ a { color: var(--color-coffee); }
 .form-row > span {
   flex: 0 0 auto;
   white-space: nowrap;
+}
+.form-actions {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.form-actions > .btn,
+.form-actions > .btn-red {
+  width: 100%;
+  margin: 0;
 }
 
 /* Shared radio controls */
@@ -309,7 +322,8 @@ a { color: var(--color-coffee); }
   .form-row {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-2);
+    column-gap: 0;
+    row-gap: var(--space-2);
   }
   .form-row > .form-label { align-self: flex-start; }
   .form-row > .input-field,
@@ -506,18 +520,14 @@ a { color: var(--color-coffee); }
 }
 
 /* ＋は初期状態だけ黄色 */
-.footer-nav .nav-item[href="*/add"]:not(.active) .icon {
+/* 入力（＋）は未選択でも常に黄色で強調 */
+.footer-nav .nav-item.add-nav .icon {
   background: var(--color-yellow);
   color: var(--color-coffee-dark);
   transform: translateY(-9px) scale(1.2);
 }
 
 /* 選択中のアイコン */
-.footer-nav .nav-item.active .icon {
-  background: var(--color-yellow);
-  color: var(--color-coffee-dark);
-  transform: translateY(-9px) scale(1.2);
-}
 .footer-nav .nav-item.active .icon {
   background: var(--color-yellow);
   color: var(--color-coffee-dark);

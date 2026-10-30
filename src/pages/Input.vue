@@ -3,15 +3,17 @@
     <h1>{{ props.mode === 'edit' ? '家計簿修正' : '家計簿入力' }}</h1>
 
     <!-- タブ -->
-    <div class="tabs">
+    <div class="tabs input-tabs">
       <button 
         v-for="t in tabs" 
         :key="t.value"
         class="tab-btn"
         :class="{ active: currentTab === t.value }"
         @click="changeTab(t.value)"
+        :aria-pressed="currentTab === t.value"
       >
-        {{ t.label }}
+        <component :is="t.icon" :size="18" :stroke-width="2" aria-hidden="true" />
+        <span>{{ t.label }}</span>
       </button>
     </div>
 
@@ -58,6 +60,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { ShoppingCart, Wallet, ArrowLeftRight } from 'lucide-vue-next'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
 import ExpenseForm from '@/components/ExpenseForm.vue'
@@ -84,9 +87,9 @@ const emit = defineEmits(["submit", "delete"])
 
 /* タブ定義 */
 const tabs = [
-  { label: '支出入力', value: 'expense' },
-  { label: '収入入力', value: 'income' },
-  { label: '振替入力', value: 'transfer' }
+  { label: '支出入力', value: 'expense', icon: ShoppingCart },
+  { label: '収入入力', value: 'income', icon: Wallet },
+  { label: '振替入力', value: 'transfer', icon: ArrowLeftRight }
 ]
 
 /* localForm（初期値） */
@@ -255,6 +258,21 @@ const emitDelete = (rowNo) => {
 
 
 <style scoped>
+.input-tabs {
+  margin-bottom: var(--space-5);
+}
+
+.input-tabs .tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.input-tabs .tab-btn svg {
+  flex: 0 0 auto;
+}
 
 .tab-card :deep(*) {
   max-width: 100%;

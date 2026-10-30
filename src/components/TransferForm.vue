@@ -1,5 +1,6 @@
+
 <template>
-  <form class ="card" @submit.prevent="submitForm">
+  <form class="card" @submit.prevent="submitForm">
     <div class="row form-row">
       <label class="form-label">日付</label>
       <input type="date" v-model="localForm.date" class="input-field" />
@@ -10,7 +11,7 @@
     <div class="row form-row">
       <label class="form-label">増える科目</label>
       <select v-model="localForm.kamoku1" class="select-field">
-        <option 
+        <option
           v-for="item in props.listKouza"
           :key="item.code"
           :value="String(item.code)"
@@ -22,14 +23,17 @@
 
     <div class="row form-row">
       <label class="form-label">金額プラス</label>
-      <input type="number" v-model="localForm.kingaku1" class="input-field input-number"
-/>
+      <input
+        type="number"
+        v-model="localForm.kingaku1"
+        class="input-field input-number"
+      />
     </div>
 
     <div class="row form-row">
       <label class="form-label">減る科目</label>
       <select v-model="localForm.kamoku2" class="select-field">
-        <option 
+        <option
           v-for="item in props.listKouza"
           :key="item.code"
           :value="String(item.code)"
@@ -41,14 +45,21 @@
 
     <div class="row form-row">
       <label class="form-label">金額マイナス</label>
-      <input type="number" v-model="localForm.kingaku2" class="input-field input-number"
- />
+      <input
+        type="number"
+        v-model="localForm.kingaku2"
+        class="input-field input-number"
+      />
     </div>
 
     <div class="row form-row">
       <label class="form-label">相手</label>
-      <input type="text" v-model="localForm.aite" list="shopList" class="input-field"
- />
+      <input
+        type="text"
+        v-model="localForm.aite"
+        list="shopList"
+        class="input-field"
+      />
       <datalist id="shopList">
         <option v-for="s in shops" :key="s" :value="s" />
       </datalist>
@@ -56,136 +67,156 @@
 
     <div class="row form-row">
       <label class="form-label">内容</label>
-      <input type="text" v-model="localForm.naiyo" class="input-field"
-/>
+      <input
+        type="text"
+        v-model="localForm.naiyo"
+        class="input-field"
+      />
     </div>
 
     <div class="row form-row">
       <label class="form-label">支払い確認</label>
       <div class="radio-group">
-      <label>
-        <input type="radio" value="true" v-model="localForm.kakunin">
-        支払い確認済み
-      </label>
-      <label>
-        <input type="radio" value="false" v-model="localForm.kakunin">
-        支払い未確認
-      </label>
+        <label>
+          <input type="radio" value="true" v-model="localForm.kakunin" />
+          支払い確認済み
+        </label>
+        <label>
+          <input type="radio" value="false" v-model="localForm.kakunin" />
+          支払い未確認
+        </label>
       </div>
     </div>
+
     <!-- ローディング -->
     <div class="loading-area">
       <LoadingIcon :show="isLoading" />
     </div>
-    <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
-    <!-- ボタン（追加 or 修正） -->
-    <button class="btn-lg btn" type="submit" :disabled="isLoading">
-      {{ props.mode === 'edit' ? '修正' : '追加' }}
-    </button>
 
-    <!-- 削除ボタン（修正モードのみ） -->
-    <button 
-      class="btn-lg btn-red"
-      v-if="props.mode === 'edit'"  
-      type="button":disabled="isLoading"
-      @click="emit('delete', localForm.value.id)"
-    >
-      削除
-    </button>
+    <LoadingIcon :show="globalLoading" v-show="globalLoading" />
+
+    <!-- ボタン（追加 or 修正） -->
+    <div class="form-actions">
+      <button class="btn-lg btn" type="submit" :disabled="isLoading">
+        {{ props.mode === 'edit' ? '修正' : '追加' }}
+      </button>
+
+      <!-- 削除ボタン（修正モードのみ） -->
+      <button
+        class="btn-lg btn-red"
+        v-if="props.mode === 'edit'"
+        type="button"
+        :disabled="isLoading"
+        @click="emit('delete', localForm.id)"
+      >
+        削除
+      </button>
+    </div>
   </form>
 </template>
 
 <script setup>
-import { ref, computed, watch ,onMounted} from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import LoadingIcon from './LoadingIcon.vue'
 import loadingStore from "@/stores/loadingStore"
 
-  const props = defineProps({
-    listKouza: { type: Array, default: () => [] },
-    listCodeShops: { type: Array, default: () => [] },
-    mode: { type: String, default: "add" },
-    form: { type: Object, default: null }
-  })
+const props = defineProps({
+  listKouza: { type: Array, default: () => [] },
+  listCodeShops: { type: Array, default: () => [] },
+  mode: { type: String, default: "add" },
+  form: { type: Object, default: null }
+})
 
-  const emit = defineEmits(["submit", "delete"])
-  // ---------------------------
-  // 初期値（追加 or 修正）
-  // ---------------------------
-  const today = new Date().toISOString().slice(0, 10)
-  console.log("propsData:",props.form)                      //振替
-  const localForm = ref({
-    rowNo: props.form?.rowNo || "",
-    id: props.form?.id || "",
-    mode:props.form?.mode || "add",
-    type:"transfer",
-    date: props.form?.date || today,
-    kamoku1: props.form?.kamoku1 || 700,
-    kamoku2: props.form?.kamoku2 || 700,
-    kingaku1: props.form?.kingaku1,
-    kingaku2: props.form?.kingaku2,
-    aite: props.form?.aite || "",
-    naiyo: props.form?.naiyo || "",
-    kakunin: props.form?.kakunin || "false"
-  })
+const emit = defineEmits(["submit", "delete"])
 
-  // ---------------------------
-  // 相手の店リスト
-  // ---------------------------
-  const shops = computed(() => {
-    if (!props.listCodeShops?.length) return []
+// ---------------------------
+// 初期値（追加 or 修正）
+// ---------------------------
+const today = new Date().toISOString().slice(0, 10)
 
-    if (!localForm.value.kamoku1) {
-      return props.listCodeShops.flatMap(i => i.shops)
-    }
+console.log("propsData:", props.form)
 
-    const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku1)
-    return item?.shops || []
-  })
+const localForm = ref({
+  rowNo: props.form?.rowNo || "",
+  id: props.form?.id || "",
+  mode: props.form?.mode || "add",
+  type: "transfer",
+  date: props.form?.date || today,
+  kamoku1: props.form?.kamoku1 || 700,
+  kamoku2: props.form?.kamoku2 || 700,
+  kingaku1: props.form?.kingaku1,
+  kingaku2: props.form?.kingaku2,
+  aite: props.form?.aite || "",
+  naiyo: props.form?.naiyo || "",
+  kakunin: props.form?.kakunin || "false"
+})
 
-  // ---------------------------
-  // 金額の自動反転（無限ループ防止）
-  // ---------------------------
-  let updating = false
+// ---------------------------
+// 相手の店リスト
+// ---------------------------
+const shops = computed(() => {
+  if (!props.listCodeShops?.length) return []
 
-  watch(() => localForm.value.kingaku1, (val) => {
-    if (updating) return
-    updating = true
-    localForm.value.kingaku2 = val ? -val: ""
-    updating = false
-  })
+  if (!localForm.value.kamoku1) {
+    return props.listCodeShops.flatMap(i => i.shops)
+  }
 
-  watch(() => localForm.value.kingaku2, (val) => {
-    if (updating) return
-    updating = true
-    localForm.value.kingaku1 = val ? -val: ""
-    updating = false
-  })
+  const item = props.listCodeShops.find(
+    i => i.code === localForm.value.kamoku1
+  )
 
+  return item?.shops || []
+})
+
+// ---------------------------
+// 金額の自動反転（無限ループ防止）
+// ---------------------------
+let updating = false
+
+watch(() => localForm.value.kingaku1, (val) => {
+  if (updating) return
+  updating = true
+  localForm.value.kingaku2 = val ? -val : ""
+  updating = false
+})
+
+watch(() => localForm.value.kingaku2, (val) => {
+  if (updating) return
+  updating = true
+  localForm.value.kingaku1 = val ? -val : ""
+  updating = false
+})
+
+// ---------------------------
+// 初期ローディング
+// ---------------------------
 onMounted(() => {
   requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    // ここでローディングを消す（長めにしたいなら調整）
-    setTimeout(() => {
-      loadingStore.globalLoading.value = false
-    }, 500) // ← ここを好きな時間にできる
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        loadingStore.globalLoading.value = false
+      }, 500)
     })
   })
 })
-const isLoading=ref(false)
+
+const isLoading = ref(false)
+
 // ---------------------------
 // 送信（追加 or 修正）
 // ---------------------------
 const submitForm = async () => {
-    isLoading.value = true
-    console.log("localForm:",localForm.value)   
+  isLoading.value = true
+  console.log("localForm:", localForm.value)
+
   try {
     emit("submit", { ...localForm.value })
   } finally {
+    isLoading.value = false
   }
 }
-
-
 </script>
+
 
 
 
