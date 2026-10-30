@@ -1,256 +1,439 @@
+
 <template>
-<div class="continer">
-  <!-- この下にフィルタや一覧 -->
-  <div class="card">
-    <div class="row">
-      <label class="form-label">期間</label>
-      <input type="date" v-model="periodStart" class="input-field">
-        <!-- 曜日は表示しない -->
-        <span v-if="false">（{{ weekday }}）</span>
-      <span>〜</span>
-      <input type="date" v-model="periodEnd" class="input-field">
-        <!-- 曜日は表示しない -->
-        <span v-if="false">（{{ weekday }}）</span>
-    </div>
+  <main class="container list-page">
 
-    <div class="row">
-      <label class="form-label">大項目</label>
-      <select v-model="large" class="select-field">
-        <option value="">（すべて）</option>
-        <option v-for="item in categoriesLarge" :key="item" :value="item">{{ item }}</option>
-      </select>
-    </div>
+    <!-- 画面タイトル -->
+    <h1 class="list-title">
+      <Search :size="25" :stroke-width="2.2" aria-hidden="true" />
+      <span>検索</span>
+    </h1>
 
-    <div class="row">
-      <label class="form-label">小項目</label>
-      <select v-model="small" class="select-field">
-        <option value="">（すべて）</option>
-        <option v-for="item in categoriesSmall" :key="item" :value="item">{{ item }}</option>
-      </select>
-    </div>
+    <!-- 検索条件 -->
+    <section class="card search-form-card">
 
-    <div class="row">
-      <label class="form-label">キーワード</label>
-      <input type="text" v-model="keyword" class="input-field" placeholder="店名・メモを検索">
-    </div>
-    <!-- 表示ボタン -->
-    <button class="btn btn-lg" @click="fetchList" :disabled="loading">
-      表示
-    </button>
-  </div>
-</div>
+      <!-- 期間 -->
+      <div class="search-form-row search-period-row">
+        <label class="form-label">期間</label>
 
-  <!-- ローディング -->
-  <div class="loading-area">
-    <LoadingIcon :show="isLoading" v-show="isLoading"/>
-  </div>
-  
-  <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
-  <!-- 一覧表示 -->
-<div class="has-footer">
-  <div v-if="!loading && list.length > 0" class="transaction-list">
-    <article
-      v-for="item in list"
-      :key="item.id"
-      class="card transaction-card"
-      :class="{ unchecked: item.check === false }"
-    >
-      <!-- チェックボックス -->
-      <div class="card-left">
-        <div
-          class="transaction-card-header"
-          v-if="item.check === false"
-        >
+        <div class="period-inputs">
           <input
-            type="checkbox"
-            :checked="selectedCheckId === item.id"
-            @change="selectedCheckId = $event.target.checked ? item.id : null"
-          ><span>支払い確認</span>
+            type="date"
+            v-model="periodStart"
+            class="input-field"
+            aria-label="開始日"
+          />
 
-          <!-- チェックを入れたときだけ更新ボタンを表示 -->
-          <div
-            v-if="selectedCheckId === item.id"
-            class="check-update-btn"
+          <span class="period-separator">〜</span>
+
+          <input
+            type="date"
+            v-model="periodEnd"
+            class="input-field"
+            aria-label="終了日"
+          />
+        </div>
+      </div>
+
+      <!-- 大項目 -->
+      <div class="search-form-row">
+        <label class="form-label">大項目</label>
+
+        <select v-model="large" class="select-field">
+          <option value="">（すべて）</option>
+          <option
+            v-for="item in categoriesLarge"
+            :key="item"
+            :value="item"
           >
+            {{ item }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 小項目 -->
+      <div class="search-form-row">
+        <label class="form-label">小項目</label>
+
+        <select v-model="small" class="select-field">
+          <option value="">（すべて）</option>
+          <option
+            v-for="item in categoriesSmall"
+            :key="item"
+            :value="item"
+          >
+            {{ item }}
+          </option>
+        </select>
+      </div>
+
+      <!-- キーワード -->
+      <div class="search-form-row">
+        <label class="form-label">キーワード</label>
+
+        <input
+          type="text"
+          v-model="keyword"
+          class="input-field"
+          placeholder="店名・メモを検索"
+        />
+      </div>
+
+      <!-- 表示ボタン -->
+      <div class="search-actions">
+        <button
+          type="button"
+          class="btn btn-lg"
+          @click="fetchList"
+          :disabled="isLoading"
+        >
+          表示
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ローディング -->
+    <div class="loading-area">
+      <LoadingIcon :show="isLoading" v-show="isLoading" />
+    </div>
+
+    <LoadingIcon
+      :show="globalLoading"
+      v-show="globalLoading"
+    />
+
+    <!-- 一覧 -->
+    <section class="transaction-list">
+
+      <article
+        v-for="item in list"
+        :key="item.id"
+        class="card transaction-card"
+        :class="{ unchecked: item.check === false }"
+      >
+
+        <!-- 左側：チェックと更新ボタン -->
+        <div class="transaction-check-area">
+
+          <template v-if="item.check === false">
+
+            <input
+              type="checkbox"
+              class="transaction-checkbox"
+              :checked="selectedCheckId === item.id"
+              :aria-label="`${formatDate(item.date)}の確認チェック`"
+              @change="selectedCheckId = $event.target.checked ? item.id : null"
+            />
+
+            <!-- チェックを入れたときだけ表示 -->
             <button
-              class="btn-red btn-sm check-btn"
-              @click="updateCheck(item.id)"
+              v-if="selectedCheckId === item.id"
+              type="button"
+              class="btn-red btn-sm check-update-btn"
+              @click.stop="updateCheck(item.id)"
               :disabled="isLoading"
             >
               更新
             </button>
+
+          </template>
+
+        </div>
+
+        <!-- 右側：内容を押すと修正画面へ -->
+        <button
+          type="button"
+          class="transaction-edit-area"
+          @click="goEdit(item)"
+          :aria-label="`${formatDate(item.date)} ${item.large} ${item.small} ${formatAmount(item.amount)}円を修正`"
+        >
+
+          <!-- 1段目：日付 -->
+          <div class="transaction-date-row">
+            <span class="transaction-date">
+              {{ formatDate(item.date) }}
+            </span>
           </div>
-        </div>
-      
-      </div>
-      <!-- 日付 -->
-      <div class="card-center">
-        <div class="transaction-date">
-          <span>{{ new Date(item.date).getFullYear() }}/{{ formatMD(item.date) }}</span>
-        </div>
 
-        <!-- 大項目・小項目 -->
-        <div class="transaction-category">
-          {{ item.large }} _ {{ item.small }}
-        </div>
+          <!-- 2段目：科目・金額・矢印 -->
+          <div class="transaction-main-row">
 
-        <!-- 店名 -->
-        <div class="transaction-shop">
-          {{ item.shop }}
-        </div>
+            <div class="transaction-category">
+              <span>{{ item.large }}</span>
+              <span class="category-separator">_</span>
+              <span>{{ item.small }}</span>
+            </div>
 
-        <!-- 内容 -->
-        <div class="transaction-description">
-          {{ item.naiyo }}
-        </div>
+            <div
+              class="transaction-amount"
+              :class="{
+                'amount-negative': Number(item.amount) < 0
+              }"
+            >
+              {{ formatAmount(item.amount) }}円
+            </div>
 
-        <!-- 金額 -->
-        <div class="card-amount-center">
-          <span
-            class="amount card-amount"
-            :class="{
-              'amount-negative' : item.amount < 0,
-              'amount-plus': item.amount >= 0
-            }"
+            <ChevronRight
+              class="transaction-chevron"
+              :size="20"
+              :stroke-width="2"
+              aria-hidden="true"
+            />
+
+          </div>
+
+          <!-- 3段目：相手・内容 -->
+          <div class="transaction-sub-row">
+
+            <div
+              v-if="item.shop"
+              class="transaction-shop"
+            >
+              {{ item.shop }}
+            </div>
+
+            <div
+              v-if="item.naiyo"
+              class="transaction-description"
+            >
+              {{ item.naiyo }}
+            </div>
+
+          </div>
+
+          <!-- 4段目：ペア側の科目 -->
+          <div
+            v-if="item.counterpart"
+            class="transaction-counterpart"
           >
-            {{ item.amount }}円
-          </span>
-        </div>
-      </div>
-      <div class="card-right">
-        <button class="btn-sm edit-btn" @click="goEdit(item.id)">
-          修正
+            <span>
+              {{ item.counterpart.large || '大項目なし' }}
+            </span>
+            <span class="category-separator">_</span>
+            <span>
+              {{ item.counterpart.small || '小項目なし' }}
+            </span>
+          </div>
+
         </button>
-      </div>
-    </article>
-  </div>
 
-  <p v-if="!loading && list.length === 0">
-    条件に一致するデータがありません。
-  </p>
-</div>
+      </article>
 
+      <!-- 該当データなし -->
+      <p
+        v-if="!isLoading && list.length === 0"
+        class="empty-list-message"
+      >
+        条件に一致するデータがありません。
+      </p>
 
+    </section>
+
+  </main>
 </template>
 
+
 <script setup>
-import { ref, computed, watch ,onMounted} from "vue"
+import { ref, computed, watch, onMounted } from "vue"
+import { Search, ChevronRight } from "lucide-vue-next"
+
 import { GAS_URL } from "@/constants/index.js"
-import loadingStore from "@/stores/loadingStore"
+import { globalLoading } from "@/stores/loadingStore"
+
 import { fetchCategories } from "@/services/categories.js"
 import LoadingIcon from "@/components/LoadingIcon.vue"
-import AppLinks from '@/components/AppLinks.vue'
+
 import { useRoute, useRouter } from "vue-router"
+
 
 const route = useRoute()
 const router = useRouter()
 
+
+// ----------------------------------
+// 状態
+// ----------------------------------
+
 // 未確認データだけを検索するか
 const uncheckedOnly = ref(false)
 
-  // ローディング
-  const isLoading = ref(false)
-  /* GASから一覧データ取得 */
-  // 入力項目
-  const periodStart = ref("")
-  const periodEnd = ref("")
-  const large = ref("")
-  const small = ref("")
-  const keyword = ref("")
-  
-  const selectedCheckId = ref(null)
+// ローディング
+const isLoading = ref(false)
 
-  const selectedIds = ref([])
+// 検索条件
+const periodStart = ref("")
+const periodEnd = ref("")
+const large = ref("")
+const small = ref("")
+const keyword = ref("")
 
-  // カテゴリ取得
-  const categoriesData = ref({})
-  fetchCategories().then(data => {
+// チェック選択中のID
+const selectedCheckId = ref(null)
+
+// 一覧データ
+const list = ref([])
+
+
+// ----------------------------------
+// カテゴリ取得
+// ----------------------------------
+
+const categoriesData = ref([])
+
+fetchCategories()
+  .then(data => {
     categoriesData.value = data
   })
-  // start日付 がクリアされたら end日付 もクリア
-  watch(periodStart, (value) => {
-    if (!value) periodEnd.value = ""
+  .catch(error => {
+    console.error("カテゴリ取得エラー", error)
   })
 
-  // end日付 がクリアされたら start日付 もクリア
-  watch(periodEnd, (value) => {
-    if (!value) periodStart.value = ""
-  })
 
-  // 大項目一覧
-  const categoriesLarge = computed(() => {
-    if (!Array.isArray(categoriesData.value)) return []
-    const row = categoriesData.value.find(item => item.large === "大項目")
-    return row ? row.small : []
-  })
+// 開始日がクリアされたら終了日もクリア
+watch(periodStart, (value) => {
+  if (!value) {
+    periodEnd.value = ""
+  }
+})
 
-  // 小項目を先に選んだ時は、大項目を自動補完
-  watch(small, (newSmall) => {
-    if (!newSmall) return
-    if (!Array.isArray(categoriesData.value)) return
+// 終了日がクリアされたら開始日もクリア
+watch(periodEnd, (value) => {
+  if (!value) {
+    periodStart.value = ""
+  }
+})
 
-    const found = categoriesData.value.find(item =>
-      item.small.includes(newSmall)
-    )
-    if (found) large.value = found.large
-  })
 
-  // 小項目一覧
-  const categoriesSmall = computed(() => {
-    const data = categoriesData.value
-    if (!Array.isArray(data)) return []
+// 大項目一覧
+const categoriesLarge = computed(() => {
+  if (!Array.isArray(categoriesData.value)) return []
 
-    if (!large.value) {
-      return [...new Set(
+  const row = categoriesData.value.find(
+    item => item.large === "大項目"
+  )
+
+  return row ? row.small : []
+})
+
+
+// 小項目を先に選んだ時は大項目を自動補完
+watch(small, (newSmall) => {
+  if (!newSmall) return
+  if (!Array.isArray(categoriesData.value)) return
+
+  const found = categoriesData.value.find(item =>
+    item.small.includes(newSmall)
+  )
+
+  if (found) {
+    large.value = found.large
+  }
+})
+
+
+// 小項目一覧
+const categoriesSmall = computed(() => {
+  const data = categoriesData.value
+
+  if (!Array.isArray(data)) return []
+
+  if (!large.value) {
+    return [
+      ...new Set(
         data
           .filter(item => item.large !== "大項目")
           .flatMap(item => item.small)
-      )]
-    }
-    const found = data.find(item => item.large === large.value)
-    return found ? found.small : []
-  })
+      )
+    ]
+  }
 
-//月日を変換する関数
-function formatMD(dateStr) {
+  const found = data.find(
+    item => item.large === large.value
+  )
+
+  return found ? found.small : []
+})
+
+
+// ----------------------------------
+// 日付・金額表示
+// ----------------------------------
+
+// 日付を YYYY/MM/DD に変換
+function formatDate(dateStr) {
+  if (!dateStr) return ""
+
   const d = new Date(dateStr)
-  const m = String(d.getMonth() + 1).padStart(1, '0')
-  const day = String(d.getDate()).padStart(1, '0')
-  return `${m}/${day}`
+
+  if (Number.isNaN(d.getTime())) {
+    return String(dateStr)
+  }
+
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+
+  return `${year}/${month}/${day}`
 }
-  onMounted(async () => {
-    // HOME画面から条件が渡された場合
-    if (route.query.start && route.query.end) {
-      periodStart.value = String(route.query.start)
-      periodEnd.value = String(route.query.end)
-      uncheckedOnly.value = route.query.unchecked === "true"
 
-      // 条件をセットして自動検索
-      await fetchList()
-      console.log("検索条件", {
-        start: periodStart.value,
-        end: periodEnd.value,
-        unchecked: uncheckedOnly.value
-      })
 
-    }
+// 金額表示
+function formatAmount(amount) {
+  const value = Number(amount)
 
+  if (!Number.isFinite(value)) {
+    return String(amount ?? "")
+  }
+
+  return value.toLocaleString("ja-JP")
+}
+
+
+// ----------------------------------
+// 初期表示
+// ----------------------------------
+
+onMounted(async () => {
+
+  // HOME画面から条件が渡された場合
+  if (route.query.start && route.query.end) {
+
+    periodStart.value = String(route.query.start)
+    periodEnd.value = String(route.query.end)
+
+    uncheckedOnly.value =
+      route.query.unchecked === "true"
+
+    // 条件をセットして自動検索
+    await fetchList()
+
+    console.log("検索条件", {
+      start: periodStart.value,
+      end: periodEnd.value,
+      unchecked: uncheckedOnly.value
+    })
+  }
+
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          loadingStore.globalLoading.value = false
-        }, 500)
-      })
+      setTimeout(() => {
+        globalLoading.value = false
+      }, 500)
     })
   })
-  // 一覧データ
-  const list = ref([])
 
-  // 一覧取得
-  const fetchList = async () => {
-    isLoading.value = true
-    list.value = []
-    selectedIds.value = []
+})
+
+
+// ----------------------------------
+// 一覧取得
+// ----------------------------------
+
+const fetchList = async () => {
+
+  isLoading.value = true
+  list.value = []
+  selectedCheckId.value = null
 
   const params = new URLSearchParams({
     list: "sortlist",
@@ -262,279 +445,456 @@ function formatMD(dateStr) {
     unchecked: uncheckedOnly.value ? "true" : "false"
   })
 
-    try {
-      const res = await fetch(`${GAS_URL}?${params}`)
-      const data = await res.json()
-      list.value = data
-    } catch (e) {
-      console.error("一覧取得エラー", e)
+  try {
+
+    const res = await fetch(`${GAS_URL}?${params}`)
+
+    if (!res.ok) {
+      throw new Error(`HTTPエラー: ${res.status}`)
     }
+
+    const data = await res.json()
+
+    list.value = Array.isArray(data) ? data : []
+
+  } catch (e) {
+
+    console.error("一覧取得エラー", e)
+    alert("一覧データの取得に失敗しました")
+
+  } finally {
+
     isLoading.value = false
+
   }
 
-  // チェック更新（Vue → GAS）
-  const updateCheck = async (id) => {
-    if (id == null) {
-      alert("更新するデータがありません")
-      return
-    }
+}
 
-    isLoading.value = true
 
-    try {
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          mode: "updateCheck",
-          id: String(id),
-        }),
-      })
+// ----------------------------------
+// チェック更新（Vue → GAS）
+// ----------------------------------
 
-      if (!res.ok) {
-        throw new Error(`HTTPエラー: ${res.status}`)
-      }
+const updateCheck = async (id) => {
 
-      const result = await res.json()
-      console.log("更新結果:", result)
-
-      // GAS側の成功判定に合わせて調整する
-      if (result.success === false) {
-        throw new Error(result.message || "更新に失敗しました")
-      }
-
-      alert("チェック済みに更新しました")
-
-      selectedCheckId.value = null
-      await fetchList()
-
-    } catch (e) {
-      console.error("更新エラー", e)
-      alert("更新に失敗しました")
-
-    } finally {
-      isLoading.value = false
-    }
+  if (id == null) {
+    alert("更新するデータがありません")
+    return
   }
-  
 
-  //修正画面に移動する
-  const goEdit = (id) => {
-    router.push({
-      name: "edit",     // ルート名（後で説明）
-      query: { id }  // 修正したいid
+  isLoading.value = true
+
+  try {
+
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        mode: "updateCheck",
+        id: String(id),
+      }),
     })
+
+    if (!res.ok) {
+      throw new Error(`HTTPエラー: ${res.status}`)
+    }
+
+    const result = await res.json()
+
+    console.log("更新結果:", result)
+
+    if (result.success === false) {
+      throw new Error(
+        result.message || "更新に失敗しました"
+      )
+    }
+
+    alert("チェック済みに更新しました")
+
+    selectedCheckId.value = null
+
+    await fetchList()
+
+  } catch (e) {
+
+    console.error("更新エラー", e)
+    alert("更新に失敗しました")
+
+  } finally {
+
+    isLoading.value = false
+
   }
+
+}
+
+
+// ----------------------------------
+// 修正画面へ移動
+// ----------------------------------
+
+const goEdit = (item) => {
+  router.push({
+    name: "edit",
+    query: {
+      id: item.id
+    }
+  })
+}
 
 </script>
 
 
 <style scoped>
 
-/* 一覧全体 */
-.transaction-list {
+/* ==================================
+   画面全体
+================================== */
+
+.list-page {
   width: 100%;
   max-width: var(--content-width);
   margin: 0 auto;
+  padding-bottom: var(--space-4);
+}
+
+
+/* タイトル */
+
+.list-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.list-title svg {
+  flex-shrink: 0;
+  color: var(--color-coffee);
+}
+
+
+/* ==================================
+   検索フォーム
+================================== */
+
+.search-form-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-}
-  /* 期間入力：スマホでも横幅に収める */
-  .card > .row:first-child {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    gap: 6px;
-  }
-
-  .card > .row:first-child .form-label {
-    min-width: 0;
-    margin-bottom: 0;
-    font-size: 13px;
-  }
-
-  .card > .row:first-child input[type="date"] {
-    width: 100%;
-    min-width: 0;
-    margin-bottom: 0;
-    padding: 9px 4px;
-    font-size: 14px;
-  }
-
-  .card > .row:first-child > span {
-    white-space: nowrap;
-    text-align: center;
-  }
-
-  .card > .row >.form-label{
-    white-space: nowrap;
-  }
-
-/* カード全体 */
-.transaction-card {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
-  align-items: start;
   gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-3);
 }
 
-/* チェックボックス */
-.card-left input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+.search-form-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.search-form-row > .form-label {
+  flex: 0 0 76px;
   margin: 0;
-  accent-color: var(--color-surface);
-}
-
-/* 確認チェックの縦書き */
-.check-label {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-muted);
   white-space: nowrap;
 }
 
-/* 中央：日付・内容・金額 */
-.card-center {
-  min-width: 0;
-  text-align: center;
-  overflow-wrap: anywhere;
-}
-
-/* 金額 */
-.card-amount {
-  text-align: center;
+.search-form-row > .input-field,
+.search-form-row > .select-field {
+  flex: 1 1 0;
   width: 100%;
+  min-width: 0;
+  margin: 0;
 }
 
-/* チェック更新ボタン */
-.check-update-btn {
+
+/* 期間 */
+
+.period-inputs {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.period-inputs .input-field {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.period-separator {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+
+/* 表示ボタン */
+
+.search-actions {
   margin-top: var(--space-3);
 }
 
-/* 右端：修正ボタン */
-.card-right {
-  display: flex;
-  justify-content: flex-end;
+.search-actions .btn {
+  width: 100%;
+  margin: 0;
 }
 
 
-/* 未チェック */
+/* ==================================
+   一覧
+================================== */
+
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+
+
+/* 一覧カード */
+
+.transaction-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  margin-bottom: 0;
+}
+
+
+/* 未確認データ */
+
 .transaction-card.unchecked {
   border-left: 4px solid var(--color-danger);
   background: var(--color-danger-bg);
 }
 
-/* 日付とチェックボックス */
-.transaction-date {
-  display: flex;
-  flex-direction: column;
-  font-variant-numeric: tabular-nums;
-}
 
-.transaction-date span:first-child {
-  font-size: 14px;
-}
+/* ==================================
+   チェックエリア
+================================== */
 
-/* カテゴリ */
-.transaction-category {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-  margin-bottom: var(--space-2);
-}
-
-/* 店名・内容 */
-.transaction-shop,
-.transaction-description {
-  overflow-wrap: anywhere;
-  margin-bottom: var(--space-2);
-}
-
-/* 金額・修正ボタン */
-.transaction-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-}
-
-.card-left {
+.transaction-check-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-width: 32px;
+  gap: var(--space-3);
+  padding-top: 2px;
+  min-width: 0;
 }
 
-.transaction-card-header {
+.transaction-checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-coffee);
+  cursor: pointer;
+}
+
+.check-update-btn {
+  width: 100%;
+  min-width: 40px;
+  min-height: 32px;
+  padding: 5px 4px;
+  margin: 0;
+  font-size: 12px;
+}
+
+
+/* ==================================
+   修正画面へのクリック領域
+================================== */
+
+.transaction-edit-area {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.transaction-edit-area:focus-visible {
+  outline: 2px solid var(--color-coffee);
+  outline-offset: 4px;
+}
+
+
+/* 1段目：日付 */
+
+.transaction-date-row {
+  display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  min-width: 0;
 }
 
-.transaction-card-header input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--color-surface-strong);
-}
-
-/* 「支払い確認」を縦書きにする */
-.transaction-card-header > span {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
+.transaction-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  font-size: 12px;
-  line-height: 1.5;
+}
+
+
+/* 2段目：科目・金額・矢印 */
+
+.transaction-main-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 20px;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.transaction-category {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.category-separator {
+  padding: 0 3px;
   color: var(--color-muted);
 }
 
-@media (max-width: 600px) {
-  .continer {
-    padding: 8px;
+.transaction-amount {
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.transaction-chevron {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+
+/* 3段目：相手・内容 */
+
+.transaction-sub-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 2px;
+}
+
+.transaction-shop,
+.transaction-description {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.transaction-description {
+  color: var(--color-muted);
+}
+
+
+/* 4段目：ペア側の科目 */
+
+.transaction-counterpart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  min-width: 0;
+  padding-left: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+
+/* データなし */
+
+.empty-list-message {
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+
+/* ==================================
+   スマートフォン
+================================== */
+
+@media (max-width: 420px) {
+
+  .search-form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
   }
 
-  .card {
-    padding: 12px;
-    border-radius: 12px;
+  .search-form-row > .form-label {
+    flex: none;
+    align-self: flex-start;
   }
 
-  .row {
-    gap: 8px;
+  /* 日付2つはスマホでも横並び */
+  .search-period-row .period-inputs {
+    width: 100%;
+    flex: none;
   }
 
-  .form-label {
-    flex-basis: 64px;
+  .period-inputs .input-field {
+    min-height: 44px;
+    padding: 8px 4px;
     font-size: 13px;
   }
 
-  .input-field,
-  .select-field {
-    padding: 9px 8px;
+  .transaction-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: var(--space-2);
+    padding: 12px;
+  }
+
+  .transaction-main-row {
+    gap: 5px;
+  }
+
+  .transaction-category {
+    font-size: 13px;
+  }
+
+  .transaction-amount {
     font-size: 14px;
   }
 
 }
 
-
-@media(max-width: 360px) {
-
-  .row {
-    flex-wrap: wrap;
-  }
-
-  .form-label {
-    flex-basis: 100%;
-  }
-}
 </style>

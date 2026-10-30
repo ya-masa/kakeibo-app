@@ -520,13 +520,6 @@ a { color: var(--color-coffee); }
 }
 
 /* ＋は初期状態だけ黄色 */
-/* 入力（＋）は未選択でも常に黄色で強調 */
-.footer-nav .nav-item.add-nav .icon {
-  background: var(--color-yellow);
-  color: var(--color-coffee-dark);
-  transform: translateY(-9px) scale(1.2);
-}
-
 /* 選択中のアイコン */
 .footer-nav .nav-item.active .icon {
   background: var(--color-yellow);

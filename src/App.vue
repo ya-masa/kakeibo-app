@@ -23,7 +23,7 @@
         <span>検索</span>
       </router-link>
 
-      <router-link to="/add" class="nav-item add-nav" :class="{ active: $route.path === '/add' }">
+      <router-link to="/add" class="nav-item add-nav" :class="{ active: $route.path === '/add' || $route.path === '/' }">
         <span class="icon"><Plus /></span>
         <span>入力</span>
       </router-link>
