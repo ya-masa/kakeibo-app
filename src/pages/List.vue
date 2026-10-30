@@ -16,7 +16,7 @@
           検索条件を入力してください
         </div>
         <div class="search-guide-description">
-          すべて空白でもだいじょうぶです
+          すべて空白のときは新しいものから順に表示します
         </div>
       </div>
 
