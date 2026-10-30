@@ -35,7 +35,7 @@
       <section class="card monthly-card">
         <div class="monthly-item">
           <span class="monthly-label">収入</span>
-          <span class="monthly-value">
+          <span class="monthly-value amount amount-primary">
             {{ monthly.income.toLocaleString() }}円
           </span>
         </div>
@@ -43,17 +43,24 @@
         <div class="monthly-item">
           <span class="monthly-label">支出</span>
           <span
-            class="monthly-value"
+            class="monthly-value amount amount-primary"
             :class="{ 'amount-negative': monthly.expense < 0 }"
           >
             {{ monthly.expense.toLocaleString() }}円
           </span>
         </div>
 
-        <div class="monthly-item monthly-difference">
+        <div
+          class="monthly-item monthly-difference"
+          :class="{
+            'difference-negative': monthly.income + monthly.expense < 0,
+            'difference-positive': monthly.income + monthly.expense > 0,
+            'difference-zero': monthly.income + monthly.expense === 0
+          }"
+        >
           <span class="monthly-label">差額</span>
           <span
-            class="monthly-value"
+            class="monthly-value amount amount-primary"
             :class="{ 'amount-negative': monthly.income + monthly.expense < 0 }"
           >
             {{ (monthly.income + monthly.expense).toLocaleString() }}円
@@ -66,84 +73,52 @@
       <!-- 未確認データ・今日の支出 -->
       <div class="home-summary-grid">
 
-        <!-- 未確認データ -->
+        <!-- 未確認データ：カード全体から検索へ -->
         <section
           class="card summary-card unchecked-card"
           :class="{ warning: uncheckedCount > 0 }"
+          role="button"
+          tabindex="0"
+          @click="goUnchecked"
+          @keydown.enter="goUnchecked"
+          @keydown.space.prevent="goUnchecked"
         >
-          <div class="summary-card-header">
-            <span class="summary-icon unchecked-icon">▤</span>
-            <span class="summary-arrow">›</span>
+          <span class="summary-icon unchecked-icon">▤</span>
+          <div class="summary-card-content">
+            <span class="summary-title">未確認データ</span>
+            <span class="summary-number amount">
+              {{ uncheckedCount }}件
+            </span>
           </div>
-
-          <h2>未確認データ</h2>
-
-          <div class="summary-number">
-            {{ uncheckedCount }}件
-          </div>
-
-          <p class="summary-description">
-            {{ uncheckedCount > 0
-              ? 'まだ確認していない明細があります'
-              : '今月の未確認明細はありません'
-            }}
-          </p>
-
-          <button
-            class="btn unchecked-action"
-            @click="goUnchecked"
-          >
-            タップして確認
-            <span class="action-arrow">›</span>
-          </button>
+          <span class="summary-arrow">›</span>
         </section>
 
-        <!-- 今日の支出 -->
-        <section class="card summary-card today-expense-card">
-          <div class="summary-card-header">
-            <span class="summary-icon today-icon">▦</span>
-          </div>
-
-          <div class="today-expense-header">
-            <h2>今日の支出</h2>
+        <!-- 今日の支出：カード全体から今日の明細検索へ -->
+        <section
+          class="card summary-card today-expense-card"
+          role="button"
+          tabindex="0"
+          @click="goTodayExpense"
+          @keydown.enter="goTodayExpense"
+          @keydown.space.prevent="goTodayExpense"
+        >
+          <span class="summary-icon today-icon">▦</span>
+          <div class="summary-card-content">
             <span class="today-date">
               {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
             </span>
-          </div>
-
-          <div class="today-expense-list">
-            <div
-              v-for="item in todayExpenseSummary"
-              :key="item.name"
-              class="today-expense-row"
-            >
-              <span>{{ item.name }}</span>
-              <span
-                class="amount"
-                :class="{ 'amount-negative': item.amount < 0 }"
-              >
-                {{ item.amount.toLocaleString() }}円
-              </span>
-            </div>
-
-            <p v-if="todayExpenseTotal === 0" class="no-expense">
-              今日の支出はまだありません
-            </p>
-          </div>
-
-          <div class="today-expense-total">
-            <span>合計</span>
+            <span class="summary-title">今日の支出</span>
             <span
-              class="amount"
+              class="summary-number amount amount-primary"
               :class="{ 'amount-negative': todayExpenseTotal < 0 }"
             >
               {{ todayExpenseTotal.toLocaleString() }}円
             </span>
           </div>
+          <span class="summary-arrow">›</span>
         </section>
 
       </div>
-
 
       <!-- 今月の支出 -->
       <section class="card expense-card">
@@ -169,16 +144,12 @@
               :key="i"
               class="expense-summary-item"
             >
-              <div class="large-row">
-
-                <!-- 展開ボタン -->
-                <button
-                  class="btn toggle-btn"
-                  @click="openLarge = openLarge === item.name ? null : item.name"
-                >
-                  {{ openLarge === item.name ? '－' : '＋' }}
-                </button>
-
+              <button
+                type="button"
+                class="large-row"
+                :aria-expanded="openLarge === item.name"
+                @click="openLarge = openLarge === item.name ? null : item.name"
+              >
                 <!-- 色丸 -->
                 <span
                   class="dot"
@@ -198,7 +169,11 @@
                   {{ item.amount.toLocaleString() }}円
                 </span>
 
-              </div>
+                <!-- 展開矢印 -->
+                <span class="expense-arrow">
+                  {{ openLarge === item.name ? '⌄' : '›' }}
+                </span>
+              </button>
 
               <!-- 小項目 -->
               <div
@@ -382,6 +357,20 @@
         start: getMonthStartISO(),
         end: getMonthEndISO(),
         unchecked: "true"
+      }
+    })
+  }
+
+  // 今日の支出一覧へ移動（今日〜今日で自動検索）
+  function goTodayExpense() {
+    const today = new Date()
+    const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`
+
+    router.push({
+      name: "list",
+      query: {
+        start: todayISO,
+        end: todayISO
       }
     })
   }
@@ -792,6 +781,8 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
+    padding: 0;
+    overflow: hidden;
   }
 
   .monthly-item {
@@ -801,7 +792,8 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 8px 3px;
+    min-height: 88px;
+    padding: 12px 3px;
     border-right: 1px solid var(--color-border);
   }
 
@@ -815,15 +807,37 @@
   }
 
   .monthly-value {
-    font-size: clamp(13px, 3.5vw, 19px);
+    width: 100%;
+    font-size: clamp(17px, 4.2vw, 25px);
     font-weight: 800;
     text-align: center;
+    white-space: nowrap;
+    letter-spacing: -0.035em;
+  }
+
+  /* ホーム内の金額はBase.cssの.amountと同じ数字書体・桁揃え */
+  .home-page .amount,
+  .home-page .sub-amount,
+  .home-page .monthly-value {
+    font-family: inherit;
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
+    font-feature-settings: "tnum";
   }
 
   .monthly-difference {
-    border-radius: var(--radius-sm);
+    border-right: none;
+    transition: background-color .15s ease;
+  }
+
+  .monthly-difference.difference-negative {
+    background: var(--color-danger-bg);
+  }
+
+  .monthly-difference.difference-positive {
+    background: var(--color-success-bg);
+  }
+
+  .monthly-difference.difference-zero {
     background: var(--color-surface-soft);
   }
 
@@ -837,226 +851,208 @@
 
   .home-summary-grid > .card {
     min-width: 0;
+    min-height: 112px;
     margin-bottom: var(--space-4);
     padding: 12px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 14px;
+    align-items: center;
+    column-gap: 8px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
   }
 
-  /* 未確認データ */
+  .home-summary-grid > .card:active {
+    transform: scale(.98);
+  }
+
   .home-summary-grid .unchecked-card {
     background: var(--color-yellow-soft);
   }
 
-  .unchecked-count {
-    color: var(--color-coffee-dark);
-    font-size: 26px;
-    font-weight: 800;
-  }
-  .unchecked-card .summary-number {
-    color: var(--color-danger);
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1.3;
-  }
-
-  .unchecked-message {
-    display: block;
-    margin-top: 6px;
-    color: var(--color-muted);
-    font-size: 12px;
-  }
-
-  .unchecked-action {
-    width: 100%;
-    margin-top: 12px;
-  }
-
-  /* 今日の支出 */
-  .today-expense-card {
+  .summary-icon {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-coffee);
+    font-size: 19px;
   }
 
-  .today-expense-header {
+  .summary-card-content {
     display: flex;
+    min-width: 0;
     flex-direction: column;
+    align-items: flex-start;
     gap: 3px;
   }
 
-  .today-expense-header h2 {
-    margin-bottom: 0;
+  .summary-title {
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.35;
+  }
+
+  .summary-number {
+    color: var(--color-danger);
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .today-expense-card .summary-number {
+    color: var(--color-coffee-dark);
+    font-size: clamp(17px, 3.8vw, 23px);
   }
 
   .today-date {
     color: var(--color-muted);
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.2;
   }
 
-  .today-expense-list {
-    flex: 1;
+  .summary-arrow {
+    justify-self: end;
+    color: var(--color-coffee);
+    font-size: 25px;
+    line-height: 1;
+  }
+
+  /* =================================
+   支出グラフ・内訳
+   ================================= */
+
+  .expense-card h2 {
+    margin-bottom: 16px;
+  }
+
+  /* 円グラフと内訳を左右に配置 */
+  .expense-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 12px;
     min-width: 0;
   }
 
-  .today-expense-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 5px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--color-border);
-    font-size: 12px;
+  /* 円グラフ */
+  .chart-placeholder {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    min-width: 0;
   }
 
-  .today-expense-row > span:first-child {
+  .chart-placeholder :deep(canvas) {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* 費目一覧 */
+  .expense-summary-list {
+    min-width: 0;
+  }
+
+  .expense-summary-item {
+    min-width: 0;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .expense-summary-item:last-child {
+    border-bottom: none;
+  }
+
+  .expense-summary-item .large-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    padding: 5px 2px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .expense-summary-item .large-row:active {
+    background: var(--color-surface-soft);
+  }
+
+  .expense-summary-item .large-row:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  .expense-summary-item .dot {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .expense-summary-item .large-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .expense-summary-item .expense-arrow {
+    flex: 0 0 14px;
+    color: var(--color-muted);
+    font-size: 21px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .expense-summary-amount {
+    margin-top: 3px;
+    padding-left: 42px;
+    text-align: right;
+  }
+
+  .expense-summary-amount .amount {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* 小項目 */
+  .expense-summary-item .sub-wrapper {
+    margin-top: 7px;
+    padding-left: 12px;
+    border-left: 2px solid var(--color-border);
+  }
+
+  .expense-summary-item .sub-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 5px 0;
+    font-size: 11px;
+  }
+
+  .expense-summary-item .sub-name {
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
-  .today-expense-row .amount {
+  .expense-summary-item .sub-amount {
     flex-shrink: 0;
-    font-size: 12px;
+    font-size: 11px;
+    white-space: nowrap;
   }
 
-  .today-expense-total {
-    display: flex;
-    justify-content: space-between;
-    gap: 5px;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--color-border);
-    font-weight: 700;
-  }
-
-  
-/* 支出グラフ・内訳 */
-.expense-card h2 {
-  margin-bottom: 12px;
-}
-
-.expense-overview {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-/* 円グラフ */
-.chart-placeholder {
-  position: relative;
-  width: 100%;
-  height: 190px;
-  min-width: 0;
-}
-
-.chart-placeholder :deep(canvas) {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* 費目一覧 */
-.expense-summary-list {
-  min-width: 0;
-}
-
-.expense-summary-item {
-  min-width: 0;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.expense-summary-item:last-child {
-  border-bottom: none;
-}
-
-.expense-summary-item .large-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  padding: 0;
-}
-
-/* 展開ボタン */
-.expense-summary-item .toggle-btn {
-  flex: 0 0 25px;
-  width: 25px;
-  min-width: 25px;
-  min-height: 27px;
-  margin: 0;
-  padding: 2px;
-  font-size: 12px;
-}
-
-/* 色丸 */
-.expense-summary-item .dot {
-  flex: 0 0 9px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-
-/* 大項目名 */
-.expense-summary-item .large-name {
-  flex: 1;
-  min-width: 0;
-  font-size: 12px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-/* 金額 */
-.expense-item-amount {
-  flex-shrink: 0;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-/* 小項目 */
-.expense-summary-item .sub-wrapper {
-  margin: 5px 0 2px 30px;
-  padding-left: 8px;
-  border-left: 2px solid var(--color-border);
-}
-
-.expense-summary-item .sub-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 5px;
-  padding: 4px 0;
-  font-size: 11px;
-}
-
-.expense-summary-item .sub-name {
-  min-width: 0;
-}
-
-.expense-summary-item .sub-amount {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-/* 狭いスマホ */
-@media (max-width: 360px) {
-  .expense-overview {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    gap: 7px;
-  }
-
-  .chart-placeholder {
-    height: 155px;
-  }
-
-  .expense-summary-item .large-name,
-  .expense-item-amount {
-    font-size: 10px;
-  }
-
-  .expense-summary-item .toggle-btn {
-    flex-basis: 22px;
-    width: 22px;
-    min-width: 22px;
-  }
-}
 
 
 
