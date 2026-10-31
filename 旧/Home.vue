@@ -4,7 +4,7 @@
 
     <header class="home-header">
       <div class="home-title-area">
-        <span class="home-title-icon"><House /></span>
+        <span class="home-title-icon">⌂</span>
         <div>
           <h1>ホーム</h1>
           <p>家計の状況</p>
@@ -69,7 +69,6 @@
       </section>
 
 
-
       <!-- 未確認データ・今日の支出 -->
       <div class="home-summary-grid">
 
@@ -102,7 +101,7 @@
           @keydown.enter="goTodayExpense"
           @keydown.space.prevent="goTodayExpense"
         >
-          <span class="summary-icon today-icon"><Calendar /></span>
+          <span class="summary-icon today-icon"><CalendarDays  /></span>
           <div class="summary-card-content">
             <span class="today-date">
               {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
@@ -146,7 +145,7 @@
             >
               <button
                 type="button"
-                class="large-row"
+                class="large-row expandable-row"
                 :aria-expanded="openLarge === item.name"
                 @click="openLarge = openLarge === item.name ? null : item.name"
               >
@@ -170,24 +169,24 @@
                 </span>
 
                 <!-- 展開矢印 -->
-                <span class="expense-arrow">
+                <span class="expense-arrow expandable-arrow">
                   {{ openLarge === item.name ? '⌄' : '›' }}
                 </span>
               </button>
 
               <!-- 小項目 -->
               <div
-                class="sub-wrapper"
+                class="sub-wrapper detail-list"
                 v-if="openLarge === item.name"
               >
                 <div
                   v-for="sub in expenseSubSummary.filter(s => s.large === item.name)"
                   :key="sub.name"
-                  class="sub-row"
+                  class="sub-row detail-row"
                 >
-                  <span class="sub-name">{{ sub.name }}</span>
+                  <span class="sub-name detail-name">{{ sub.name }}</span>
                   <span
-                    class="sub-amount"
+                    class="sub-amount detail-amount amount"
                     :class="{ 'amount-negative': sub.amount < 0 }"
                   >
                     {{ sub.amount.toLocaleString() }}円
@@ -198,7 +197,6 @@
           </div>
         </div>
       </section>
-
 
 
       <!-- 口座残高 -->
@@ -223,7 +221,7 @@
             <!-- 口座グループ -->
             <button
               type="button"
-              class="account-row"
+              class="account-row expandable-row"
               :aria-expanded="openKouza === acc.name"
               @click="openKouza = openKouza === acc.name ? null : acc.name"
             >
@@ -247,7 +245,7 @@
               </span>
 
               <!-- 展開矢印 -->
-              <span class="account-arrow">
+              <span class="account-arrow expandable-arrow">
                 {{ openKouza === acc.name ? '⌄' : '›' }}
               </span>
 
@@ -255,22 +253,22 @@
 
             <!-- 口座の明細 -->
             <div
-              class="account-detail"
+              class="account-detail detail-list"
               v-if="openKouza === acc.name"
             >
 
               <div
                 v-for="sub in accountSubs.filter(s => s.large === acc.name)"
                 :key="sub.kamokuCD"
-                class="account-detail-row"
+                class="account-detail-row detail-row"
               >
 
-                <div class="account-detail-info">
-                  <span class="account-detail-name">
+                <div class="account-detail-info detail-info">
+                  <span class="account-detail-name detail-name">
                     {{ sub.name }}
                   </span>
 
-                  <span class="check-date">
+                  <span class="check-date detail-meta">
                     {{ sub.checkDate
                       ? `最終照合日：${sub.checkDate.getFullYear()}/${String(sub.checkDate.getMonth() + 1).padStart(2, '0')}/${String(sub.checkDate.getDate()).padStart(2, '0')}`
                       : sub.checkStatus === '確認履歴なし'
@@ -281,7 +279,7 @@
                 </div>
 
                 <span
-                  class="amount account-detail-amount"
+                  class="amount account-detail-amount detail-amount"
                   :class="{ 'amount-negative': sub.amount < 0 }"
                 >
                   {{ sub.amount.toLocaleString() }}円
@@ -318,7 +316,7 @@
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
   import { getAccountIcon } from '@/components/accountIcons'
-  import { ClipboardList ,Calendar,House  } from "lucide-vue-next";
+  import { ClipboardList , CalendarDays  } from "lucide-vue-next";
 
   const chartColors = ref([])
 
@@ -523,7 +521,6 @@
   }
 
 
-
   function calcExpenseSummary() {
     const big = {}
     const short = {}
@@ -702,7 +699,6 @@
   }
 
 
-
   /* ★★★ ここが超重要 ★★★ */
   const labels = computed(() => expenseSummary.value.map(i => i.name))
   const values = computed(() => expenseSummary.value.map(i => Math.abs(i.amount)))
@@ -762,7 +758,7 @@
     height: 44px;
     flex-shrink: 0;
     border-radius: var(--radius-md);
-    background: var(--color-surface);
+    background: var(--color-yellow-soft);
     color: var(--color-coffee);
     font-size: 26px;
   }
@@ -816,15 +812,6 @@
     letter-spacing: -0.035em;
   }
 
-  /* ホーム内の金額はBase.cssの.amountと同じ数字書体・桁揃え */
-  .home-page .amount,
-  .home-page .sub-amount,
-  .home-page .monthly-value {
-    font-family: inherit;
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
-  }
-
   .monthly-difference {
     border-right: none;
     transition: background-color .15s ease;
@@ -867,18 +854,18 @@
     transform: scale(.98);
   }
 
-  .home-summary-grid .unchecked-card,
-  .home-summary-grid .unchecked-icon {
-    background: var(--color-surface-soft);
+  .home-summary-grid .unchecked-card {
+    background: var(--color-yellow-soft);
   }
 
   .summary-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background: var(--color-surface);
     color: var(--color-coffee);
     font-size: 19px;
   }
@@ -916,10 +903,7 @@
     font-size: 11px;
     line-height: 1.2;
   }
-  .today-icon{
-    background: var(--color-surface);
 
-  }
   .summary-arrow {
     justify-self: end;
     color: var(--color-coffee);
@@ -972,30 +956,10 @@
     border-bottom: none;
   }
 
+  /* 展開行の共通動作・基本形はBase.css。ここでは支出一覧固有の余白だけ指定 */
   .expense-summary-item .large-row {
-    display: flex;
-    align-items: center;
     gap: 6px;
-    width: 100%;
-    min-width: 0;
     padding: 5px 2px;
-    border: 0;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .expense-summary-item .large-row:active {
-    background: var(--color-surface-soft);
-  }
-
-  .expense-summary-item .large-row:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
   }
 
   .expense-summary-item .dot {
@@ -1013,11 +977,8 @@
   }
 
   .expense-summary-item .expense-arrow {
-    flex: 0 0 14px;
-    color: var(--color-muted);
+    flex-basis: 14px;
     font-size: 21px;
-    line-height: 1;
-    text-align: center;
   }
 
   .expense-summary-amount {
@@ -1035,12 +996,9 @@
   .expense-summary-item .sub-wrapper {
     margin-top: 7px;
     padding-left: 12px;
-    border-left: 2px solid var(--color-border);
   }
 
   .expense-summary-item .sub-row {
-    display: flex;
-    justify-content: space-between;
     gap: 5px;
     padding: 5px 0;
     font-size: 11px;
@@ -1056,9 +1014,6 @@
     font-size: 11px;
     white-space: nowrap;
   }
-
-
-
 
 
   
@@ -1098,19 +1053,8 @@
 
   /* 口座一覧 */
   .account-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
     min-height: 52px;
     padding: 8px 0;
-    border: none;
-    background: transparent;
-    color: inherit;
-    text-align: left;
-  }
-
-  .account-row:active {
-    background: var(--color-surface-soft);
   }
 
   .account-icon {
@@ -1138,38 +1082,9 @@
     white-space: nowrap;
   }
 
-  .account-arrow {
-    flex: 0 0 18px;
-    color: var(--color-muted);
-    font-size: 22px;
-    text-align: center;
-  }
-
   /* 展開明細 */
   .account-detail {
     margin: 0 0 var(--space-2) 42px;
-    padding-left: var(--space-3);
-    border-left: 2px solid var(--color-border);
-  }
-
-  .account-detail-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .account-detail-row:last-child {
-    border-bottom: none;
-  }
-
-  .account-detail-info {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 3px;
   }
 
   .account-detail-name {
@@ -1177,15 +1092,8 @@
     font-weight: 600;
   }
 
-  .check-date {
-    color: var(--color-muted);
-    font-size: 11px;
-  }
-
   .account-detail-amount {
-    flex-shrink: 0;
     font-size: 13px;
-    white-space: nowrap;
   }
 
   /* 残高確定 */

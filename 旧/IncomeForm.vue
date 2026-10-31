@@ -1,16 +1,37 @@
+
+
 <template>
-  <form class="card" @submit.prevent="submitForm">
-    <div class="row">
-      <label class="form-label">日付</label>
-      <input type="date" v-model="localForm.date" class="input-field" />
-      <!-- 曜日があるときだけ表示 -->
+  <form class="card input-form" @submit.prevent="submitForm">
+
+    <!-- 日付 -->
+    <div class="row form-row">
+      <label for="income-date" class="form-label field-label">
+        <CalendarDays />
+        <span>日付</span>
+      </label>
+      <input
+        id="income-date"
+        type="date"
+        v-model="localForm.date"
+        class="input-field"
+        aria-label="取引日を選択"
+      />
       <span v-if="weekday">（{{ weekday }}）</span>
     </div>
 
-    <div class="row">
-      <label  class="form-label">科目</label>
-      <select v-model="localForm.kamoku2"  class="select-field">
-        <option 
+    <!-- 科目 -->
+    <div class="row form-row">
+      <label for="income-category" class="form-label field-label">
+        <Tags />
+        <span>科目</span>
+      </label>
+      <select
+        id="income-category"
+        v-model="localForm.kamoku2"
+        class="select-field"
+      >
+        <option value="" disabled>科目を選択</option>
+        <option
           v-for="item in props.listSyunyu"
           :key="item.code"
           :value="item.code"
@@ -20,12 +41,21 @@
       </select>
     </div>
 
-    <div class="row">
-      <label  class="form-label">口座</label>
-      <select v-model="localForm.kamoku1"  class="select-field">
-        <option 
-          v-for="item in props.listHouhou" 
-          :key="item.code" 
+    <!-- 口座 -->
+    <div class="row form-row">
+      <label for="income-account" class="form-label field-label">
+        <Wallet />
+        <span>口座</span>
+      </label>
+      <select
+        id="income-account"
+        v-model="localForm.kamoku1"
+        class="select-field"
+      >
+        <option value="" disabled>口座を選択</option>
+        <option
+          v-for="item in props.listHouhou"
+          :key="item.code"
           :value="item.code"
         >
           {{ item.shoukoumoku }}
@@ -33,226 +63,268 @@
       </select>
     </div>
 
-    <div class="row">
-      <label  class="form-label">相手</label>
-      <input type="text" v-model="localForm.aite" list="shopList"  class="input-field"/>
-      <datalist id="shopList">
+    <!-- 相手 -->
+    <div class="row form-row">
+      <label for="income-shop" class="form-label field-label">
+        <Store />
+        <span>相手</span>
+      </label>
+      <input
+        id="income-shop"
+        type="text"
+        v-model="localForm.aite"
+        list="incomeShopList"
+        class="input-field"
+        placeholder="振込元・相手を入力"
+      />
+      <datalist id="incomeShopList">
         <option v-for="s in shops" :key="s" :value="s" />
       </datalist>
     </div>
 
-    <div class="row">
-      <label  class="form-label">金額</label>
-      <input class="input-field input-number" type="number" v-model="localForm.kingaku1" />
-
+    <!-- 金額 -->
+    <div class="row form-row">
+      <label for="income-amount" class="form-label field-label">
+        <JapaneseYen />
+        <span>金額</span>
+      </label>
+      <input
+        id="income-amount"
+        class="input-field input-number"
+        type="number"
+        inputmode="numeric"
+        v-model="localForm.kingaku1"
+        placeholder="収入金額を入力"
+      />
     </div>
 
-    <div class="row">
-      <label  class="form-label">内容</label>
-      <input type="text" v-model="localForm.naiyo"  class="input-field"/>
+    <!-- 内容 -->
+    <div class="row form-row">
+      <label for="income-description" class="form-label field-label">
+        <NotebookPen />
+        <span>内容</span>
+      </label>
+      <input
+        id="income-description"
+        type="text"
+        v-model="localForm.naiyo"
+        class="input-field"
+        placeholder="収入の内容・メモを入力"
+      />
     </div>
 
-    <div class="row">
-      <label  class="form-label">支払い確認</label>
+    <!-- 支払い確認 -->
+    <div class="row form-row">
+      <label class="form-label field-label">
+        <ClipboardCheck />
+        <span>入金確認</span>
+      </label>
       <div class="radio-group">
-        <label><input type="radio" value="true" v-model="localForm.kakunin" /> 支払い確認済み</label>
-        <label><input type="radio" value="false" v-model="localForm.kakunin" /> 支払い未確認</label>
+        <label>
+          <input type="radio" value="true" v-model="localForm.kakunin" />
+          入金確認済み
+        </label>
+        <label>
+          <input type="radio" value="false" v-model="localForm.kakunin" />
+          入金未確認
+        </label>
       </div>
     </div>
+
     <!-- ローディング -->
     <div class="loading-area">
-      <LoadingIcon :show="loading" />
+      <LoadingIcon :show="isLoading" />
     </div>
-    <!-- 追加 or 修正 -->
-    <button class="btn-lg btn" type="submit" :disabled="isLoading">
-      {{ props.mode === 'edit' ? '修正' : '追加' }}
-    </button>
 
-    <!-- 削除（修正モードのみ） -->
-    <button 
-      class="btn-lg btn-red"
-      v-if="props.mode === 'edit'" 
-      type="button"
-      @click="emit('delete', props.form.id)"
-    >
-      削除
-    </button>
+    <!-- 追加 or 修正 -->
+    <div class="form-actions">
+      <button class="btn-lg btn" type="submit" :disabled="isLoading">
+        {{ props.mode === 'edit' ? '修正' : '追加' }}
+      </button>
+
+      <button
+        class="btn-lg btn-red"
+        v-if="props.mode === 'edit'"
+        type="button"
+        @click="emit('delete', props.form.id)"
+      >
+        削除
+      </button>
+    </div>
 
     <LoadingIcon :show="globalLoading" v-show="globalLoading" />
   </form>
 </template>
 
 <script setup>
-import { ref, computed ,onMounted,watch} from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import {
+  CalendarDays,
+  Tags,
+  Wallet,
+  Store,
+  JapaneseYen,
+  NotebookPen,
+  ClipboardCheck
+} from 'lucide-vue-next'
 import loadingStore from "@/stores/loadingStore"
 import LoadingIcon from './LoadingIcon.vue'
 
-  const props = defineProps({
-    listSyunyu: { type: Array, default: () => [] },
-    listHouhou: { type: Array, default: () => [] },
-    listCodeShops: { type: Array, default: () => [] },
-    mode: { type: String, default: "add" },   // add / edit
-    form: { type: Object, default: null }     // 修正時のデータ
-    
-  })
+const props = defineProps({
+  listSyunyu: { type: Array, default: () => [] },
+  listHouhou: { type: Array, default: () => [] },
+  listCodeShops: { type: Array, default: () => [] },
+  mode: { type: String, default: "add" },
+  form: { type: Object, default: null }
+})
 
-  const emit = defineEmits(["submit", "delete"])
+const emit = defineEmits(["submit", "delete"])
 
-  // ---------------------------
-  // 初期値（追加 or 修正）
-  // ---------------------------
-  const today = new Date().toISOString().slice(0, 10)
-  
-  console.log("listSyunyu:",props.listSyunyu) 
-  console.log("listHouhou:",props.listHouhou) 
-  console.log("listCodeShops:",props.listCodeShops) 
-  const localForm = ref({
-    id: props.form?.id || "",
-    rowNo: props.form?.rowNo || "",
-    type:  'income',
-    mode:props.form?.mode || "add",
-    date: props.date ? new Date(props.date).toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo"}): today,
-    kamoku1: Math.floor(props.form?.kamoku2) || 700,
-    kamoku2: Math.floor(props.form?.kamoku1) || 700,
-    aite: props.form?.aite || "",
-    kingaku1: Math.floor(props.form?.kingaku1 )|| 0,
-    naiyo: props.form?.naiyo || "",
-    kakunin: props.form?.kakunin || "false"
-  })
+const today = new Date().toISOString().slice(0, 10)
 
+console.log("listSyunyu:", props.listSyunyu)
+console.log("listHouhou:", props.listHouhou)
+console.log("listCodeShops:", props.listCodeShops)
 
-  watch(() => props.listShishutsu, () => {
-    // 科目リストが更新されたら選択値を再調整
-    console.log(props.listShishutsu)
-    if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
-      localForm.value.kamoku2 = localForm.value.kamoku2||700,
-      console.log("kamoku2"+props.value.kamoku2 )
-    }
-  })
-  watch(() => props.listHouhou, () => {
-    console.log(props.listHouhou)
-    // 口座リストが更新されたら選択値を再調整
-    if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
-      localForm.value.kamoku1=localForm.value.kamoku1||700,
-      console.log("kamoku1"+props.value.kamoku1 )
-    }
-  })
-  watch(  () => props.form,(newForm) => {
+const localForm = ref({
+  id: props.form?.id || "",
+  rowNo: props.form?.rowNo || "",
+  type: 'income',
+  mode: props.form?.mode || "add",
+  date: props.date
+    ? new Date(props.date).toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })
+    : today,
+  kamoku1: Math.floor(props.form?.kamoku2) || 700,
+  kamoku2: Math.floor(props.form?.kamoku1) || 700,
+  aite: props.form?.aite || "",
+  kingaku1: Math.floor(props.form?.kingaku1) || 0,
+  naiyo: props.form?.naiyo || "",
+  kakunin: props.form?.kakunin || "false"
+})
+
+watch(() => props.listShishutsu, () => {
+  console.log(props.listShishutsu)
+
+  if (!props.listShishutsu.some(i => i.code === localForm.value.kamoku2)) {
+    localForm.value.kamoku2 = localForm.value.kamoku2 || 700
+    console.log("kamoku2" + props.value.kamoku2)
+  }
+})
+
+watch(() => props.listHouhou, () => {
+  console.log(props.listHouhou)
+
+  if (!props.listHouhou.some(i => i.code === localForm.value.kamoku1)) {
+    localForm.value.kamoku1 = localForm.value.kamoku1 || 700
+    console.log("kamoku1" + props.value.kamoku1)
+  }
+})
+
+watch(
+  () => props.form,
+  (newForm) => {
     if (!newForm) return
-      console.log("watch=",newForm)
-      localForm.value = {
-        rowNo: newForm.rowNo || "",
-        id: newForm.id || "",
-        type:'income',
-        mode:newForm.form?.mode || "add",
-        date: newForm.date? new Date(newForm.date).toLocaleDateString("sv-SE", {timeZone: "Asia/Tokyo"}): today,
-        kamoku1: String(newForm.kamoku1) || 700,
-        kamoku2: String(newForm.kamoku2) || 700,
-        aite: newForm.aite || "",
-        kingaku1: Math.abs(Number(newForm.kingaku1)) || 0,
-        naiyo: newForm.naiyo || "",
-        kakunin: String(newForm.kakunin ?? "false")
-      }
-    },
-    { immediate: true }
-  )
-  // ---------------------------
-  // 相手の店リスト
-  // ---------------------------
-  const shops = computed(() => {
-    if (!props.listCodeShops?.length) return []
 
-    if (!localForm.value.kamoku1) {
-      return props.listCodeShops.flatMap(i => i.shops)
+    console.log("watch=", newForm)
+
+    localForm.value = {
+      rowNo: newForm.rowNo || "",
+      id: newForm.id || "",
+      type: 'income',
+      mode: newForm.form?.mode || "add",
+      date: newForm.date
+        ? new Date(newForm.date).toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })
+        : today,
+      kamoku1: String(newForm.kamoku1) || 700,
+      kamoku2: String(newForm.kamoku2) || 700,
+      aite: newForm.aite || "",
+      kingaku1: Math.abs(Number(newForm.kingaku1)) || 0,
+      naiyo: newForm.naiyo || "",
+      kakunin: String(newForm.kakunin ?? "false")
     }
+  },
+  { immediate: true }
+)
 
-    const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku2)
-    return item?.shops || []
-  })
+// 相手の店リスト
+const shops = computed(() => {
+  if (!props.listCodeShops?.length) return []
 
-  onMounted(() => {
+  if (!localForm.value.kamoku1) {
+    return props.listCodeShops.flatMap(i => i.shops)
+  }
+
+  const item = props.listCodeShops.find(
+    i => i.code === localForm.value.kamoku2
+  )
+
+  return item?.shops || []
+})
+
+const globalLoading = loadingStore.globalLoading
+
+onMounted(() => {
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      // ここでローディングを消す（長めにしたいなら調整）
       setTimeout(() => {
         loadingStore.globalLoading.value = false
-      }, 50) // ← ここを好きな時間にできる
-      })
+      }, 50)
     })
   })
+})
 
-  const isLoading = ref(false)
-  // ---------------------------
-  // 送信（追加 or 修正）
-  // ---------------------------
-  const submitForm = async () => {
-    
-    console.log("localForm:",localForm.value) 
-    isLoading.value = true
+const isLoading = ref(false)
 
-    try {
-      emit("submit", { ...localForm.value })
-    } finally {
-      isLoading.value = false
-    }
+// 送信
+const submitForm = async () => {
+  console.log("localForm:", localForm.value)
+  isLoading.value = true
+
+  try {
+    emit("submit", { ...localForm.value })
+  } finally {
+    isLoading.value = false
   }
+}
 </script>
 
 <style scoped>
-.radio-group {
-  display: flex;
+.field-label {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
-/* ラジオボタン：中央に●を表示 */
-input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  margin: 0;
-  border: 1px solid var(--color-text);
-  border-radius: 50%;
-  background-color: white;
-  display: inline-grid;
-  place-content: center;
-  cursor: pointer;
+.field-label svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: var(--color-coffee);
+  stroke-width: 2;
 }
 
-/* 選択時に中央へ大きな●を表示 */
-input[type="radio"]::before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background-color: var(--color-text);
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
+.form-row > .input-field,
+.form-row > .select-field {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-input[type="radio"]:checked::before {
-  transform: scale(1);
-}
+@media (max-width: 420px) {
+  .field-label {
+    align-self: flex-start;
+  }
 
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
+  .form-row > .input-field,
+  .form-row > .select-field {
+    width: 100%;
+    flex: 0 1 auto;
+  }
 }
-
-input[type="radio"]:checked {
-  border: 1px solid var(--color-text);
-  background: transparent;
-}
-
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-}
-
 </style>
+
+
+
+
 
 
 

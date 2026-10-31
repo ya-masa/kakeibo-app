@@ -1,16 +1,35 @@
+
 <template>
-  <form class ="card" @submit.prevent="submitForm">
-    <div class="row">
-      <label class="form-label">日付</label>
-      <input type="date" v-model="localForm.date" class="input-field" />
-      <!-- 曜日は表示しない -->
-      <span v-if="false">（{{ weekday }}）</span>
+  <form class="card input-form" @submit.prevent="submitForm">
+
+    <!-- 日付 -->
+    <div class="row form-row">
+      <label for="transfer-date" class="form-label field-label">
+        <CalendarDays />
+        <span>日付</span>
+      </label>
+      <input
+        id="transfer-date"
+        type="date"
+        v-model="localForm.date"
+        class="input-field"
+        aria-label="移動日を選択"
+      />
     </div>
 
-    <div class="row">
-      <label class="form-label">増える科目</label>
-      <select v-model="localForm.kamoku1" class="select-field">
-        <option 
+    <!-- 増える科目 -->
+    <div class="row form-row">
+      <label for="transfer-in-account" class="form-label field-label">
+        <Wallet />
+        <span>増える科目</span>
+      </label>
+      <select
+        id="transfer-in-account"
+        v-model="localForm.kamoku1"
+        class="select-field"
+      >
+        <option value="" disabled>増える口座を選択</option>
+        <option
           v-for="item in props.listKouza"
           :key="item.code"
           :value="String(item.code)"
@@ -20,16 +39,35 @@
       </select>
     </div>
 
-    <div class="row">
-      <label class="form-label">金額プラス</label>
-      <input type="number" v-model="localForm.kingaku1" class="input-field input-number"
-/>
+    <!-- 金額プラス -->
+    <div class="row form-row">
+      <label for="transfer-in-amount" class="form-label field-label">
+        <TrendingUp />
+        <span>金額プラス</span>
+      </label>
+      <input
+        id="transfer-in-amount"
+        type="number"
+        inputmode="numeric"
+        v-model="localForm.kingaku1"
+        class="input-field input-number"
+        placeholder="増える金額を入力"
+      />
     </div>
 
-    <div class="row">
-      <label class="form-label">減る科目</label>
-      <select v-model="localForm.kamoku2" class="select-field">
-        <option 
+    <!-- 減る科目 -->
+    <div class="row form-row">
+      <label for="transfer-out-account" class="form-label field-label">
+        <Wallet />
+        <span>減る科目</span>
+      </label>
+      <select
+        id="transfer-out-account"
+        v-model="localForm.kamoku2"
+        class="select-field"
+      >
+        <option value="" disabled>減る口座を選択</option>
+        <option
           v-for="item in props.listKouza"
           :key="item.code"
           :value="String(item.code)"
@@ -39,215 +77,243 @@
       </select>
     </div>
 
-    <div class="row">
-      <label class="form-label">金額マイナス</label>
-      <input type="number" v-model="localForm.kingaku2" class="input-field input-number"
- />
+    <!-- 金額マイナス -->
+    <div class="row form-row">
+      <label for="transfer-out-amount" class="form-label field-label">
+        <TrendingDown />
+        <span>金額マイナス</span>
+      </label>
+      <input
+        id="transfer-out-amount"
+        type="number"
+        inputmode="numeric"
+        v-model="localForm.kingaku2"
+        class="input-field input-number"
+        placeholder="減る金額を入力"
+      />
     </div>
 
-    <div class="row">
-      <label class="form-label">相手</label>
-      <input type="text" v-model="localForm.aite" list="shopList" class="input-field"
- />
-      <datalist id="shopList">
+    <!-- 相手 -->
+    <div class="row form-row">
+      <label for="transfer-shop" class="form-label field-label">
+        <Store />
+        <span>相手</span>
+      </label>
+      <input
+        id="transfer-shop"
+        type="text"
+        v-model="localForm.aite"
+        list="transferShopList"
+        class="input-field"
+        placeholder="振込先・相手を入力"
+      />
+      <datalist id="transferShopList">
         <option v-for="s in shops" :key="s" :value="s" />
       </datalist>
     </div>
 
-    <div class="row">
-      <label class="form-label">内容</label>
-      <input type="text" v-model="localForm.naiyo" class="input-field"
-/>
+    <!-- 内容 -->
+    <div class="row form-row">
+      <label for="transfer-description" class="form-label field-label">
+        <NotebookPen />
+        <span>内容</span>
+      </label>
+      <input
+        id="transfer-description"
+        type="text"
+        v-model="localForm.naiyo"
+        class="input-field"
+        placeholder="資金移動の内容・メモを入力"
+      />
     </div>
 
-    <div class="row">
-      <label class="form-label">支払い確認</label>
+    <!-- 支払い確認 -->
+    <div class="row form-row">
+      <label class="form-label field-label">
+        <ClipboardCheck />
+        <span>移動確認</span>
+      </label>
       <div class="radio-group">
-      <label>
-        <input type="radio" value="true" v-model="localForm.kakunin">
-        支払い確認済み
-      </label>
-      <label>
-        <input type="radio" value="false" v-model="localForm.kakunin">
-        支払い未確認
-      </label>
+        <label>
+          <input
+            type="radio"
+            value="true"
+            v-model="localForm.kakunin"
+          />
+          移動確認済み
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="false"
+            v-model="localForm.kakunin"
+          />
+          移動未確認
+        </label>
       </div>
     </div>
+
     <!-- ローディング -->
     <div class="loading-area">
       <LoadingIcon :show="isLoading" />
     </div>
-    <LoadingIcon :show="globalLoading" v-show="globalLoading"/>
-    <!-- ボタン（追加 or 修正） -->
-    <button class="btn-lg btn" type="submit" :disabled="isLoading">
-      {{ props.mode === 'edit' ? '修正' : '追加' }}
-    </button>
 
-    <!-- 削除ボタン（修正モードのみ） -->
-    <button 
-      class="btn-lg btn-red"
-      v-if="props.mode === 'edit'"  
-      type="button":disabled="isLoading"
-      @click="emit('delete', localForm.value.id)"
-    >
-      削除
-    </button>
+    <LoadingIcon :show="globalLoading" v-show="globalLoading" />
+
+    <!-- 追加 or 修正 -->
+    <div class="form-actions">
+      <button class="btn-lg btn" type="submit" :disabled="isLoading">
+        {{ props.mode === 'edit' ? '修正' : '追加' }}
+      </button>
+
+      <button
+        class="btn-lg btn-red"
+        v-if="props.mode === 'edit'"
+        type="button"
+        :disabled="isLoading"
+        @click="emit('delete', localForm.id)"
+      >
+        削除
+      </button>
+    </div>
+
   </form>
 </template>
 
 <script setup>
-import { ref, computed, watch ,onMounted} from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import {
+  CalendarDays,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Store,
+  NotebookPen,
+  ClipboardCheck
+} from 'lucide-vue-next'
 import LoadingIcon from './LoadingIcon.vue'
 import loadingStore from "@/stores/loadingStore"
 
-  const props = defineProps({
-    listKouza: { type: Array, default: () => [] },
-    listCodeShops: { type: Array, default: () => [] },
-    mode: { type: String, default: "add" },
-    form: { type: Object, default: null }
-  })
+const props = defineProps({
+  listKouza: { type: Array, default: () => [] },
+  listCodeShops: { type: Array, default: () => [] },
+  mode: { type: String, default: "add" },
+  form: { type: Object, default: null }
+})
 
-  const emit = defineEmits(["submit", "delete"])
-  // ---------------------------
-  // 初期値（追加 or 修正）
-  // ---------------------------
-  const today = new Date().toISOString().slice(0, 10)
-  console.log("propsData:",props.form)                      //振替
-  const localForm = ref({
-    rowNo: props.form?.rowNo || "",
-    id: props.form?.id || "",
-    mode:props.form?.mode || "add",
-    type:"transfer",
-    date: props.form?.date || today,
-    kamoku1: props.form?.kamoku1 || 700,
-    kamoku2: props.form?.kamoku2 || 700,
-    kingaku1: props.form?.kingaku1,
-    kingaku2: props.form?.kingaku2,
-    aite: props.form?.aite || "",
-    naiyo: props.form?.naiyo || "",
-    kakunin: props.form?.kakunin || "false"
-  })
+const emit = defineEmits(["submit", "delete"])
 
-  // ---------------------------
-  // 相手の店リスト
-  // ---------------------------
-  const shops = computed(() => {
-    if (!props.listCodeShops?.length) return []
+// 初期値
+const today = new Date().toISOString().slice(0, 10)
 
-    if (!localForm.value.kamoku1) {
-      return props.listCodeShops.flatMap(i => i.shops)
-    }
+console.log("propsData:", props.form)
 
-    const item = props.listCodeShops.find(i => i.code === localForm.value.kamoku1)
-    return item?.shops || []
-  })
+const localForm = ref({
+  rowNo: props.form?.rowNo || "",
+  id: props.form?.id || "",
+  mode: props.form?.mode || "add",
+  type: "transfer",
+  date: props.form?.date || today,
+  kamoku1: props.form?.kamoku1 || 700,
+  kamoku2: props.form?.kamoku2 || 700,
+  kingaku1: props.form?.kingaku1,
+  kingaku2: props.form?.kingaku2,
+  aite: props.form?.aite || "",
+  naiyo: props.form?.naiyo || "",
+  kakunin: props.form?.kakunin || "false"
+})
 
-  // ---------------------------
-  // 金額の自動反転（無限ループ防止）
-  // ---------------------------
-  let updating = false
+// 相手の店リスト
+const shops = computed(() => {
+  if (!props.listCodeShops?.length) return []
 
-  watch(() => localForm.value.kingaku1, (val) => {
-    if (updating) return
-    updating = true
-    localForm.value.kingaku2 = val ? -val: ""
-    updating = false
-  })
+  if (!localForm.value.kamoku1) {
+    return props.listCodeShops.flatMap(i => i.shops)
+  }
 
-  watch(() => localForm.value.kingaku2, (val) => {
-    if (updating) return
-    updating = true
-    localForm.value.kingaku1 = val ? -val: ""
-    updating = false
-  })
+  const item = props.listCodeShops.find(
+    i => i.code === localForm.value.kamoku1
+  )
+
+  return item?.shops || []
+})
+
+// 金額の自動反転
+let updating = false
+
+watch(() => localForm.value.kingaku1, (val) => {
+  if (updating) return
+
+  updating = true
+  localForm.value.kingaku2 = val ? -val : ""
+  updating = false
+})
+
+watch(() => localForm.value.kingaku2, (val) => {
+  if (updating) return
+
+  updating = true
+  localForm.value.kingaku1 = val ? -val : ""
+  updating = false
+})
+
+const globalLoading = loadingStore.globalLoading
 
 onMounted(() => {
   requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    // ここでローディングを消す（長めにしたいなら調整）
-    setTimeout(() => {
-      loadingStore.globalLoading.value = false
-    }, 500) // ← ここを好きな時間にできる
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        loadingStore.globalLoading.value = false
+      }, 500)
     })
   })
 })
-const isLoading=ref(false)
-// ---------------------------
-// 送信（追加 or 修正）
-// ---------------------------
+
+const isLoading = ref(false)
+
+// 送信
 const submitForm = async () => {
-    isLoading.value = true
-    console.log("localForm:",localForm.value)   
+  isLoading.value = true
+  console.log("localForm:", localForm.value)
+
   try {
     emit("submit", { ...localForm.value })
   } finally {
+    isLoading.value = false
   }
 }
-
-
 </script>
 
 <style scoped>
-.radio-group {
-  display: flex;
+.field-label {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
-/* ラジオボタン：中央に●を表示 */
-input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  margin: 0;
-  border: 1px solid var(--color-text);
-  border-radius: 50%;
-  background-color: white;
-  display: inline-grid;
-  place-content: center;
-  cursor: pointer;
+.field-label svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: var(--color-coffee);
+  stroke-width: 2;
 }
 
-/* 選択時に中央へ大きな●を表示 */
-input[type="radio"]::before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background-color: var(--color-text);
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
+.form-row > .input-field,
+.form-row > .select-field {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-input[type="radio"]:checked::before {
-  transform: scale(1);
-}
-
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-}
-
-input[type="radio"]:checked {
-  border: 1px solid var(--color-text);
-  background: transparent;
-}
-
-input[type="radio"]:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-}
-
-/*@media (max-width: 400px) {
-  .row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+@media (max-width: 420px) {
+  .field-label {
+    align-self: flex-start;
   }
-}*/
+
+  .form-row > .input-field,
+  .form-row > .select-field {
+    width: 100%;
+    flex: 0 1 auto;
+  }
+}
 </style>
-
-

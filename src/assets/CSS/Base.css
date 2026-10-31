@@ -92,10 +92,10 @@ body {
   overflow-wrap: anywhere;
 }
 
-button, input, select, textarea { font: inherit; }
-button { color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button:disabled { cursor: not-allowed; opacity: .52; }
-input, select, textarea, button { accent-color: var(--color-coffee); }
+.btn,button, input, select, textarea { font: inherit; }
+.btn,button { color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.btn:disabled,button:disabled { cursor: not-allowed; opacity: .52; }
+.btn,input, select, textarea, button { accent-color: var(--color-coffee); }
 img, svg, canvas { max-width: 100%; }
 #app, .app { width: 100%; min-width: 0; }
 h1, h2, h3, p { overflow-wrap: anywhere; }

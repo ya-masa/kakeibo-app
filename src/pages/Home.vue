@@ -4,7 +4,7 @@
 
     <header class="home-header">
       <div class="home-title-area">
-        <span class="home-title-icon">⌂</span>
+        <span class="home-title-icon"><House :size="30" :stroke-width="2.8" /></span>
         <div>
           <h1>ホーム</h1>
           <p>家計の状況</p>
@@ -83,7 +83,7 @@
           @keydown.space.prevent="goUnchecked"
         >
           <span class="summary-icon unchecked-icon"><ClipboardList /></span>
-          <div class="summary-card-content">
+          <div class="summary-card-content unchecked-content">
             <span class="summary-title">未確認データ</span>
             <span class="summary-number amount">
               {{ uncheckedCount }}件
@@ -102,19 +102,21 @@
           @keydown.space.prevent="goTodayExpense"
         >
           <span class="summary-icon today-icon"><CalendarDays  /></span>
-          <div class="summary-card-content">
-            <span class="today-date">
-              {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
-            </span>
+          <div class="summary-card-content today-content">
+            <div class="today-topline">
+              <span class="today-date">
+                {{ now.getMonth() + 1 }}月{{ now.getDate() }}日
+              </span>
+              <span
+                class="summary-number amount amount-primary"
+                :class="{ 'amount-negative': todayExpenseTotal < 0 }"
+              >
+                {{ todayExpenseTotal.toLocaleString() }}円
+              </span>
+              <span class="summary-arrow">›</span>
+            </div>
             <span class="summary-title">今日の支出</span>
-            <span
-              class="summary-number amount amount-primary"
-              :class="{ 'amount-negative': todayExpenseTotal < 0 }"
-            >
-              {{ todayExpenseTotal.toLocaleString() }}円
-            </span>
           </div>
-          <span class="summary-arrow">›</span>
         </section>
 
       </div>
@@ -316,7 +318,7 @@
   import PieChart from "@/components/PieChart.vue"
   import { useRouter } from "vue-router"
   import { getAccountIcon } from '@/components/accountIcons'
-  import { ClipboardList , CalendarDays  } from "lucide-vue-next";
+  import { House, ClipboardList, CalendarDays } from "lucide-vue-next";
 
   const chartColors = ref([])
 
@@ -758,9 +760,10 @@
     height: 44px;
     flex-shrink: 0;
     border-radius: var(--radius-md);
-    background: var(--color-yellow-soft);
+    background: transparent;
     color: var(--color-coffee);
-    font-size: 26px;
+    font-size: 30px;
+    font-weight: 800;
   }
 
   .home-header h1 {
@@ -832,14 +835,14 @@
   /* 未確認データ・今日の支出 */
   .home-summary-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
     align-items: stretch;
   }
 
   .home-summary-grid > .card {
     min-width: 0;
-    min-height: 112px;
+    min-height: 88px;
     margin-bottom: var(--space-4);
     padding: 12px;
     display: grid;
@@ -855,7 +858,7 @@
   }
 
   .home-summary-grid .unchecked-card {
-    background: var(--color-yellow-soft);
+    background: var(--color-surface);
   }
 
   .summary-icon {
@@ -873,9 +876,37 @@
   .summary-card-content {
     display: flex;
     min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .unchecked-content {
+    width: 100%;
+  }
+
+  .today-content {
+    grid-column: 2 / 4;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 3px;
+  }
+
+  .today-topline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .today-topline .today-date {
+    flex: 1 1 auto;
+  }
+
+  .today-topline .summary-number,
+  .today-topline .summary-arrow {
+    flex: 0 0 auto;
   }
 
   .summary-title {
