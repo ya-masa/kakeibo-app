@@ -164,7 +164,7 @@
         <button
           type="button"
           :disabled="!selectedFile || uploadingCsv"
-          class="btn-red"
+          class="btn"
           @click="importCsv"
         >
           {{ uploadingCsv ? "取り込み中…" : "CSVを取り込む" }}
