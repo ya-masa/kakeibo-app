@@ -371,6 +371,47 @@ try {
   transform: translateY(1px);
 }
 
+
+/* アイコン */
+
+.menu-icon {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-coffee);
+}
+
+.menu-icon svg {
+  flex-shrink: 0;
+}
+
+
+/* メニュー文字 */
+
+.menu-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.menu-title {
+  margin-bottom: 4px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.menu-description {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 /* アイコン＋タイトル＋説明 */
 .settings-heading {
   display: flex;
