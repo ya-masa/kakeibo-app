@@ -331,56 +331,85 @@ try {
   margin: 0px;
 }
 
-/*.tabs button {
-  min-width: 0;
-  min-height: 42px;
-  padding: 8px 4px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-surface, #f5e8d8);
-  color: var(--color-coffee, #6b4f3f);
-  font-size: 14px;
-  font-weight: 600;
+.settings-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.tabs button.active {
-  background: var(--color-coffee, #6b4f3f);
-  color: var(--color-white, #fff);
-  border-color: var(--color-coffee, #6b4f3f);
-}*/
 
-/* 大項目カード */
-/*
-.card {
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding: 14px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-lg, 12px);
-  background: var(--color-surface, #f5e8d8);
-  color: var(--color-coffee, #6b4f3f);
-  box-shadow: 0 1px 3px rgb(58 47 42 / 7%);
-}
+/* メニューカード */
 
-.card-header {
+.settings-menu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border, #c8a27e);
+  width: 100%;
+  min-width: 0;
+  min-height: 86px;
+  margin: 0;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color .16s ease,
+    border-color .16s ease,
+    transform .16s ease;
 }
 
-.card-header h3 {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  color: var(--color-brown-dark, #3a2f2a);
-  font-size: 17px;
-  font-weight: 700;
+.settings-menu-item:hover {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-strong);
 }
-*/
+
+.settings-menu-item:active {
+  transform: translateY(1px);
+}
+
+
+/* アイコン */
+
+.menu-icon {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-coffee);
+}
+
+.menu-icon svg {
+  flex-shrink: 0;
+}
+
+
+/* メニュー文字 */
+
+.menu-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.menu-title {
+  margin-bottom: 4px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.menu-description {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .category-icon {
   display: inline-flex;
   flex: 0 0 28px;

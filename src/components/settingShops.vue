@@ -181,28 +181,83 @@ function normalizeShops(shops) {
 </template>
 
 <style scoped>
-/* タイトル */
-
-.settings-title {
+.settings-menu {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.settings-title svg {
-  flex: 0 0 auto;
+
+/* メニューカード */
+
+.settings-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 86px;
+  margin: 0;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color .16s ease,
+    border-color .16s ease,
+    transform .16s ease;
+}
+
+.settings-menu-item:hover {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-strong);
+}
+
+.settings-menu-item:active {
+  transform: translateY(1px);
+}
+
+
+/* アイコン */
+
+.menu-icon {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
   color: var(--color-coffee);
 }
 
+.menu-icon svg {
+  flex-shrink: 0;
+}
 
-/* 説明 */
 
-.settings-description {
-  margin: 0 0 var(--space-5);
+/* メニュー文字 */
+
+.menu-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.menu-title {
+  margin-bottom: 4px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.menu-description {
   color: var(--color-muted);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 /* 大項目カード */
