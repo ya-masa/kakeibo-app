@@ -204,68 +204,65 @@
         CSV明細と家計簿の取引が正しい組み合わせか確認してください。
       </p>
 
-      <div class="card confirm-comparison">
-        <article class="card confirm-card">
-          <h3>CSV明細</h3>
+      <div class="confirm-comparison">
+        <article class="comparison-source">
+          <div class="comparison-source-heading">
+            <h3>CSV明細</h3>
+            <strong class="comparison-source-name">
+              {{ selectedCandidate.statement.place || "利用先不明" }}
+            </strong>
+          </div>
 
-          <p>
-            <strong>利用先：</strong>
-            {{ selectedCandidate.statement.place || "利用先不明" }}
-          </p>
+          <div class="comparison-values">
+            <div class="comparison-value">
+              <span>利用日</span>
+              <strong>{{ selectedCandidate.statement.date }}</strong>
+            </div>
+            <div class="comparison-value">
+              <span>利用金額</span>
+              <strong>{{ formatYen(selectedCandidate.statement.amount) }}</strong>
+            </div>
+          </div>
 
-          <p>
-            <strong>利用日：</strong>
-            {{ selectedCandidate.statement.date }}
-          </p>
-
-          <p>
-            <strong>利用金額：</strong>
-            {{ formatAmount(selectedCandidate.statement.amount) }}
-          </p>
-
-          <p>
-            <strong>支払金額：</strong>
-            {{ formatAmount(selectedCandidate.statement.paymentAmount) }}
-          </p>
-
-          <p v-if="selectedCandidate.statement.content">
-            <strong>利用内容：</strong>
-            {{ selectedCandidate.statement.content }}
-          </p>
-
-          <p>
-            <strong>支払区分：</strong>
-            {{ selectedCandidate.statement.paymentType || "未設定" }}
-          </p>
+          <div class="comparison-extra">
+            <p>
+              <span>支払金額</span>
+              <strong>{{ formatYen(selectedCandidate.statement.paymentAmount) }}</strong>
+            </p>
+            <p v-if="selectedCandidate.statement.content">
+              <span>利用内容</span>
+              <strong>{{ selectedCandidate.statement.content }}</strong>
+            </p>
+            <p>
+              <span>支払区分</span>
+              <strong>{{ selectedCandidate.statement.paymentType || "未設定" }}</strong>
+            </p>
+          </div>
         </article>
 
-        <article class="card confirm-card">
-          <h3>家計簿の取引</h3>
+        <article class="comparison-source">
+          <div class="comparison-source-heading">
+            <h3>家計簿の取引</h3>
+            <strong class="comparison-source-name">
+              {{ selectedCandidate.candidate.shop || selectedCandidate.candidate.content || "店名なし" }}
+            </strong>
+          </div>
 
-          <p>
-            <strong>店：</strong>
-            {{ selectedCandidate.candidate.shop || "店名なし" }}
-          </p>
+          <div class="comparison-values">
+            <div class="comparison-value">
+              <span>登録日</span>
+              <strong>{{ selectedCandidate.candidate.date }}</strong>
+            </div>
+            <div class="comparison-value">
+              <span>登録金額</span>
+              <strong>{{ formatYen(selectedCandidate.candidate.amount) }}</strong>
+            </div>
+          </div>
 
-          <p>
-            <strong>日付：</strong>
-            {{ selectedCandidate.candidate.date }}
-          </p>
-
-          <p>
-            <strong>金額：</strong>
-            {{ formatAmount(selectedCandidate.candidate.amount) }}
-          </p>
-
-          <p>
-            <strong>家計簿固有ID：</strong>
-            {{ selectedCandidate.candidate.id }}
-          </p>
-
-          <p>
-            <strong>日付差：</strong>
-            {{ selectedCandidate.candidate.dateDifference }}日
-          </p>
+          <div class="comparison-difference">
+            <span>日付差</span>
+            <strong>{{ selectedCandidate.candidate.dateDifference }}日</strong>
+          </div>
         </article>
       </div>
 
@@ -346,68 +343,103 @@
           :key="item.statementId"
           class="card candidate-card"
         >
+          <!-- CSV明細 -->
           <div class="candidate-heading">
-            <span class="card candidate-status">{{ item.status }}</span>
+            <span class="candidate-status">{{ item.status }}</span>
           </div>
-          <strong>{{ item.place || "利用先不明" }}</strong>
-          <p>
-            利用日：{{ item.date }}
-          </p>
 
-          <p>
-            利用金額：{{ formatAmount(item.amount) }}
-          </p>
+          <div class="comparison-source candidate-statement-source">
+            <div class="comparison-source-heading">
+              <h3>CSV明細</h3>
+              <strong class="comparison-source-name">
+                {{ item.place || "利用先不明" }}
+              </strong>
+            </div>
 
-          <p>
-            支払金額：{{ formatAmount(item.paymentAmount) }}
-          </p>
+            <div class="comparison-values">
+              <div class="comparison-value">
+                <span>利用日</span>
+                <strong>{{ item.date }}</strong>
+              </div>
+              <div class="comparison-value">
+                <span>利用金額</span>
+                <strong>{{ formatYen(item.amount) }}</strong>
+              </div>
+            </div>
 
-          <p v-if="item.content">
-            利用内容：{{ item.content }}
-          </p>
+            <div v-if="item.paymentAmount != null" class="comparison-extra">
+              <p>
+                <span>支払金額</span>
+                <strong>{{ formatYen(item.paymentAmount) }}</strong>
+              </p>
+            </div>
+          </div>
 
-          <div v-if="item.candidates?.length">
-            <h3>家計簿側の候補</h3>
+          <div class="candidate-divider"></div>
 
+          <!-- 家計簿側の候補 -->
+          <div v-if="item.candidates?.length" class="ledger-candidate-list">
             <div
               v-for="candidate in item.candidates"
               :key="`${item.statementId}-${candidate.rowNo}`"
-              class="card ledger-candidate"
+              class="ledger-candidate"
             >
-              <p>
-                {{ candidate.date }} ／
-                {{ candidate.shop || candidate.content || "店名なし" }}
-              </p>
+              <div class="comparison-source ledger-comparison-source">
+                <div class="comparison-source-heading">
+                  <h3>家計簿の取引</h3>
+                  <div class="ledger-candidate-title-row">
+                    <strong class="comparison-source-name">
+                      {{ candidate.shop || candidate.content || "店名なし" }}
+                    </strong>
+                    <button
+                      type="button"
+                      class="candidate-edit-link"
+                      @click="goToEditFromCandidate(candidate)"
+                    >
+                      修正へ ＞
+                    </button>
+                  </div>
+                </div>
 
-              <p>
-                金額：{{ formatAmount(candidate.amount) }}
-              </p>
+                <div class="comparison-values">
+                  <div class="comparison-value">
+                    <span>登録日</span>
+                    <strong>{{ candidate.date }}</strong>
+                  </div>
+                  <div class="comparison-value">
+                    <span>登録金額</span>
+                    <strong>{{ formatYen(candidate.amount) }}</strong>
+                  </div>
+                </div>
 
-              <p>
-                日付差：{{ candidate.dateDifference }}日
-              </p>
+                <div class="comparison-difference">
+                  <span>日付差</span>
+                  <strong>{{ candidate.dateDifference }}日</strong>
+                </div>
+              </div>
 
-              <p>
-                家計簿ID：{{ candidate.id }}
-              </p>
               <button
-                type="button" class="btn"
+                type="button"
+                class="btn ledger-match-button"
                 @click="selectEposCandidate(item, candidate)"
               >
                 この取引と照合
               </button>
             </div>
           </div>
+
+          <div v-else class="candidate-no-match">
+            対応する家計簿データの候補は見つかりませんでした。
+          </div>
+
           <button
             v-if="item.status === '未対応'"
-            type="button" class="cancel-btn"
+            type="button"
+            class="cancel-btn candidate-add-button"
             @click="goToAddFromStatement(item)"
           >
             家計簿に入力
           </button>
-          <p v-else>
-            対応する家計簿データの候補は見つかりませんでした。
-          </p>
         </article>
       </template>
     </section>
@@ -520,39 +552,37 @@
             確認日時：{{ item.checkedAt }}
           </p>
 
-          <!-- 一致確認 -->
-          <label class="manual-check-label">
-            <input
-              type="checkbox"
-              :checked="
-                pendingManualChecks[String(item.id)]
-                ?? (item.status === '照合済み')
-              "
+          <!-- 既に照合済みの仕訳には操作欄を表示しない -->
+          <template v-if="item.status !== '照合済み'">
+            <label class="manual-check-label">
+              <input
+                type="checkbox"
+                :checked="pendingManualChecks[String(item.id)] ?? false"
+                :disabled="
+                  !!item.pairError || confirmingManualReconciliation
+                "
+                @change="onManualCheckChange($event, item)"
+              />
+              一致確認
+            </label>
+
+            <!-- チェックを入れた場合だけ登録ボタンを表示 -->
+            <button
+              v-if="pendingManualChecks[String(item.id)] === true"
+              type="button"
               :disabled="
                 !!item.pairError || confirmingManualReconciliation
               "
-              @change="onManualCheckChange($event, item)"
-            />
-            一致確認
-          </label>
-
-          <button
-            :disabled="
-              !!item.pairError ||
-              confirmingManualReconciliation ||
-              pendingManualChecks[String(item.id)] === undefined
-            "
-            @click="confirmManualReconciliation(item)"
-            class="btn-red"
-          >
-            {{
-              confirmingManualReconciliation
-                ? "登録中…"
-                : pendingManualChecks[String(item.id)]
-                  ? "一致確認を登録"
-                  : "照合解除"
-            }}
-          </button>
+              @click="confirmManualReconciliation(item)"
+              class="btn-red"
+            >
+              {{
+                confirmingManualReconciliation
+                  ? "登録中…"
+                  : "一致確認を登録"
+              }}
+            </button>
+          </template>
         </article>
       </div>
     </section>
@@ -601,7 +631,7 @@
               <th>照合結果</th>
               <th>確認日時</th>
               <th>固有ID</th>
-              <th>操作</th>
+              <th v-if="reconciliationMode !== 'manual'">操作</th>
             </tr>
           </thead>
 
@@ -638,7 +668,7 @@
               <td>{{ item.checkedAt || "—" }}</td>
 
               <td class="id-cell">{{ item.id }}</td>
-              <td>
+              <td v-if="reconciliationMode !== 'manual'">
                 <button
                   v-if="item.status === '照合済み'"
                   type="button" class="btn-red"
@@ -734,6 +764,17 @@
       query: {
         rowNo: item.rowNo,
         id: item.id,
+        jump: "reconciliation"
+      }
+    })
+  }
+
+  // CSV照合候補から家計簿の修正画面へ移動する
+  const goToEditFromCandidate = (candidate) => {
+    router.push({
+      name: "edit",
+      query: {
+        id: candidate.id,
         jump: "reconciliation"
       }
     })
@@ -924,6 +965,13 @@
       currency: "JPY",
       maximumFractionDigits: 0
     }).format(Number(amount) || 0);
+  }
+
+  // 照合候補カード用：円表記
+  function formatYen(amount) {
+    return `${new Intl.NumberFormat("ja-JP", {
+      maximumFractionDigits: 0
+    }).format(Number(amount) || 0)}円`;
   }
 
   function amountClass(amount) {
@@ -2025,7 +2073,7 @@ const manualReviewIds = computed(() => {
 .file-name { color: var(--color-coffee); }
 .help-text { line-height: 1.6; }
 
-/* CSV照合候補 */
+/* CSV照合候補：検索画面のカードに合わせた縦並び */
 .reconciliation-candidates {
   display: flex;
   flex-direction: column;
@@ -2054,6 +2102,9 @@ const manualReviewIds = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  width: 100%;
+  max-width: var(--content-width);
+  align-self: center;
   margin: 0;
   padding: var(--space-3);
   border: 1px solid var(--color-border);
@@ -2065,7 +2116,6 @@ const manualReviewIds = computed(() => {
 .candidate-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
 }
 
@@ -2082,32 +2132,214 @@ const manualReviewIds = computed(() => {
   font-weight: 700;
 }
 
-.candidate-card > strong {
+.statement-place {
   color: var(--color-coffee-dark);
   font-size: 15px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
-.candidate-card p,
-.ledger-candidate p {
-  margin: 0;
+
+
+.candidate-divider {
+  width: 100%;
+  height: 1px;
+  margin: var(--space-2) 0;
+  background: var(--color-border-strong);
+}
+
+.ledger-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .reconciliation-page .ledger-candidate {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  margin: var(--space-2) 0 0;
+  margin: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  box-shadow: none;
+}
+
+.reconciliation-page .ledger-candidate:last-child {
+  border-bottom: 0;
+}
+
+.ledger-candidate-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ledger-candidate-date {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-separator {
+  color: var(--color-muted);
+}
+
+.ledger-candidate-shop {
+  min-width: 0;
+  color: var(--color-coffee-dark);
+  overflow-wrap: anywhere;
+}
+
+.candidate-edit-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 3px 0 3px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-coffee);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ledger-candidate-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ledger-candidate-title-row .candidate-edit-link {
+  margin-left: 0;
+}
+
+.ledger-match-button,
+.candidate-add-button {
+  align-self: flex-start;
+  margin: var(--space-1) 0 0;
+}
+
+.candidate-no-match {
+  padding: var(--space-2) 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* CSV側・家計簿側の比較共通レイアウト */
+.comparison-source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-soft);
-  box-shadow: none;
 }
 
-.ledger-candidate .btn,
-.candidate-card > .cancel-btn {
-  align-self: flex-start;
-  margin: var(--space-1) 0 0;
+.comparison-source-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.comparison-source-heading h3 {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.comparison-source-name {
+  min-width: 0;
+  color: var(--color-coffee-dark);
+  font-size: 14px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+/* 日付どうし・金額どうしを同じ列に配置 */
+.comparison-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.comparison-value {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 60px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.comparison-value span,
+.comparison-extra span,
+.comparison-difference span {
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.comparison-value strong {
+  min-width: 0;
+  color: var(--color-coffee-dark);
+  font-size: 15px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.comparison-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+}
+
+.comparison-extra p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 12px;
+}
+
+.comparison-extra strong {
+  color: var(--color-coffee-dark);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.comparison-difference {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+.comparison-difference strong {
+  color: var(--color-coffee-dark);
+  font-size: 13px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 照合確定前の比較 */
@@ -2116,31 +2348,10 @@ const manualReviewIds = computed(() => {
 }
 
 .reconciliation-page .confirm-comparison {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.reconciliation-page .confirm-card {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
-  box-shadow: none;
-  overflow-wrap: anywhere;
-}
-
-.confirm-card p {
-  margin: 7px 0;
-  color: var(--color-text);
-}
-
-.confirm-card strong {
-  color: var(--color-coffee-dark);
+  min-width: 0;
 }
 
 .confirm-warning {
@@ -2460,10 +2671,6 @@ tbody tr.ledger-row-excluded { color: var(--color-muted); background: #F5F2ED; }
 
   .summary-card strong {
     font-size: 24px;
-  }
-
-  .confirm-comparison {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .confirm-actions {
