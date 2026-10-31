@@ -493,50 +493,32 @@ const updateCheck = async (id) => {
 
   isLoading.value = true
   console.log("id="+id);
+
   try {
+    const payload = new URLSearchParams()
+    payload.append("mode", "updateCheck")
+    payload.append("id", id)
 
     const res = await fetch(GAS_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        mode: "updateCheck",
-        id: String(id),
-      }),
+      body: payload
     })
-
-    if (!res.ok) {
-      throw new Error(`HTTPエラー: ${res.status}`)
-    }
-
+    
     const result = await res.json()
 
-    console.log("更新結果:", result)
-
-    if (result.success === false) {
-      throw new Error(
-        result.message || "更新に失敗しました"
-      )
-    }
-
-    alert("チェック済みに更新しました")
-
-    selectedCheckId.value = null
-
-    await fetchList()
+    alert(result.message)
+    console.log(result.message)
+    router.push(
+      jump === "reconciliation"
+        ? "/reconciliation"
+        : "/list"
+    )
 
   } catch (e) {
-
-    console.error("更新エラー", e)
-    alert("更新に失敗しました")
-
+    alert("修正に失敗しました" + e.message)
   } finally {
-
     isLoading.value = false
-
   }
-
 }
 
 
