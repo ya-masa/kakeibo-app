@@ -2056,15 +2056,15 @@ const manualReviewIds = computed(() => {
   min-height: 46px;
   padding: 10px 20px;
   border-radius: 10px;
-  background: #D9A900;
-  color: #3F3010;
+  background: var(--color-yellow);
+  color: var(--color-coffee-dark);
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
 }
 
 .csv-select-button:hover {
-  background: #C39400;
+  background: var(--color-yellow-soft);
 }
 
 .csv-select-button:active {
@@ -2072,7 +2072,7 @@ const manualReviewIds = computed(() => {
 }
 
 .csv-file-input:focus-visible + .csv-select-button {
-  outline: 3px solid #F5CF58;
+  outline: 3px solid var(--color-yellow-soft);
   outline-offset: 3px;
 }
 
