@@ -145,26 +145,33 @@
       </div>
 
       <div class="csv-row">
-        <input
-          ref="csvInput"
-          type="file"
-          accept=".csv,text/csv"
-          class="btn-be"
-          @change="onCsvSelected"
-        />
+        <div class="csv-file-area">
+          <input
+            ref="csvInput"
+            id="csv-file-input"
+            type="file"
+            accept=".csv,text/csv"
+            class="csv-file-input"
+            @change="onCsvSelected"
+          />
 
-        <p v-if="selectedFile">
-          選択ファイル：{{ selectedFile.name }}
-        </p>
+          <label for="csv-file-input" class="csv-select-button">
+            <span>＋</span>
+            CSVファイルを選択
+          </label>
 
-        <p v-if="csvEncoding">
-          文字コード：{{ csvEncoding }}
-        </p>
+          <span v-if="selectedFile" class="csv-selected-name">
+            {{ selectedFile.name }}
+          </span>
+          <span v-else class="csv-selected-name">
+            ファイル未選択
+          </span>
+        </div>
 
         <button
           type="button"
           :disabled="!selectedFile || uploadingCsv"
-          class="btn"
+          class="btn-be btn-sm"
           @click="importCsv"
         >
           {{ uploadingCsv ? "取り込み中…" : "CSVを取り込む" }}
@@ -2032,16 +2039,47 @@ const manualReviewIds = computed(() => {
   width: 100%;
 }
 
-.csv-row input[type="file"] {
-  flex: 1 1 260px;
-  min-width: 0;
-  max-width: 100%;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-soft);
-  color: var(--color-text);
+/* CSVファイル選択 */
+.csv-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.csv-select-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #D9A900;
+  color: #3F3010;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.csv-select-button:hover {
+  background: #C39400;
+}
+
+.csv-select-button:active {
+  transform: translateY(1px);
+}
+
+.csv-file-input:focus-visible + .csv-select-button {
+  outline: 3px solid #F5CF58;
+  outline-offset: 3px;
+}
+
+.csv-selected-name {
   font-size: 13px;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
 }
 
 .csv-row > p,
