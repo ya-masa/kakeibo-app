@@ -123,7 +123,18 @@ function normalizeShops(shops) {
 
 <template>
   <div class="settings-wrapper">
-    <h1>お店の登録</h1>
+    <div class="menu-icon">
+      <Store :size="24" />
+    </div>
+
+    <div class="menu-text">
+      <div class="menu-title">
+        よく使うお店の設定
+      </div>
+      <div class="menu-description">
+        入力時に表示する店名や相手の候補を編集します。
+      </div>
+    </div>
 
     <!-- タブUI -->
     <div class="tabs">

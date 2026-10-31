@@ -188,7 +188,18 @@ try {
 
 <template>
   <div class="settings-wrapper">
-    <h1>お店の登録</h1>
+    <div class="menu-icon">
+      <Tags :size="24" />
+    </div>
+
+    <div class="menu-text">
+      <div class="menu-title">
+        口座・科目の設定
+      </div>
+      <div class="menu-description">
+        資産・負債・収入・支出の科目や小項目を編集します。
+      </div>
+    </div>
 
     <!-- 固定ヘッダー（保存ボタン） -->
     <div class="header-save">

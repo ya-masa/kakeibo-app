@@ -3,7 +3,18 @@
 
     <div class="card">
       <div class="item-area">
-        <h1>小項目の編集</h1>
+        <div class="menu-icon">
+          <CalendarClock :size="24" />
+        </div>
+
+        <div class="menu-text">
+          <div class="menu-title">
+            定期収支設定
+          </div>
+          <div class="menu-description">
+            毎月・指定月に発生する収入や支出を設定します。
+          </div>
+        </div>
 
         <div
           v-for="item in monthlyData"
