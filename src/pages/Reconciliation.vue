@@ -149,7 +149,7 @@
           ref="csvInput"
           type="file"
           accept=".csv,text/csv"
-          class="input-field"
+          class="btn-be"
           @change="onCsvSelected"
         />
 

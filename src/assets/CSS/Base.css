@@ -385,10 +385,15 @@ a { color: var(--color-coffee); }
 .btn { background: var(--color-beige); color: var(--color-coffee-dark); border-color: #EFD16D; }
 .btn:hover { background: var(--color-beige-hover); color: var(--color-coffee-dark); }
 .btn:active, .btn-red:active, .cancel-btn:active { transform: translateY(1px); }
+
 .btn-red { background: var(--color-accent); color: var(--color-white); border-color: var(--color-accent); }
 .btn-red:hover, .btn-red:active { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+
 .cancel-btn { background: var(--color-surface); color: var(--color-coffee); border-color: var(--color-border-strong); }
 .cancel-btn:hover, .cancel-btn:active { background: var(--color-surface-soft); }
+
+.btn-be{background: var(--color-beige); color: var(--color-coffee-dark); border-color: var(--color-border); }
+.btn-be:hover, .btn-be:active { background: var(--color-beige-hover); }
 
 .toggle-btn {
   display: inline-flex; align-items: center; justify-content: center;
