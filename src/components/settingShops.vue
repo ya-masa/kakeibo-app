@@ -124,16 +124,18 @@ function normalizeShops(shops) {
 
 <template>
   <div class="settings-wrapper">
-    <div class="menu-icon">
-      <Store :size="24" />
-    </div>
-
-    <div class="menu-text">
-      <div class="menu-title">
-        よく使うお店の設定
+    <div class="settings-heading">
+      <div class="menu-icon">
+        <Store :size="24" />
       </div>
-      <div class="menu-description">
-        入力時に表示する店名や相手の候補を編集します。
+
+      <div class="menu-text">
+        <div class="menu-title">
+          よく使うお店の設定
+        </div>
+        <div class="menu-description">
+          入力時に表示する店名や相手の候補を編集します。
+        </div>
       </div>
     </div>
 
@@ -220,32 +222,22 @@ function normalizeShops(shops) {
 }
 
 
-/* アイコン */
-
-.menu-icon {
+/* アイコン＋タイトル＋説明 */
+.settings-heading {
   display: flex;
-  flex: 0 0 46px;
   align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
-  color: var(--color-coffee);
-}
-
-.menu-icon svg {
-  flex-shrink: 0;
-}
-
-
-/* メニュー文字 */
-
-.menu-text {
-  flex: 1 1 auto;
+  gap: 12px;
+  width: 100%;
   min-width: 0;
 }
 
+/* 文字部分 */
+.menu-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* タイトル */
 .menu-title {
   margin-bottom: 4px;
   color: var(--color-text);
@@ -254,6 +246,7 @@ function normalizeShops(shops) {
   line-height: 1.4;
 }
 
+/* 説明 */
 .menu-description {
   color: var(--color-muted);
   font-size: 12px;

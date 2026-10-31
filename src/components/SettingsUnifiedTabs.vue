@@ -189,16 +189,18 @@ try {
 
 <template>
   <div class="settings-wrapper">
-    <div class="menu-icon">
-      <Tags :size="24" />
-    </div>
-
-    <div class="menu-text">
-      <div class="menu-title">
-        口座・科目の設定
+    <div class="settings-heading">
+      <div class="menu-icon">
+        <Tags :size="24" />
       </div>
-      <div class="menu-description">
-        資産・負債・収入・支出の科目や小項目を編集します。
+
+      <div class="menu-text">
+        <div class="menu-title">
+          口座・科目の設定
+        </div>
+        <div class="menu-description">
+          資産・負債・収入・支出の科目や小項目を編集します。
+        </div>
       </div>
     </div>
 
@@ -369,33 +371,22 @@ try {
   transform: translateY(1px);
 }
 
-
-/* アイコン */
-
-.menu-icon {
+/* アイコン＋タイトル＋説明 */
+.settings-heading {
   display: flex;
-  flex: 0 0 46px;
   align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
-  color: var(--color-coffee);
-}
-
-.menu-icon svg {
-  flex-shrink: 0;
-}
-
-
-/* メニュー文字 */
-
-.menu-text {
-  flex: 1 1 auto;
+  gap: 12px;
+  width: 100%;
   min-width: 0;
 }
 
+/* 文字部分 */
+.menu-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* タイトル */
 .menu-title {
   margin-bottom: 4px;
   color: var(--color-text);
@@ -404,6 +395,7 @@ try {
   line-height: 1.4;
 }
 
+/* 説明 */
 .menu-description {
   color: var(--color-muted);
   font-size: 12px;
@@ -456,47 +448,10 @@ try {
   font-variant-numeric: tabular-nums;
 }
 
-/*.item-input {
-  flex: 1 1 auto;
-  width: 0;
-  min-width: 0;
-  min-height: 40px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border, #c8a27e);
-  border-radius: var(--radius-sm, 6px);
-  background: var(--color-white, #fff);
-  color: var(--color-brown-dark, #3a2f2a);
-  font-size: 16px;
-}
-
-.item-input:focus {
-  outline: 2px solid rgb(244 114 112 / 35%);
-  outline-offset: 1px;
-  border-color: var(--color-accent, #f47270);
-}
-*/
 .item-input.disabled {
   background: var(--color-surface-strong);
   color: var(--color-muted);
 }
-
-/* 小項目追加ボタン */
-/*.card > .btn {
-  width: 100%;
-  min-height: 42px;
-  margin: 0;
-  padding: 9px 12px;
-  border: 1px solid var(--color-coffee, #6b4f3f);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-beige, #c8a27e);
-  color: var(--color-brown-dark, #3a2f2a);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.card > .btn:disabled {
-  opacity: 0.5;
-}*/
 
 @media (max-width: 360px) {
   .settings-wrapper {

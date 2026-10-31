@@ -1,18 +1,19 @@
 <template>
   <div class="settings-wrapper">
-
     <div class="card">
       <div class="item-area">
-        <div class="menu-icon">
-          <CalendarClock :size="24" />
-        </div>
-
-        <div class="menu-text">
-          <div class="menu-title">
-            定期収支設定
+        <div class="settings-heading">
+          <div class="menu-icon">
+            <CalendarClock :size="24" />
           </div>
-          <div class="menu-description">
-            毎月・指定月に発生する収入や支出を設定します。
+
+          <div class="menu-text">
+            <div class="menu-title">
+              定期収支設定
+            </div>
+            <div class="menu-description">
+              毎月・指定月に発生する収入や支出を設定します。
+            </div>
           </div>
         </div>
 
@@ -400,32 +401,22 @@ const update = async (item) => {
 }
 
 
-/* アイコン */
-
-.menu-icon {
+/* アイコン＋タイトル＋説明 */
+.settings-heading {
   display: flex;
-  flex: 0 0 46px;
   align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-soft);
-  color: var(--color-coffee);
-}
-
-.menu-icon svg {
-  flex-shrink: 0;
-}
-
-
-/* メニュー文字 */
-
-.menu-text {
-  flex: 1 1 auto;
+  gap: 12px;
+  width: 100%;
   min-width: 0;
 }
 
+/* 文字部分 */
+.menu-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* タイトル */
 .menu-title {
   margin-bottom: 4px;
   color: var(--color-text);
@@ -434,6 +425,7 @@ const update = async (item) => {
   line-height: 1.4;
 }
 
+/* 説明 */
 .menu-description {
   color: var(--color-muted);
   font-size: 12px;
