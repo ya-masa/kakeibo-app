@@ -122,7 +122,7 @@
           </div>
         </div>
       </div>
-      <button class="btn" @click="addNew">
+      <button class="btn monthly-add-btn" @click="addNew">
         新規追加
       </button>
     </div>
@@ -475,6 +475,12 @@ const update = async (item) => {
   flex-direction: column;
   width: 100%;
   gap: 10px;
+}
+
+.monthly-add-btn {
+  display: flex;
+  width: 100%;
+  margin: var(--space-4) 0 0;
 }
 
 .item-list {

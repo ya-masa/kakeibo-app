@@ -141,10 +141,10 @@ function normalizeShops(shops) {
 
     <!-- タブUI -->
     <div class="tabs">
-      <button class="button" :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
-      <button class="button" :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
-      <button class="button" :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
-      <button class="button" :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
+      <button class="tab-btn" :class="{ active: mode === 100 }" @click="mode = 100">資産</button>
+      <button class="tab-btn" :class="{ active: mode === 200 }" @click="mode = 200">負債</button>
+      <button class="tab-btn" :class="{ active: mode === 400 }" @click="mode = 400">収入</button>
+      <button class="tab-btn" :class="{ active: mode === 500 }" @click="mode = 500">支出</button>
     </div>
 
     <!-- カード表示（大項目ごと） -->
@@ -189,6 +189,9 @@ function normalizeShops(shops) {
   gap: var(--space-3);
 }
 
+.tabs {
+  margin-bottom: var(--space-3);
+}
 
 /* メニューカード */
 

@@ -443,6 +443,17 @@ try {
   line-height: 1.5;
 }
 
+.card-header {
+  justify-content: flex-start;
+}
+
+.card-header h3 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+}
+
 .category-icon {
   display: inline-flex;
   flex: 0 0 28px;
@@ -452,6 +463,7 @@ try {
 }
 
 .lock {
+  margin-left: auto;
   flex: 0 0 auto;
   opacity: 0.65;
   font-size: 14px;

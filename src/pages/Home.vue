@@ -835,7 +835,7 @@
   /* 未確認データ・今日の支出 */
   .home-summary-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     align-items: stretch;
   }
@@ -1145,6 +1145,7 @@
 
     /* 未確認・今日の支出 */
     .home-summary-grid {
+      grid-template-columns: minmax(0, 1fr);
       gap: 7px;
     }
 
