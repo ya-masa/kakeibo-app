@@ -492,7 +492,7 @@ const updateCheck = async (id) => {
   }
 
   isLoading.value = true
-
+  console.log("id="+id);
   try {
 
     const res = await fetch(GAS_URL, {
