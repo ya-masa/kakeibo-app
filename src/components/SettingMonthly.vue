@@ -137,6 +137,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { CirclePlus, CircleMinus } from 'lucide-vue-next'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
+import {CalendarClock } from "lucide-vue-next";
 
 const isInitializing = ref(true)
 const listAllKouza = ref([])
@@ -360,16 +361,30 @@ const update = async (item) => {
   color: var(--color-brown-dark, #4b382d);
 }
 
-/*.card {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 16px;
-  border: 1px solid var(--color-border, #e3d7cb);
-  border-radius: 14px;
-  background: var(--color-surface, #fffdf9);
-  box-shadow: 0 2px 8px rgb(75 56 45 / 5%);
+/* タイトル */
+
+.settings-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
-*/
+
+.settings-title svg {
+  flex: 0 0 auto;
+  color: var(--color-coffee);
+}
+
+
+/* 説明 */
+
+.settings-description {
+  margin: 0 0 var(--space-5);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .item-area {
   display: flex;
   flex-direction: column;
@@ -420,18 +435,6 @@ const update = async (item) => {
   font-weight: 600;
 }
 
-/*.toggle-btn {
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--color-border, #d9c8b8);
-  border-radius: 50%;
-  background: var(--color-beige, #eee2d4);
-  color: var(--color-coffee, #6b4f3f);
-  font-size: 21px;
-  line-height: 1;
-  cursor: pointer;
-}*/
 
 .form-label {
   display: block;
@@ -441,20 +444,6 @@ const update = async (item) => {
   font-weight: 600;
 }
 
-/*.input-field,
-.select-field,
-.textarea-field {
-  display: block;
-  width: 100%;
-  min-height: 42px;
-  padding: 9px 11px;
-  box-sizing: border-box;
-  border: 1px solid var(--color-border, #d9c8b8);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--color-brown-dark, #4b382d);
-  font: inherit;
-}
 
 .input-field:focus,
 .select-field:focus,
@@ -467,7 +456,7 @@ const update = async (item) => {
 .input-number {
   text-align: right;
 }
-*/
+
 .month-check {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -494,33 +483,6 @@ const update = async (item) => {
   accent-color: var(--color-coffee, #6b4f3f);
 }
 
-/*.btn,
-.btn-red {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  margin-top: 14px;
-  padding: 11px 16px;
-  border: 1px solid var(--color-coffee, #6b4f3f);
-  border-radius: 9px;
-  background: var(--color-coffee, #6b4f3f);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-red {
-  background: var(--color-beige, #eee2d4);
-  color: var(--color-brown-dark, #4b382d);
-  border-color: var(--color-border, #d9c8b8);
-}
-
-.btn:active,
-.btn-red:active,
-.toggle-btn:active {
-  transform: translateY(1px);
-}*/
 
 .monthly-transfer-label {
   display: flex;

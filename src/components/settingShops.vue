@@ -3,6 +3,7 @@
   import { GAS_URL } from '@/constants/index.js'
   import loadingStore from "@/stores/loadingStore"
   import { getAccountIcon } from '@/components/accountIcons'
+  import {Store} from "lucide-vue-next";
 
   /* GASから取得した生データ */
   const rawList = ref([])
@@ -180,44 +181,29 @@ function normalizeShops(shops) {
 </template>
 
 <style scoped>
-/*.settings-wrapper {
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 16px;
+/* タイトル */
+
+.settings-title {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-  box-sizing: border-box;
-  color: var(--color-brown-dark, #49372d);
-}*/
-
-/* 資産・負債・収入・支出タブ */
-/*.tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
-.tabs button {
-  min-width: 0;
-  padding: 10px 6px;
-  border: 1px solid var(--color-border, #d8c8b9);
-  border-radius: 10px;
-  background: var(--color-surface, #fffdf9);
-  color: var(--color-coffee, #6b4f3f);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+.settings-title svg {
+  flex: 0 0 auto;
+  color: var(--color-coffee);
 }
 
-.tabs button.active {
-  background: var(--color-coffee, #6b4f3f);
-  border-color: var(--color-coffee, #6b4f3f);
-  color: #fff;
-}*/
+
+/* 説明 */
+
+.settings-description {
+  margin: 0 0 var(--space-5);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
 
 /* 大項目カード */
 .card {

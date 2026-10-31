@@ -3,6 +3,7 @@ import { ref, computed, onMounted, methods } from 'vue'
 import { GAS_URL } from '@/constants/index.js'
 import loadingStore from "@/stores/loadingStore"
 import { getAccountIcon } from '@/components/accountIcons'
+import {Tags} from "lucide-vue-next";
 
 
 /* GASから取得した生データ */
@@ -276,6 +277,29 @@ try {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+/* タイトル */
+
+.settings-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.settings-title svg {
+  flex: 0 0 auto;
+  color: var(--color-coffee);
+}
+
+
+/* 説明 */
+
+.settings-description {
+  margin: 0 0 var(--space-5);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 /* 固定保存エリア */
